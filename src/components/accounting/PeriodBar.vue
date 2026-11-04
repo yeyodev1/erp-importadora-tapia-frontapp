@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseCombobox from '@/components/ui/BaseCombobox.vue'
 import { monthOptions } from '@/composables/accounting/useReport'
@@ -23,9 +23,7 @@ const months = monthOptions()
       </FormField>
       <slot />
       <div class="pb__submit">
-        <button type="submit" class="btn btn--primary" :disabled="loading">
-          <AppIcon :name="loading ? 'spinner' : 'search'" :spin="loading" /> {{ site.filters.apply }}
-        </button>
+        <BaseButton type="submit" variant="primary" icon="search" :loading="loading">{{ site.filters.apply }}</BaseButton>
       </div>
     </div>
   </form>
