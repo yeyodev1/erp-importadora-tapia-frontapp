@@ -26,9 +26,9 @@ const catalog = useCatalogStore()
 const showInactive = ref(false)
 const kind = ref<'' | 'banco' | 'caja'>('')
 const kindTabs = [
-  { value: '' as const, label: site.catalogs.parties.tabs.all },
-  { value: 'banco' as const, label: 'Bancos' },
-  { value: 'caja' as const, label: 'Cajas' },
+  { value: '' as const, label: t.kindTabs.all, help: t.kindHelp.all },
+  { value: 'banco' as const, label: t.kindTabs.banco, help: t.kindHelp.banco },
+  { value: 'caja' as const, label: t.kindTabs.caja, help: t.kindHelp.caja },
 ]
 
 const list = useList(
@@ -40,10 +40,10 @@ const columns: Column<BankAccount>[] = [
   { key: 'kind', label: t.fields.kind.label, value: (b) => t.kinds[b.kind], width: '6rem' },
   { key: 'name', label: t.fields.name.label },
   { key: 'bank', label: t.fields.bank.label },
-  { key: 'number', label: t.fields.number.label, value: (b) => [b.type && t.types[b.type], b.number].filter(Boolean).join(' ') },
+  { key: 'number', label: t.cols.number.label, help: t.cols.number.help, value: (b) => [b.type && t.types[b.type], b.number].filter(Boolean).join(' ') },
   { key: 'accountCode', label: t.fields.accountCode.label },
-  { key: 'nextCheck', label: t.fields.nextCheck.label, format: 'int', value: (b) => (b.kind === 'banco' ? b.nextCheck : null), width: '8rem' },
-  { key: 'isActive', label: 'Estado', value: (b) => (b.isActive ? site.common.active : site.common.inactive), width: '7rem' },
+  { key: 'nextCheck', label: t.cols.nextCheck.label, help: t.cols.nextCheck.help, format: 'int', value: (b) => (b.kind === 'banco' ? b.nextCheck : null), width: '8rem' },
+  { key: 'isActive', label: t.cols.status.label, help: t.cols.status.help, value: (b) => (b.isActive ? site.common.active : site.common.inactive), width: '7rem' },
 ]
 
 const editor = useEditor<FormOf<BankAccount>>({
@@ -62,7 +62,7 @@ const editor = useEditor<FormOf<BankAccount>>({
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.subtitle">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="editor.openNew()"><AppIcon name="plus" /> {{ t.add }}</button>
     </PageHeader>
 
@@ -75,6 +75,7 @@ const editor = useEditor<FormOf<BankAccount>>({
       :pages="list.pages"
       :total="list.total"
       :fetch-all="list.fetchAll"
+      :empty-message="t.empty"
       clickable
       @update:page="list.page = $event"
       @row-click="editor.openEdit($event._id, formOf($event))"
@@ -96,28 +97,28 @@ const editor = useEditor<FormOf<BankAccount>>({
           <BaseSegmented
             v-model="editor.form.kind"
             :label="t.fields.kind.label"
-            :options="[{ value: 'banco', label: t.kinds.banco }, { value: 'caja', label: t.kinds.caja }]"
+            :options="[{ value: 'banco', label: t.kinds.banco, help: t.kindHelp.banco }, { value: 'caja', label: t.kinds.caja, help: t.kindHelp.caja }]"
           />
         </FormField>
         <FormField v-bind="t.fields.name" for="ba-name" required full>
-          <input id="ba-name" v-model="editor.form.name" required />
+          <input id="ba-name" v-model="editor.form.name" required :placeholder="t.ph.name" />
         </FormField>
         <template v-if="editor.form.kind === 'banco'">
           <FormField v-bind="t.fields.bank" for="ba-bank">
-            <input id="ba-bank" v-model="editor.form.bank" />
+            <input id="ba-bank" v-model="editor.form.bank" :placeholder="t.ph.bank" />
           </FormField>
           <FormField v-bind="t.fields.type">
             <BaseSegmented
               v-model="editor.form.type"
               :label="t.fields.type.label"
-              :options="[{ value: 'corriente', label: t.types.corriente }, { value: 'ahorros', label: t.types.ahorros }]"
+              :options="[{ value: 'corriente', label: t.types.corriente, help: t.typeHelp.corriente }, { value: 'ahorros', label: t.types.ahorros, help: t.typeHelp.ahorros }]"
             />
           </FormField>
           <FormField v-bind="t.fields.number" for="ba-num">
-            <input id="ba-num" v-model="editor.form.number" inputmode="numeric" class="mono" />
+            <input id="ba-num" v-model="editor.form.number" inputmode="numeric" class="mono" :placeholder="t.ph.number" />
           </FormField>
           <FormField v-bind="t.fields.nextCheck" for="ba-check" class="narrow">
-            <input id="ba-check" v-model.number="editor.form.nextCheck" inputmode="numeric" class="num" />
+            <input id="ba-check" v-model.number="editor.form.nextCheck" inputmode="numeric" class="num" :placeholder="t.ph.nextCheck" />
           </FormField>
         </template>
         <FormField v-bind="t.fields.accountCode" for="ba-acc" required full>
