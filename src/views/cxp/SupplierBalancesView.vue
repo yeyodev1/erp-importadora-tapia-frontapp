@@ -36,9 +36,9 @@ const columns = [
   { key: 'name', label: 'Proveedor' },
   { key: 'invoices', label: 'Facturas', format: 'int' },
   { key: 'billed', label: 'Total facturado', format: 'money', total: true },
-  { key: 'paid', label: 'Total abonado', format: 'money', total: true },
-  { key: 'balance', label: 'Saldo', format: 'money', total: true },
-  { key: 'advances', label: 'Anticipos', format: 'money', total: true },
+  { key: 'paid', label: 'Total abonado', format: 'money', total: true, help: t.columns.paid },
+  { key: 'balance', label: 'Saldo', format: 'money', total: true, help: t.columns.balance },
+  { key: 'advances', label: 'Anticipos', format: 'money', total: true, help: t.columns.advances },
 ] satisfies Column[]
 
 function run(summary: string[]) {
@@ -49,13 +49,13 @@ function run(summary: string[]) {
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="cxp.pages.balances" />
     <ReportFilters v-model="filters" :fields="['party']" party-role="supplier" :loading="report.loading" @apply="run">
       <FormField v-bind="t.cutoff" for="sb-cutoff" class="narrow">
         <BaseDatePicker id="sb-cutoff" v-model="cutoff" />
       </FormField>
-      <FormField label="Facturas">
-        <BaseSegmented v-model="mode" :options="t.modes" label="Facturas" />
+      <FormField v-bind="t.invoicesField">
+        <BaseSegmented v-model="mode" :options="t.modes" :label="t.invoicesField.label" />
       </FormField>
       <BaseSwitch v-model="includeAdvances" :label="t.includeAdvances" />
     </ReportFilters>
@@ -68,6 +68,7 @@ function run(summary: string[]) {
       :totals="report.totals"
       :filters-text="report.summary"
       clickable
+      :empty-message="report.ran ? t.emptyBalances : t.prompt"
       @row-click="router.push({ name: 'SupplierStatement', query: { supplierId: $event.supplierId } })"
       @retry="report.run(report.summary)"
     />
