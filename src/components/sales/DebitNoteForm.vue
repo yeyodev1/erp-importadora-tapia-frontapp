@@ -20,7 +20,7 @@ const form = reactive({ partyId: '', invoiceId: '', date: todayISO(), reason: ''
 const saving = ref(false)
 const error = ref('')
 const f = t.fields
-const rates = [0, 5, 15].map((v) => ({ value: v, label: `${v} %` }))
+const rates = [0, 5, 15].map((v) => ({ value: v, label: `${v} %`, help: t.vatRateHelp[v] }))
 const totals = computed(() => saleTotals([{ qty: 1, unitPrice: form.amount, discount: 0, vatRate: form.vatRate }]))
 
 async function save() {
@@ -50,7 +50,7 @@ async function save() {
         <BaseDatePicker id="nd-date" v-model="form.date" />
       </FormField>
       <FormField v-bind="f.reason" for="nd-reason" required full>
-        <input id="nd-reason" v-model="form.reason" required maxlength="300" />
+        <input id="nd-reason" v-model="form.reason" required maxlength="300" :placeholder="t.placeholders.debitReason" />
       </FormField>
       <FormField v-bind="f.amount" for="nd-amount" required>
         <MoneyInput id="nd-amount" v-model="form.amount" />
