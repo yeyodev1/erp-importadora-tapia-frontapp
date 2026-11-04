@@ -24,6 +24,7 @@ const r = useReceiptForm(() => emit('saved'))
 const methods = Object.entries(cxc.methods).map(([value, label]) => ({
   value: value as ReceiptMethod,
   label,
+  help: cxc.methodHelp[value],
 }))
 const today = todayISO()
 
@@ -56,10 +57,16 @@ watch(
 
       <template v-if="r.isCheck.value">
         <FormField v-bind="t.fields.checkNumber" for="rc-chk" required class="narrow">
-          <input id="rc-chk" v-model="r.form.check.number" inputmode="numeric" class="mono" />
+          <input
+            id="rc-chk"
+            v-model="r.form.check.number"
+            inputmode="numeric"
+            class="mono"
+            :placeholder="t.placeholders.checkNumber"
+          />
         </FormField>
         <FormField v-bind="t.fields.checkBank" for="rc-chkbank" required>
-          <input id="rc-chkbank" v-model="r.form.check.bank" />
+          <input id="rc-chkbank" v-model="r.form.check.bank" :placeholder="t.placeholders.checkBank" />
         </FormField>
         <FormField v-bind="t.fields.checkDue" for="rc-due" required>
           <BaseDatePicker id="rc-due" v-model="r.form.check.dueDate" :range-start="r.form.date" />
@@ -70,7 +77,12 @@ watch(
           <BankAccountPicker id="rc-bank" v-model="r.form.bankAccountId" :kind="r.bankKind.value" />
         </FormField>
         <FormField v-bind="t.fields.reference" for="rc-ref">
-          <input id="rc-ref" v-model="r.form.reference" class="mono" />
+          <input
+            id="rc-ref"
+            v-model="r.form.reference"
+            class="mono"
+            :placeholder="t.placeholders.reference"
+          />
         </FormField>
       </template>
 
@@ -78,7 +90,7 @@ watch(
         <MoneyInput id="rc-amount" v-model="r.form.amount" />
       </FormField>
       <FormField v-bind="t.fields.notes" for="rc-notes" full>
-        <input id="rc-notes" v-model="r.form.notes" />
+        <input id="rc-notes" v-model="r.form.notes" :placeholder="t.placeholders.notes" />
       </FormField>
     </div>
 
@@ -94,6 +106,7 @@ watch(
           <AppIcon name="check" /> {{ t.oldest }}
         </button>
         <HelpTip :text="t.oldestHelp" />
+        <HelpTip :text="t.applyHelp" :label="t.invoices" />
       </div>
       <p v-if="!r.form.partyId" class="apps__empty">{{ t.pickParty }}</p>
       <p v-else-if="r.loadingInvoices.value" class="apps__empty"><AppIcon name="spinner" spin /></p>
