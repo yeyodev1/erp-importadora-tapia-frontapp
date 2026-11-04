@@ -8,7 +8,7 @@ export default defineModule('cxp', [
   {
     path: 'facturas',
     name: 'SupplierInvoices',
-    title: 'Facturas de proveedor',
+    title: 'Transacciones proveedores',
     section: 'procesos',
     component: () => import('@/views/cxp/SupplierInvoicesView.vue'),
     writers,
@@ -50,7 +50,7 @@ export default defineModule('cxp', [
   {
     path: 'aprobar-pagos',
     name: 'ApprovePayments',
-    title: 'Aprobar pagos',
+    title: 'Aprobar pagos CXP',
     section: 'procesos',
     component: () => import('@/views/cxp/ApprovePaymentsView.vue'),
     writers,
