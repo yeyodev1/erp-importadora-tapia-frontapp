@@ -62,19 +62,19 @@ async function createSupplier() {
         <BaseSegmented v-model="form.docType" :options="cxp.docTypes" :label="t.fields.docType.label" />
       </FormField>
       <FormField v-bind="t.fields.series" for="inv-series" required class="narrow">
-        <input id="inv-series" v-model="form.series" class="mono" inputmode="numeric" maxlength="7" placeholder="001-001" />
+        <input id="inv-series" v-model="form.series" class="mono" inputmode="numeric" maxlength="7" :placeholder="t.placeholders.series" />
       </FormField>
       <FormField v-bind="t.fields.number" for="inv-number" required class="narrow">
-        <input id="inv-number" v-model="form.number" class="mono" inputmode="numeric" maxlength="9" />
+        <input id="inv-number" v-model="form.number" class="mono" inputmode="numeric" maxlength="9" :placeholder="t.placeholders.number" />
       </FormField>
       <FormField v-bind="t.fields.date" for="inv-date" required class="narrow">
         <BaseDatePicker id="inv-date" v-model="form.date" />
       </FormField>
       <FormField v-bind="t.fields.creditDays" for="inv-days" class="narrow">
-        <input id="inv-days" v-model.number="form.creditDays" inputmode="numeric" class="num" />
+        <input id="inv-days" v-model.number="form.creditDays" inputmode="numeric" class="num" :placeholder="t.placeholders.creditDays" />
       </FormField>
       <FormField v-bind="t.fields.authorization" for="inv-auth" full>
-        <input id="inv-auth" v-model="form.authorization" class="mono" maxlength="49" />
+        <input id="inv-auth" v-model="form.authorization" class="mono" maxlength="49" :placeholder="t.placeholders.authorization" />
       </FormField>
       <FormField v-bind="t.fields.taxSupport" for="inv-support">
         <BaseCombobox id="inv-support" v-model="form.taxSupport" :options="cxp.taxSupports" />
@@ -83,17 +83,10 @@ async function createSupplier() {
         <BaseCombobox id="inv-pay" v-model="form.paymentMethod" :options="cxp.paymentMethods" />
       </FormField>
       <FormField v-bind="t.fields.goodsOrServices">
-        <BaseSegmented
-          v-model="form.goodsOrServices"
-          :label="t.fields.goodsOrServices.label"
-          :options="[
-            { value: 'bien', label: 'Bien' },
-            { value: 'servicio', label: 'Servicio' },
-          ]"
-        />
+        <BaseSegmented v-model="form.goodsOrServices" :label="t.fields.goodsOrServices.label" :options="cxp.goodsOptions" />
       </FormField>
       <FormField v-bind="t.fields.description" for="inv-desc" full>
-        <input id="inv-desc" v-model="form.description" maxlength="200" />
+        <input id="inv-desc" v-model="form.description" maxlength="200" :placeholder="t.placeholders.description" />
       </FormField>
     </div>
   </section>
