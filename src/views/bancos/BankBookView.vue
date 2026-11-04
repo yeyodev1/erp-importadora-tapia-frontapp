@@ -45,17 +45,17 @@ const columns: Column<Row>[] = [
   { key: 'date', label: t.cols.date, format: 'date', width: '7rem' },
   { key: 'type', label: t.cols.type, value: (r) => (r.type ? bancos.movType(r.type) : '') },
   { key: 'checkNumber', label: t.cols.check, width: '5rem' },
-  { key: 'doc', label: t.cols.doc, value: (r) => r.source?.docNumber ?? '' },
+  { key: 'doc', label: t.cols.doc, help: t.colHelp.doc, value: (r) => r.source?.docNumber ?? '' },
   { key: 'description', label: t.cols.description },
   { key: 'inflow', label: t.cols.inflow, format: 'money', total: true, value: (r) => sign(r, 'in') },
   { key: 'outflow', label: t.cols.outflow, format: 'money', total: true, value: (r) => sign(r, 'out') },
-  { key: 'balance', label: t.cols.balance, format: 'money' },
+  { key: 'balance', label: t.cols.balance, help: t.colHelp.balance, format: 'money' },
 ]
 </script>
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="t.subtitle" />
     <ReportFilters v-model="filters" :fields="['range', 'bankAccount']" :loading="loading" @apply="run" />
     <EmptyState v-if="!ran && !loading" :message="error || t.pickBank" />
     <DataTable
@@ -65,6 +65,7 @@ const columns: Column<Row>[] = [
       :loading="loading"
       :error="error"
       :filters-text="summary"
+      :empty-message="t.empty"
       landscape
       :row-class="(r) => (r._id === 'opening' ? 'is-opening' : undefined)"
     />
