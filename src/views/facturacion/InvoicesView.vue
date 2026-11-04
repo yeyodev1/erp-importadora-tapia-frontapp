@@ -40,9 +40,9 @@ function apply(lines: string[]) {
 }
 
 const statusOptions = [
-  { value: '' as const, label: t.invoices.status.all },
-  { value: 'vigente' as const, label: t.invoices.status.vigente },
-  { value: 'anulado' as const, label: t.invoices.status.anulado },
+  { value: '' as const, label: t.invoices.status.all, help: t.invoices.statusHelp.all },
+  { value: 'vigente' as const, label: t.invoices.status.vigente, help: t.invoices.statusHelp.vigente },
+  { value: 'anulado' as const, label: t.invoices.status.anulado, help: t.invoices.statusHelp.anulado },
 ]
 
 const c = t.cols
@@ -54,8 +54,8 @@ const columns: Column<SalesInvoice>[] = [
   { key: 'warehouse', label: c.warehouse, value: (r) => catalog.warehouseName(r.warehouseId), width: '8rem' },
   { key: 'sellerName', label: c.seller, width: '9rem' },
   { key: 'total', label: t.totals.total, format: 'money', total: true },
-  { key: 'balance', label: t.totals.balance, format: 'money', total: true },
-  { key: 'sriStatus', label: c.sri, value: (r) => (r.status === 'anulado' ? 'anulado' : r.sriStatus), width: '8rem' },
+  { key: 'balance', label: t.totals.balance, help: t.colHelp.balance, format: 'money', total: true },
+  { key: 'sriStatus', label: c.sri, help: t.colHelp.sri, value: (r) => (r.status === 'anulado' ? 'anulado' : r.sriStatus), width: '8rem' },
   { key: 'actions', label: c.actions, screenOnly: true, width: '5rem' },
 ]
 
@@ -63,7 +63,7 @@ const columns: Column<SalesInvoice>[] = [
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.pages.invoices.subtitle">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="router.push({ name: 'InvoiceNew' })">
         <AppIcon name="plus" /> {{ t.actions.newInvoice }}
       </button>
@@ -81,6 +81,7 @@ const columns: Column<SalesInvoice>[] = [
       :total="list.total"
       :fetch-all="list.fetchAll"
       :filters-text="summary"
+      :empty-message="t.pages.invoices.empty"
       :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)"
       clickable
       landscape
@@ -90,8 +91,8 @@ const columns: Column<SalesInvoice>[] = [
     >
       <template #toolbar>
         <SearchInput v-model="list.q" />
-        <BaseSegmented v-model="view.status" :options="statusOptions" />
-        <BaseSwitch v-model="view.pending" :label="t.invoices.pending" />
+        <BaseSegmented v-model="view.status" :options="statusOptions" :label="t.cols.status" />
+        <BaseSwitch v-model="view.pending" :label="t.invoices.pending" :help="t.invoices.pendingHelp" />
       </template>
       <template #cell-number="{ row }"><span class="mono">{{ row.number }}</span></template>
       <template #cell-sriStatus="{ row }">
