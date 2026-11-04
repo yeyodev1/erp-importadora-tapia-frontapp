@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import HelpTip from '@/components/ui/HelpTip.vue'
@@ -63,6 +65,7 @@ async function save() {
     </ol>
 
     <form class="vf" novalidate @submit.prevent="save">
+      <LockedDateBanner :date="doc.date" />
       <fieldset class="panel panel--pad vf__head" :disabled="!canWrite">
         <div class="form-grid">
           <FormField v-bind="g.date" for="vf-date" required class="vf__date">
@@ -112,9 +115,7 @@ async function save() {
 
       <div v-if="canWrite" class="vf__actions">
         <span class="vf__mayor">{{ accountingScreens.mayorizedNote }} <HelpTip :text="accountingScreens.mayorized.help" :label="accountingScreens.mayorized.label" /></span>
-        <button type="submit" class="btn btn--primary" :disabled="!form.canSave.value || form.saving.value">
-          <AppIcon :name="form.saving.value ? 'spinner' : 'check'" :spin="form.saving.value" /> {{ t.form.save }}
-        </button>
+        <BaseButton type="submit" variant="primary" icon="check" :loading="form.saving.value" :disabled="!form.canSave.value">{{ t.form.save }}</BaseButton>
       </div>
     </form>
   </section>
