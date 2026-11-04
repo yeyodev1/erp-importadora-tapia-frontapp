@@ -21,14 +21,14 @@ const report = useReport(
 onMounted(() => filters.warehouseId && report.run())
 
 const columns: Column<StockRow>[] = [
-  { key: 'code', label: c.code, width: '6rem' },
+  { key: 'code', label: c.code, width: '6rem', help: c.codeHelp },
   { key: 'name', label: c.product },
   { key: 'group', label: c.group, value: (r) => [r.group, r.subgroup].filter(Boolean).join(' / ') },
   { key: 'unit', label: c.unit },
-  { key: 'minQty', label: t.minQty, format: 'qty' },
-  { key: 'qty', label: c.qty, format: 'qty' },
-  { key: 'missing', label: t.missing, format: 'qty' },
-  { key: 'missingPurchase', label: t.missingPurchase, format: 'qty', value: (r) => roundQty((r.missing ?? 0) / (r.purchaseUnit?.factor || 1)) },
+  { key: 'minQty', label: t.minQty, format: 'qty', help: t.minQtyHelp },
+  { key: 'qty', label: c.qty, format: 'qty', help: c.qtyHelp },
+  { key: 'missing', label: t.missing, format: 'qty', help: t.missingHelp },
+  { key: 'missingPurchase', label: t.missingPurchase, format: 'qty', help: t.missingPurchaseHelp, value: (r) => roundQty((r.missing ?? 0) / (r.purchaseUnit?.factor || 1)) },
   { key: 'purchaseUnit', label: c.purchaseUnit, value: (r) => r.purchaseUnit?.name },
 ]
 const title = computed(() => (report.data ? `Stock bajo el mínimo · ${report.data.warehouse.name}` : undefined))
@@ -36,7 +36,7 @@ const title = computed(() => (report.data ? `Stock bajo el mínimo · ${report.d
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="copy.pages.belowMinimum" />
     <StockFilters v-model="filters" :loading="report.loading" @apply="report.run" />
     <DataTable
       :columns="columns"
@@ -46,6 +46,7 @@ const title = computed(() => (report.data ? `Stock bajo el mínimo · ${report.d
       :error="report.error"
       :title="title"
       :filters-text="report.summary"
+      :empty-message="t.empty"
       landscape
       @retry="report.run()"
     />
