@@ -13,6 +13,7 @@ import type { Column } from '@/components/table/columns'
 import { useReport } from '@/composables/accounting/useReport'
 import { accountingService, type LedgerMovement } from '@/services/accounting.service'
 import { accounting as t } from '@/config/copy/accounting'
+import { accountingScreens } from '@/config/copy/accountingScreens'
 
 /**
  * Libro mayor. Acepta ?account=&from=&to= para abrirlo desde el Reporte de
@@ -22,6 +23,8 @@ type Row = Partial<LedgerMovement> & { _id: string; balance: number }
 
 const route = useRoute()
 const router = useRouter()
+const h = accountingScreens.columns
+const ex = accountingScreens.vouchers.fields.excludeVoided
 const q = route.query
 const filters = ref(defaultFilters({ ...(q.from ? { from: String(q.from) } : {}), ...(q.to ? { to: String(q.to) } : {}) }))
 const account = ref(String(q.account ?? ''))
@@ -54,14 +57,14 @@ const rows = computed<Row[]>(() => {
 const totals = computed(() => (data.value ? { debit: data.value.totalDebit, credit: data.value.totalCredit, balance: data.value.balance } : undefined))
 
 const columns = computed<Column<Row>[]>(() => [
-  { key: 'type', label: t.common.type, value: (r) => (r.type ? (t.entryTypes[r.type] ?? r.type) : '') },
+  { key: 'type', label: h.entryType, help: h.entryTypeHelp, value: (r) => (r.type ? (t.entryTypes[r.type] ?? r.type) : '') },
   { key: 'number', label: t.common.number },
   { key: 'date', label: t.common.date, format: 'date' },
   ...(isMayor.value ? [{ key: 'accountCode', label: t.common.code } as Column<Row>] : []),
-  { key: 'party', label: t.common.party },
-  { key: 'debit', label: t.common.debit, format: 'money', total: true, value: (r) => r.debit || null },
-  { key: 'credit', label: t.common.credit, format: 'money', total: true, value: (r) => r.credit || null },
-  { key: 'balance', label: t.common.balance, format: 'money', total: true },
+  { key: 'party', label: h.party, help: h.partyHelp },
+  { key: 'debit', label: t.common.debit, help: h.debitHelp, format: 'money', total: true, value: (r) => r.debit || null },
+  { key: 'credit', label: t.common.credit, help: h.creditHelp, format: 'money', total: true, value: (r) => r.credit || null },
+  { key: 'balance', label: t.common.balance, help: `${h.previousHelp} ${h.balanceHelp}`, format: 'money', total: true },
   { key: 'description', label: t.common.description },
 ])
 
@@ -74,11 +77,11 @@ function open(row: Row) {
   <section>
     <PageHeader :subtitle="t.ledger.intro" />
     <ReportFilters v-model="filters" :loading="report.loading.value" @apply="apply">
-      <FormField v-bind="t.ledger.account" for="lg-account" required>
+      <FormField v-bind="accountingScreens.vouchers.fields.account" for="lg-account" required>
         <LedgerAccountPicker id="lg-account" v-model="account" :invalid="tried && !account" />
       </FormField>
-      <FormField :label="t.vouchers.fields.excludeVoided.label" :help="t.vouchers.fields.excludeVoided.help">
-        <BaseSwitch v-model="excludeVoided" :label="t.vouchers.fields.excludeVoided.label" />
+      <FormField :label="ex.label" :help="ex.help">
+        <BaseSwitch v-model="excludeVoided" :label="ex.label" />
       </FormField>
     </ReportFilters>
 
@@ -92,6 +95,7 @@ function open(row: Row) {
       :totals="totals"
       :title="data ? `Libro mayor · ${data.account.code} ${data.account.name}` : undefined"
       :filters-text="summary"
+      :empty-message="t.ledger.empty"
       :row-class="(r) => (r._id === 'prev' ? 'is-prev' : r.status === 'anulado' ? 'is-void' : undefined)"
       clickable
       landscape
