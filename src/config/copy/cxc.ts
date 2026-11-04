@@ -11,13 +11,10 @@ export const cxc = {
   /** Qué significa cada forma de cobro y a dónde va el dinero. */
   methodHelp: {
     '': 'Muestra los cobros de todas las formas: depósito, transferencia, efectivo y cheque posfechado.',
-    DEPOSITO:
-      'El cliente depositó en una cuenta de Tapia (papeleta o cheque al día). Entra al banco elegido.',
-    TRANSFERENCIA:
-      'El cliente transfirió a una cuenta de Tapia. Entra al banco elegido; anota el número de la transferencia.',
+    DEPOSITO: 'El cliente depositó en una cuenta de Tapia (papeleta o cheque al día). Entra al banco elegido.',
+    TRANSFERENCIA: 'El cliente transfirió a una cuenta de Tapia. Entra al banco elegido; anota el número de la transferencia.',
     EFECTIVO: 'Pago en billetes o monedas. Entra a una caja (caja general o caja chica).',
-    CHEQUE_POSFECHADO:
-      'Cheque con fecha futura. Queda en cartera (cuenta Cheques posfechados) hasta su fecha; se deposita desde la pantalla Cheques posfechados.',
+    CHEQUE_POSFECHADO: 'Cheque con fecha futura. Queda en cartera (cuenta Cheques posfechados) hasta su fecha; se deposita desde la pantalla Cheques posfechados.',
   } as Record<string, string>,
 
   receipts: {
@@ -36,36 +33,15 @@ export const cxc = {
       amount: f('Valor cobrado', 'Total que pagó el cliente. Los cobros anulados se ven tachados y no suman.'),
     },
     fields: {
-      party: f(
-        'Cliente',
-        'A quién le cobras; al elegirlo aparecen sus facturas con saldo. Ej.: escribe el nombre o el RUC 0993014214001.',
-      ),
-      date: f(
-        'Fecha del cobro',
-        'Día del depósito, de la transferencia o en que recibiste el cheque. No puede ser anterior a las facturas. Ej.: 04/11/2026.',
-      ),
-      method: f(
-        'Forma de cobro',
-        'Cómo pagó el cliente. Depósito y transferencia van a un banco, efectivo a una caja y el cheque posfechado queda en cartera.',
-      ),
-      bank: f(
-        'Banco o caja',
-        'Cuenta de Tapia donde entró el dinero; su cuenta contable va al debe del asiento. Ej.: Banco Pichincha cta. cte.',
-      ),
-      reference: f(
-        'N.º de papeleta o transferencia',
-        'Sirve para cuadrar el cobro en la conciliación bancaria. Ej.: 458712.',
-      ),
-      amount: f(
-        'Valor cobrado',
-        'Lo que pagó el cliente. Debe ser igual a lo que repartes entre sus facturas. Ej.: 1.250,00.',
-      ),
+      party: f('Cliente', 'A quién le cobras; al elegirlo aparecen sus facturas con saldo. Ej.: escribe el nombre o el RUC 0993014214001.'),
+      date: f('Fecha del cobro', 'Día del depósito, de la transferencia o en que recibiste el cheque. No puede ser anterior a las facturas. Ej.: 04/11/2026.'),
+      method: f('Forma de cobro', 'Cómo pagó el cliente. Depósito y transferencia van a un banco, efectivo a una caja y el cheque posfechado queda en cartera.'),
+      bank: f('Banco o caja', 'Cuenta de Tapia donde entró el dinero; su cuenta contable va al debe del asiento. Ej.: Banco Pichincha cta. cte.'),
+      reference: f('N.º de papeleta o transferencia', 'Sirve para cuadrar el cobro en la conciliación bancaria. Ej.: 458712.'),
+      amount: f('Valor cobrado', 'Lo que pagó el cliente. Debe ser igual a lo que repartes entre sus facturas. Ej.: 1.250,00.'),
       checkNumber: f('Número de cheque', 'Número impreso en el cheque del cliente. Ej.: 000321.'),
       checkBank: f('Banco del cheque', 'Banco que emitió el cheque, es decir, el del cliente. Ej.: Banco Guayaquil.'),
-      checkDue: f(
-        'Fecha para depositar',
-        'Fecha escrita en el cheque: desde ese día se puede depositar. Ej.: 30/11/2026.',
-      ),
+      checkDue: f('Fecha para depositar', 'Fecha escrita en el cheque: desde ese día se puede depositar. Ej.: 30/11/2026.'),
       notes: f('Observación', 'Nota libre que aparece en el detalle del cobro. Ej.: Abono acordado con el vendedor.'),
     },
     placeholders: {
@@ -85,15 +61,13 @@ export const cxc = {
     over: 'Aplicado de más',
     mismatch: 'La suma aplicada debe ser igual al valor del cobro',
     voidTitle: 'Anular cobro',
-    voidMessage:
-      'Se reversa el asiento, el movimiento bancario y el abono: las facturas recuperan su saldo.',
+    voidMessage: 'Se reversa el asiento, el movimiento bancario y el abono: las facturas recuperan su saldo.',
     voidSecond: 'Confírmalo otra vez: el cobro queda anulado.',
     voidLabel: 'Sí, anular',
   },
 
   checks: {
-    intro:
-      'Cheques recibidos con fecha futura. Recorrido: en cartera → depositado (depósito en tránsito) → acreditado (banco).',
+    intro: 'Cheques recibidos con fecha futura. Recorrido: en cartera → depositado (depósito en tránsito) → acreditado (banco).',
     active: 'En cartera y depositados',
     statusLabel: 'Estado del cheque',
     statusHelp: {
@@ -105,19 +79,10 @@ export const cxc = {
     } as Record<string, string>,
     emptyTitle: 'No hay cheques posfechados',
     empty: "Con estos filtros no hay cheques. Se registran en Cobros con la forma 'Cheque posfechado'.",
-    dueFrom: f(
-      'Fecha para depositar desde',
-      'Primer día de depósito que entra en la lista. Abre un año atrás para no dejar cheques olvidados. Ej.: 01/11/2025.',
-    ),
-    dueTo: f(
-      'Fecha para depositar hasta',
-      'Último día de depósito que entra en la lista. Abre un año adelante para ver todos los cheques futuros. Ej.: 30/11/2027.',
-    ),
+    dueFrom: f('Fecha para depositar desde', 'Primer día de depósito que entra en la lista. Abre un año atrás para no dejar cheques olvidados. Ej.: 01/11/2025.'),
+    dueTo: f('Fecha para depositar hasta', 'Último día de depósito que entra en la lista. Abre un año adelante para ver todos los cheques futuros. Ej.: 30/11/2027.'),
     cols: {
-      dueDate: f(
-        'Fecha para depositar',
-        'Fecha escrita en el cheque. En naranja: ya llegó y el cheque sigue en cartera, se puede depositar.',
-      ),
+      dueDate: f('Fecha para depositar', 'Fecha escrita en el cheque. En naranja: ya llegó y el cheque sigue en cartera, se puede depositar.'),
       bank: f('Banco del cheque', 'Banco del cliente que emitió el cheque.'),
       number: f('Cobro', 'Cobro con el que se registró el cheque.'),
     },
@@ -134,18 +99,9 @@ export const cxc = {
     returnLabel: 'Sí, devolver',
     done: 'Cheque actualizado',
     overdue: 'Ya se puede depositar',
-    bank: f(
-      'Banco del depósito',
-      'Cuenta bancaria de Tapia donde se deposita el cheque. Ej.: Banco Pichincha cta. cte.',
-    ),
-    date: f(
-      'Fecha',
-      'Día del depósito, de la acreditación o de la devolución; con esa fecha sale el asiento. Ej.: 04/11/2026.',
-    ),
-    reason: f(
-      'Motivo',
-      'Queda en el documento y en su asiento. Ej.: fondos insuficientes, protesto, error de digitación.',
-    ),
+    bank: f('Banco del depósito', 'Cuenta bancaria de Tapia donde se deposita el cheque. Ej.: Banco Pichincha cta. cte.'),
+    date: f('Fecha', 'Día del depósito, de la acreditación o de la devolución; con esa fecha sale el asiento. Ej.: 04/11/2026.'),
+    reason: f('Motivo', 'Queda en el documento y en su asiento. Ej.: fondos insuficientes, protesto, error de digitación.'),
     reasonPlaceholder: 'Ej.: Cheque protestado por fondos insuficientes',
   },
 
@@ -156,19 +112,10 @@ export const cxc = {
     saved: 'Retención registrada',
     emptyTitle: 'Aún no hay retenciones recibidas',
     empty: "Usa 'Registrar retención' cuando un cliente te entregue su comprobante, o cambia las fechas.",
-    invoice: f(
-      'Factura',
-      'Factura del cliente sobre la que vino la retención; solo aparecen las que tienen saldo. Ej.: 001-001-000012190.',
-    ),
+    invoice: f('Factura', 'Factura del cliente sobre la que vino la retención; solo aparecen las que tienen saldo. Ej.: 001-001-000012190.'),
     date: f('Fecha de emisión', 'Fecha que dice el comprobante de retención. Ej.: 04/11/2026.'),
-    voucher: f(
-      'N.º de comprobante de retención',
-      'Número del comprobante que emitió el cliente. Ej.: 001-001-000000123.',
-    ),
-    authorization: f(
-      'Autorización SRI',
-      'Número de autorización o clave de acceso de 49 dígitos del comprobante electrónico. Ej.: 0411202607099301421400120010010000001231234567810.',
-    ),
+    voucher: f('N.º de comprobante de retención', 'Número del comprobante que emitió el cliente. Ej.: 001-001-000000123.'),
+    authorization: f('Autorización SRI', 'Número de autorización o clave de acceso de 49 dígitos del comprobante electrónico. Ej.: 0411202607099301421400120010010000001231234567810.'),
     authorizationPlaceholder: 'Ej.: 0411202607099301421400120010010000001231234567810',
     lines: 'Líneas',
     renta: 'Renta',
@@ -180,10 +127,7 @@ export const cxc = {
         `El cliente retuvo el ${r} % del IVA facturado. Elige el que dice su comprobante.`,
     },
     rate: f('% retenido', 'Renta: 1, 1,75 o 2 %. IVA: 10, 20, 30, 70 o 100 % (contribuyentes especiales).'),
-    base: f(
-      'Base imponible',
-      'Renta: subtotal sin IVA. IVA: el IVA facturado. Viene sugerida; cámbiala si el comprobante dice otra.',
-    ),
+    base: f('Base imponible', 'Renta: subtotal sin IVA. IVA: el IVA facturado. Viene sugerida; cámbiala si el comprobante dice otra.'),
     addRenta: 'Línea de renta',
     addIva: 'Línea de IVA',
     total: 'Total retenido',
@@ -197,10 +141,7 @@ export const cxc = {
   },
 
   reports: {
-    cutoff: f(
-      'Fecha de corte',
-      'Saldos tal como estaban al final de ese día. Abre en hoy. Ej.: 31/10/2026 para el cierre de octubre.',
-    ),
+    cutoff: f('Fecha de corte', 'Saldos tal como estaban al final de ese día. Abre en hoy. Ej.: 31/10/2026 para el cierre de octubre.'),
     detailed: 'Detallado',
     summary: 'Resumido',
     modeLabel: 'Vista',
@@ -212,6 +153,11 @@ export const cxc = {
     statusPending: 'Por cobrar',
     statusPaid: 'Canceladas',
     statusAll: 'Todas',
+    overdue: 'Vencidas',
+    notDue: 'Por vencer',
+    dueLabel: 'Vencimiento',
+    dueHelp: { all: 'Vencidas y por vencer.', overdue: 'Solo las que al corte ya pasaron su fecha de vencimiento.', notDue: 'Solo las que al corte aún no vencen.' },
+    invoiceDoc: 'Factura ventas',
     statusHelp: {
       pending: 'Facturas que al corte todavía tienen saldo por cobrar.',
       paid: 'Facturas que al corte ya quedaron pagadas por completo (saldo cero).',
@@ -248,17 +194,15 @@ export const cxc = {
 
   aging: {
     subtitle: 'Cartera por edades: cuánto debe cada cliente, separado por días de vencimiento al corte.',
-    buckets: {
-      notDue: 'Por vencer',
-      d0_30: 'Vencido 1-30',
-      d31_60: 'Vencido 31-60',
-      d61_90: 'Vencido 61-90',
-      d91_120: 'Vencido 91-120',
-      over120: 'Más de 120',
-    },
+    // Mismos encabezados que la cartera impresa de hoy; la (?) explica cada tramo.
+    buckets: { notDue: 'No vencido', d0_30: '0-30', d31_60: '31-60', d61_90: '61-90', d91_120: '91-120', over120: '+120' },
+    titleSummary: 'Cartera por edades resumida',
+    titleDetailed: 'Cartera por edades detallada',
+    cut: 'Corte',
+    records: 'Total de Registros',
     bucketHelp: {
       notDue: 'Saldo de facturas que aún no llegan a su fecha de vencimiento.',
-      d0_30: 'Saldo de facturas vencidas entre 1 y 30 días al corte. Cartera reciente: llamar al cliente.',
+      d0_30: 'Vencido hasta 30 días al corte (1 a 30 días). Cartera reciente: llamar al cliente.',
       d31_60: 'Saldo vencido entre 31 y 60 días. Conviene gestionar el cobro con el vendedor.',
       d61_90: 'Saldo vencido entre 61 y 90 días. Cartera en riesgo: revisar crédito del cliente.',
       d91_120: 'Saldo vencido entre 91 y 120 días. Cartera de difícil cobro.',
@@ -274,8 +218,7 @@ export const cxc = {
     summaryTotal: 'Resumida',
     detailTotal: 'Detallada',
     ledgerTotal: 'Libro de cartera',
-    checkHelp:
-      'Los auditores piden que la resumida (por cliente), la detallada (por factura) y el libro de cartera, que es el mismo que alimenta el mayor de Clientes, den el mismo total al corte.',
+    checkHelp: 'Los auditores piden que la resumida (por cliente), la detallada (por factura) y el libro de cartera, que es el mismo que alimenta el mayor de Clientes, den el mismo total al corte.',
     chart: 'Saldo por tramo',
     days: 'Días vencidos',
     daysHelp: 'Días desde el vencimiento hasta la fecha de corte. En cero o negativo: aún no vence.',
@@ -285,7 +228,14 @@ export const cxc = {
   withholdingsReport: {
     subtitle: 'Retenciones que nos hicieron los clientes en el rango, para cuadrar con el ATS y el mayor.',
     byInvoice: 'Por factura',
-    byType: 'Por tipo',
+    byType: 'Por tipo retención',
+    invoiceDoc: 'Factura ventas',
+    orderLabel: 'Ordenado',
+    orderInvoice: 'Factura',
+    orderCustomer: 'Cliente',
+    orderHelp: { invoice: 'Por fecha y número de factura.', customer: 'Alfabético por cliente.' } as Record<string, string>,
+    ats: 'ATS',
+    atsHelp: 'El formato ATS de estas retenciones está en Impuestos > ATS.',
     taxAll: 'Renta e IVA',
     taxLabel: 'Impuesto',
     modeHelp: {
@@ -307,10 +257,7 @@ export const cxc = {
 
   commissions: {
     subtitle: 'Comisión de cada vendedor sobre lo que se cobró en el rango de fechas.',
-    rate: f(
-      '% de comisión',
-      'Se aplica sobre lo cobrado en el rango (abonos de cobros vigentes, sin cheques devueltos). Ej.: 1,5.',
-    ),
+    rate: f('% de comisión', 'Se aplica sobre lo cobrado en el rango (abonos de cobros vigentes, sin cheques devueltos). Ej.: 1,5.'),
     ratePlaceholder: 'Ej.: 1,5',
     note: 'Regla pendiente de confirmar con Tapia: hoy se calcula sobre el abono completo (con IVA) en la fecha del cobro.',
     empty: 'No hubo cobros de vendedores en estas fechas. Cambia el rango y pulsa Consultar.',
