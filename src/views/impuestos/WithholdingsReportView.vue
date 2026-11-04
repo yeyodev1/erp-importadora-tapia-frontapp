@@ -4,6 +4,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseSegmented from '@/components/ui/BaseSegmented.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
+import { sriRow } from '@/components/table/indicators'
 import DataTable from '@/components/table/DataTable.vue'
 import ReportFilters from '@/components/report/ReportFilters.vue'
 import StatChips from '@/components/accounting/StatChips.vue'
@@ -114,7 +115,7 @@ const title = computed(() => `Retenciones ${side.value === 'compras' ? 'en compr
       </FormField>
     </ReportFilters>
     <StatChips v-if="data" :items="chips" />
-    <DataTable :columns="columns" :rows="rows" :loading="report.loading.value" :error="report.error.value" :title="title" :filters-text="summary" :empty-message="w.empty" landscape @retry="report.run">
+    <DataTable :columns="columns" :rows="rows" :loading="report.loading.value" :error="report.error.value" :title="title" :filters-text="summary" :empty-message="w.empty" :row-class="(r) => sriRow(r.sriStatus)" landscape @retry="report.run">
       <template #cell-sriStatus="{ row }"><StatusBadge :status="row.sriStatus" /></template>
     </DataTable>
   </section>
