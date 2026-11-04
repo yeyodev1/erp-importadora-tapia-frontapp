@@ -17,6 +17,7 @@ import { newVoucherLine, useVoucherForm, type VoucherLine } from '@/composables/
 import { useToastStore } from '@/stores/toast'
 import { accounting as t } from '@/config/copy/accounting'
 import { voucherGuide as g } from '@/config/copy/voucherGuide'
+import { accountingScreens } from '@/config/copy/accountingScreens'
 
 /**
  * Asiento manual: diario, depreciación, importación o rol de pagos.
@@ -31,12 +32,13 @@ const { doc } = form
 const L = t.form.lines
 const C = g.columns
 
+// Orden de la grilla de asiento del sistema anterior: Código/Nombre | Debe | Haber | Centro costo | Descripción.
 const columns: LineColumn<VoucherLine>[] = [
   { key: 'accountCode', label: L.account, type: 'account', width: '30%', help: C.account },
-  { key: 'description', label: L.description, type: 'text', width: '18%', help: C.detail, placeholder: g.placeholders.detail },
   { key: 'debit', label: L.debit, type: 'money', total: true, width: '9rem', help: C.debit },
   { key: 'credit', label: L.credit, type: 'money', total: true, width: '9rem', help: C.credit },
   { key: 'costCenter', label: L.costCenter, width: '9rem', help: C.costCenter },
+  { key: 'description', label: L.description, type: 'text', width: '18%', help: C.detail, placeholder: g.placeholders.detail },
   { key: 'partyId', label: L.party, width: '16%', help: C.party },
 ]
 
@@ -69,7 +71,7 @@ async function save() {
         </div>
 
         <div class="vf__block">
-          <p class="vf__title">{{ g.subtypeTitle }} <HelpTip :text="g.subtypeHelp" :label="g.subtypeTitle" /></p>
+          <p class="vf__title">{{ t.form.fields.subtype.label }}: {{ g.subtypeTitle }} <HelpTip :text="g.subtypeHelp" :label="t.form.fields.subtype.label" /></p>
           <SubtypeCards v-model="doc.subtype" :disabled="!canWrite" />
         </div>
 
@@ -109,6 +111,7 @@ async function save() {
       <p v-if="form.error.value" class="vf__warn" role="alert"><AppIcon name="alert" /> {{ form.error.value }}</p>
 
       <div v-if="canWrite" class="vf__actions">
+        <span class="vf__mayor">{{ accountingScreens.mayorizedNote }} <HelpTip :text="accountingScreens.mayorized.help" :label="accountingScreens.mayorized.label" /></span>
         <button type="submit" class="btn btn--primary" :disabled="!form.canSave.value || form.saving.value">
           <AppIcon :name="form.saving.value ? 'spinner' : 'check'" :spin="form.saving.value" /> {{ t.form.save }}
         </button>
@@ -183,7 +186,14 @@ async function save() {
   }
 
   &__actions {
-    @include flex(row, center, flex-end, 0.5rem);
+    @include flex(row, center, flex-end, 0.5rem 1rem);
+    flex-wrap: wrap;
+  }
+
+  &__mayor {
+    @include flex(row, center, flex-start, 0.35rem);
+    font-size: $text-sm;
+    color: $ink-soft;
   }
 }
 </style>
