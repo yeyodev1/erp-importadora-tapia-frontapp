@@ -7,6 +7,7 @@ import { printReport } from '@/composables/usePrint'
 import { exportTable } from '@/utils/tableExport'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import HelpTip from '@/components/ui/HelpTip.vue'
 import TablePagination from './TablePagination.vue'
 import { alignOf, computeTotals, formatValue, rawValue, type Column } from './columns'
 import type { ApiError } from '@/types'
@@ -41,6 +42,9 @@ const props = withDefaults(
     clickable?: boolean
     /** Resalta filas (anuladas, por ejemplo): devuelve una clase. */
     rowClass?: (row: T) => string | undefined
+    /** Tabla vacía: qué hacer ("Usa 'Nuevo cobro' para registrar uno"). */
+    emptyTitle?: string
+    emptyMessage?: string
   }>(),
   {
     rowKey: '_id',
@@ -54,6 +58,8 @@ const props = withDefaults(
     fetchAll: undefined,
     exportable: true,
     rowClass: undefined,
+    emptyTitle: undefined,
+    emptyMessage: undefined,
   },
 )
 
@@ -116,14 +122,14 @@ const stale = computed(() => props.loading && props.rows.length > 0)
     </div>
 
     <EmptyState v-if="error && !loading" tone="error" :message="error" @retry="emit('retry')" />
-    <slot v-else-if="!loading && !rows.length" name="empty"><EmptyState /></slot>
+    <slot v-else-if="!loading && !rows.length" name="empty"><EmptyState :title="emptyTitle" :message="emptyMessage" /></slot>
 
     <div v-else class="dt__scroll">
       <table class="dt__table">
         <thead>
           <tr>
             <th v-for="c in columns" :key="c.key" :class="`is-${alignOf(c)}`" :style="c.width ? { width: c.width } : undefined">
-              {{ c.label }}
+              <span class="dt__th">{{ c.label }}<HelpTip v-if="c.help" :text="c.help" :label="`Ayuda: ${c.label}`" /></span>
             </th>
           </tr>
         </thead>
@@ -214,6 +220,12 @@ const stale = computed(() => props.loading && props.rows.length > 0)
 
   &__actions {
     @include flex(row, center, flex-end, 0.4rem);
+  }
+
+  &__th {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
   }
 
   &__scroll {
