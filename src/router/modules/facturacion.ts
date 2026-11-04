@@ -60,6 +60,14 @@ export default defineModule('facturacion', [
     component: () => import('@/views/facturacion/TopProductsView.vue'),
   },
   {
+    // Donde lo busca hoy (Facturación > Reportes); la misma pantalla está en Cuentas por cobrar.
+    path: 'retenciones-ventas',
+    name: 'BillingSalesWithholdings',
+    title: 'Retenciones en ventas',
+    section: 'reportes',
+    component: () => import('@/views/cxc/SalesWithholdingsReportView.vue'),
+  },
+  {
     path: 'clientes',
     name: 'BillingCustomers',
     title: 'Clientes',
