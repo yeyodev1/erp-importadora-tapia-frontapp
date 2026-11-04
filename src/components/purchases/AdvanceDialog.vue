@@ -62,14 +62,9 @@ async function submit() {
 <template>
   <FormDialog :open="open" :title="t.newTitle" :loading="saving" :error="error" @submit="submit" @close="emit('close')">
     <div class="form-grid">
-      <BaseSegmented
-        v-model="form.role"
-        class="full"
-        :options="[
-          { value: 'supplier', label: t.supplier },
-          { value: 'employee', label: t.employee },
-        ]"
-      />
+      <FormField v-bind="t.roleField" full>
+        <BaseSegmented v-model="form.role" :options="t.roles" :label="t.roleField.label" />
+      </FormField>
       <FormField v-bind="cxp.approvals.fields.beneficiary" for="adv-party" required>
         <PartyPicker :key="form.role" id="adv-party" v-model="form.partyId" :role="form.role" />
       </FormField>
@@ -77,7 +72,7 @@ async function submit() {
         <MoneyInput id="adv-amount" v-model="form.amount" />
       </FormField>
       <FormField v-bind="f.description" for="adv-desc" full>
-        <input id="adv-desc" v-model="form.description" maxlength="200" />
+        <input id="adv-desc" v-model="form.description" maxlength="200" :placeholder="t.descriptionPlaceholder" />
       </FormField>
     </div>
     <BankOutFields v-model="bank" id-prefix="adv" class="adv__bank" />
