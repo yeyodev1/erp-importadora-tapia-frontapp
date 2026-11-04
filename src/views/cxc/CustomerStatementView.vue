@@ -13,7 +13,7 @@ import { formatMoney } from '@/utils/money'
 
 /** Estado de cuenta de un cliente: saldo inicial, cada factura, abono o retención con saldo corrido, y saldo final. */
 const r = cxc.reports
-const filters = ref(defaultFilters({ from: '' }))
+const filters = ref(defaultFilters())
 const report = useReport(() => receivablesService.statement(filterParams(filters.value)))
 
 function run(s: string[]) {
@@ -49,19 +49,19 @@ const rows = computed<Row[]>(() => {
 
 const columns: Column<Row>[] = [
   { key: 'date', label: 'Fecha', format: 'date', width: '6.5rem' },
-  { key: 'kind', label: 'Tipo', value: (m) => r.kinds[m.kind] ?? m.kind, width: '8rem' },
+  { key: 'kind', ...r.cols.kind, value: (m) => r.kinds[m.kind] ?? m.kind, width: '8rem' },
   { key: 'invoiceNumber', label: 'Factura', width: '10rem' },
-  { key: 'docNumber', label: 'Documento', width: '10rem' },
+  { key: 'docNumber', ...r.cols.docNumber, width: '10rem' },
   { key: 'description', label: 'Detalle' },
-  { key: 'debit', label: 'Debe', format: 'money', total: true },
-  { key: 'credit', label: 'Haber', format: 'money', total: true },
-  { key: 'balance', label: 'Saldo', format: 'money' },
+  { key: 'debit', ...r.cols.debit, format: 'money', total: true },
+  { key: 'credit', ...r.cols.credit, format: 'money', total: true },
+  { key: 'balance', ...r.cols.running, format: 'money' },
 ]
 </script>
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="r.statementSubtitle" />
     <ReportFilters
       v-model="filters"
       :fields="['range', 'party']"
@@ -82,6 +82,7 @@ const columns: Column<Row>[] = [
         :loading="report.loading.value"
         :error="report.error.value"
         :filters-text="report.summary.value"
+        :empty-message="r.statementEmpty"
         :row-class="(m) => (m.kind ? undefined : 'is-edge')"
         @retry="run(report.summary.value)"
       />
