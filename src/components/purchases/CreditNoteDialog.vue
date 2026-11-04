@@ -81,8 +81,8 @@ const totals = computed(() =>
 )
 
 const expenseColumns: LineColumn<ExpenseLine>[] = [
-  { key: 'accountCode', label: 'Cuenta', type: 'account', width: '40%' },
-  { key: 'base0', label: 'Base 0', type: 'money', total: true },
+  { key: 'accountCode', label: 'Cuenta contable', type: 'account', width: '40%' },
+  { key: 'base0', label: 'Base 0 %', type: 'money', total: true },
   { key: 'baseVat', label: 'Base 15 %', type: 'money', total: true },
 ]
 const productColumns: LineColumn<ProductLine>[] = [
@@ -129,19 +129,19 @@ async function submit() {
         <BaseCombobox id="nc-invoice" v-model="form.invoiceId" :options="invoiceOptions" :disabled="!invoices.length" />
       </FormField>
       <FormField v-bind="f.series" for="nc-series" required class="narrow">
-        <input id="nc-series" v-model="form.series" class="mono" maxlength="7" placeholder="001-001" />
+        <input id="nc-series" v-model="form.series" class="mono" maxlength="7" :placeholder="cxp.invoices.placeholders.series" />
       </FormField>
       <FormField v-bind="f.number" for="nc-number" required class="narrow">
-        <input id="nc-number" v-model="form.number" class="mono" maxlength="9" />
+        <input id="nc-number" v-model="form.number" class="mono" maxlength="9" :placeholder="cxp.invoices.placeholders.number" />
       </FormField>
       <FormField v-bind="f.date" for="nc-date" required class="narrow">
         <BaseDatePicker id="nc-date" v-model="form.date" :range-start="invoice?.date.slice(0, 10)" />
       </FormField>
       <FormField v-bind="f.authorization" for="nc-auth">
-        <input id="nc-auth" v-model="form.authorization" class="mono" maxlength="49" />
+        <input id="nc-auth" v-model="form.authorization" class="mono" maxlength="49" :placeholder="cxp.invoices.placeholders.authorization" />
       </FormField>
       <FormField v-bind="t.fields.reason" for="nc-reason" full>
-        <input id="nc-reason" v-model="form.reason" maxlength="200" />
+        <input id="nc-reason" v-model="form.reason" maxlength="200" :placeholder="t.reasonPlaceholder" />
       </FormField>
     </div>
 
@@ -150,10 +150,8 @@ async function submit() {
         v-if="invoice.productLines.length"
         v-model="form.kind"
         tabs
-        :options="[
-          { value: 'gasto', label: 'Por cuenta' },
-          { value: 'producto', label: 'Productos (sale de bodega)' },
-        ]"
+        :options="t.kinds"
+        :label="t.newTitle"
       />
       <DocumentLines v-if="form.kind === 'gasto'" v-model="form.lines" id-prefix="ncl" :columns="expenseColumns" :new-line="() => blankExpense()" />
       <DocumentLines v-else v-model="form.productLines" id-prefix="ncp" :columns="productColumns" :new-line="() => ({ ...form.productLines[0]!, qty: null, subtotal: null })" />
