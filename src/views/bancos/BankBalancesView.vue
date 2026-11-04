@@ -36,10 +36,10 @@ onMounted(run)
 const columns: Column<BalanceRow>[] = [
   { key: 'accountCode', label: t.cols.code, width: '10rem' },
   { key: 'name', label: t.cols.name },
-  { key: 'accountingBalance', label: t.cols.accounting, help: t.colHelp.accounting, format: 'money', total: true },
+  { key: 'accountingBalance', label: t.cols.accounting, help: t.colHelp.accounting, format: 'amount-signed', total: true },
   { key: 'kind', label: t.cols.kind, value: (r) => site.catalogs.banks.kinds[r.kind], width: '6rem' },
   { key: 'number', label: t.cols.number },
-  { key: 'movementBalance', label: t.cols.movements, help: t.colHelp.movements, format: 'money', total: true },
+  { key: 'movementBalance', label: t.cols.movements, help: t.colHelp.movements, format: 'amount-signed', total: true },
 ]
 </script>
 
