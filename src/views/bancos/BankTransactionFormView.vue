@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { lineHelp } from '@/config/copy/lineHelp'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -8,17 +9,20 @@ import HelpTip from '@/components/ui/HelpTip.vue'
 import BaseCombobox from '@/components/ui/BaseCombobox.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import BaseSwitch from '@/components/ui/BaseSwitch.vue'
+import BaseSegmented from '@/components/ui/BaseSegmented.vue'
 import MoneyInput from '@/components/ui/MoneyInput.vue'
 import BankAccountPicker from '@/components/pickers/BankAccountPicker.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import DocumentLines from '@/components/documents/DocumentLines.vue'
 import EntryPreview from '@/components/documents/EntryPreview.vue'
 import type { LineColumn } from '@/components/documents/lines'
-import { useBankTxForm } from '@/composables/banks/useBankTxForm'
+import { kindFor, useBankTxForm } from '@/composables/banks/useBankTxForm'
 import { BANK_TX_TYPES, type BankTxLine } from '@/services/banks.service'
 import { useToastStore } from '@/stores/toast'
 import { bancos } from '@/config/copy/bancos'
 import { formatMoney } from '@/utils/money'
+import { site } from '@/config/site'
+import { accountingScreens } from '@/config/copy/accountingScreens'
 import type { Account, Party } from '@/types'
 
 const t = bancos.tx
@@ -29,12 +33,21 @@ const { form, blankLine, bank, isTransfer, kind, amount, description, entry, sav
   router.push({ name: 'BankTransactionDetail', params: { id } })
 })
 
-const typeOptions = BANK_TX_TYPES.map((v) => ({ value: v, label: bancos.types[v].label, hint: bancos.types[v].help }))
+// "Tipo: Caja / Banco" del sistema anterior: decide qué transacciones se ofrecen.
+const tipo = ref<'banco' | 'caja'>('banco')
+const tipoOptions = (['caja', 'banco'] as const).map((v) => ({ value: v, label: site.catalogs.banks.kinds[v] }))
+const typeOptions = computed(() =>
+  BANK_TX_TYPES.filter((v) => (kindFor(v) ?? tipo.value) === tipo.value).map((v) => ({ value: v, label: bancos.types[v].label, hint: bancos.types[v].help })),
+)
+watch(tipo, () => {
+  if (!typeOptions.value.some((o) => o.value === form.type)) form.type = typeOptions.value[0]!.value
+})
+// Mismo orden que la grilla de asiento de hoy: Código/Nombre | Valor | Centro costo | Descripción.
 const lineCols: LineColumn<BankTxLine>[] = [
   { key: 'accountCode', label: t.lineCols.account, type: 'account', width: '36%', help: lineHelp.account },
-  { key: 'description', label: t.lineCols.description, type: 'text', help: lineHelp.detail },
-  { key: 'costCenter', label: t.lineCols.costCenter, type: 'text', width: '7rem', help: lineHelp.costCenter },
   { key: 'amount', label: t.lineCols.amount, type: 'money', total: true, width: '9rem', help: lineHelp.amount },
+  { key: 'costCenter', label: t.lineCols.costCenter, type: 'text', width: '7rem', help: lineHelp.costCenter },
+  { key: 'description', label: t.lineCols.description, type: 'text', help: lineHelp.detail },
 ]
 
 function onParty(p: Party | null) {
@@ -47,19 +60,30 @@ const onAccount = (line: BankTxLine, a: Account | null) => (line.accountName = a
   <section>
     <PageHeader :title="t.newTitle" :subtitle="t.newSubtitle">
       <RouterLink :to="{ name: 'BankTransactions' }" class="btn btn--ghost"><AppIcon name="arrow-left" /> {{ t.back }}</RouterLink>
+      <span class="txf__link">
+        <RouterLink :to="{ name: 'SupplierAdvances' }" class="btn btn--ghost">{{ t.devLink }}</RouterLink>
+        <HelpTip :text="t.devLinkHelp" :label="t.devLink" />
+      </span>
+      <span class="txf__link">
+        <RouterLink :to="{ name: 'SupplierPayments' }" class="btn btn--ghost">{{ t.cxpLink }}</RouterLink>
+        <HelpTip :text="t.cxpLinkHelp" :label="t.cxpLink" />
+      </span>
     </PageHeader>
 
     <form class="txf" novalidate @submit.prevent="save">
       <div class="panel panel--pad">
         <div class="form-grid">
+          <FormField v-bind="t.fields.kind" class="narrow">
+            <BaseSegmented v-model="tipo" :options="tipoOptions" :label="t.fields.kind.label" />
+          </FormField>
           <FormField v-bind="t.fields.type" for="tx-type" required>
             <BaseCombobox id="tx-type" v-model="form.type" :options="typeOptions" />
           </FormField>
-          <FormField v-bind="t.fields.date" for="tx-date" required>
-            <BaseDatePicker id="tx-date" v-model="form.date" />
-          </FormField>
           <FormField v-bind="t.fields.bank" for="tx-bank" required>
-            <BankAccountPicker id="tx-bank" v-model="form.bankAccountId" :kind="kind" :invalid="error === t.errors.bank" />
+            <BankAccountPicker id="tx-bank" v-model="form.bankAccountId" :kind="kind ?? tipo" :invalid="error === t.errors.bank" />
+          </FormField>
+          <FormField v-bind="t.fields.date" for="tx-date" required class="narrow">
+            <BaseDatePicker id="tx-date" v-model="form.date" />
           </FormField>
           <template v-if="isTransfer">
             <FormField v-bind="t.fields.target" for="tx-target" required>
@@ -92,10 +116,14 @@ const onAccount = (line: BankTxLine, a: Account | null) => (line.accountName = a
         <DocumentLines v-model="form.lines" :columns="lineCols" :new-line="blankLine" id-prefix="txl" @pick-account="onAccount" />
       </div>
 
-      <EntryPreview :lines="entry" />
+      <section class="txf__entry">
+        <p class="form-section">{{ t.entryTitle }} <HelpTip :text="t.entryHelp" :label="t.entryTitle" /></p>
+        <EntryPreview :lines="entry" />
+      </section>
 
       <p v-if="error" class="txf__error" role="alert"><AppIcon name="alert-circle" /> {{ error }}</p>
       <div class="txf__actions">
+        <span class="txf__mayor">{{ accountingScreens.mayorizedNote }} <HelpTip :text="accountingScreens.mayorized.help" :label="accountingScreens.mayorized.label" /></span>
         <span class="txf__total num">{{ t.fields.amount.label }}: <strong>{{ formatMoney(amount) }}</strong></span>
         <button type="submit" class="btn btn--primary" :disabled="saving">
           <AppIcon :name="saving ? 'spinner' : 'check'" :spin="saving" /> {{ t.save }}
@@ -140,5 +168,20 @@ const onAccount = (line: BankTxLine, a: Account | null) => (line.accountName = a
     @include flex(row, center, flex-end, 1rem);
     flex-wrap: wrap;
   }
+
+  &__entry {
+    @include flex(column, stretch, flex-start, 0.5rem);
+  }
+
+  &__mayor {
+    @include flex(row, center, flex-start, 0.35rem);
+    margin-right: auto;
+    font-size: 0.85rem;
+    color: $ink-soft;
+  }
+}
+
+.txf__link {
+  @include flex(row, center, flex-start, 0.25rem);
 }
 </style>
