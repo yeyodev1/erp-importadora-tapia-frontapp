@@ -30,18 +30,18 @@ onMounted(() => filters.warehouseId && report.run())
 
 const shownValued = computed(() => Boolean(report.data?.items[0] && 'avgCost' in report.data.items[0]))
 const columns = computed<Column<StockRow>[]>(() => [
-  { key: 'code', label: c.code, width: '6rem' },
+  { key: 'code', label: c.code, width: '6rem', help: c.codeHelp },
   { key: 'name', label: c.product },
   { key: 'group', label: c.group, value: (r) => [r.group, r.subgroup].filter(Boolean).join(' / ') },
-  { key: 'qty', label: c.qty, format: 'qty' },
+  { key: 'qty', label: c.qty, format: 'qty', help: c.qtyHelp },
   { key: 'unit', label: c.unit },
-  { key: 'purchaseQty', label: c.purchaseQty, format: 'qty', value: (r) => roundQty(r.qty / (r.purchaseUnit?.factor || 1)) },
+  { key: 'purchaseQty', label: c.purchaseQty, format: 'qty', help: c.purchaseQtyHelp, value: (r) => roundQty(r.qty / (r.purchaseUnit?.factor || 1)) },
   { key: 'purchaseUnit', label: c.purchaseUnit, value: (r) => r.purchaseUnit?.name },
   ...(shownValued.value
     ? ([
         // Costo unitario en dólares con 4 decimales (el API lo guarda con 6): no es un monto en centavos.
-        { key: 'avgCost', label: t.avgCost, format: 'qty' },
-        { key: 'totalValue', label: t.totalValue, format: 'money', total: true },
+        { key: 'avgCost', label: t.avgCost, format: 'qty', help: t.avgCostHelp },
+        { key: 'totalValue', label: t.totalValue, format: 'money', total: true, help: t.totalValueHelp },
       ] as Column<StockRow>[])
     : []),
 ])
@@ -50,11 +50,11 @@ const title = computed(() => (report.data ? `Saldos ${shownValued.value ? 'valor
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="copy.pages.balances" />
     <StockFilters v-model="filters" :loading="report.loading" @apply="report.run">
       <div class="switches">
         <BaseSwitch v-if="canValue" v-model="valued" :label="t.valued" :hint="t.valuedHint" />
-        <BaseSwitch v-model="includeZero" :label="t.includeZero" />
+        <BaseSwitch v-model="includeZero" :label="t.includeZero" :hint="t.includeZeroHint" />
       </div>
     </StockFilters>
     <DataTable
@@ -65,6 +65,7 @@ const title = computed(() => (report.data ? `Saldos ${shownValued.value ? 'valor
       :error="report.error"
       :title="title"
       :filters-text="report.summary"
+      :empty-message="t.empty"
       landscape
       @retry="report.run()"
     />
