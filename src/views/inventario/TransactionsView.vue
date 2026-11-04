@@ -22,11 +22,11 @@ const t = copy.transactions
 const router = useRouter()
 const { canWrite } = useAccess()
 
-const typeOptions = TRANSACTION_TYPES.map((value) => ({ value, label: copy.types[value] ?? value }))
+const typeOptions = TRANSACTION_TYPES.map((value) => ({ value, label: copy.types[value] ?? value, hint: copy.typeHelp[value] }))
 const statusOptions = [
-  { value: '', label: c.allStatus },
-  { value: 'contabilizado', label: c.contabilizado },
-  { value: 'anulado', label: c.anulado },
+  { value: '', label: c.allStatus, help: c.statusHelp.all },
+  { value: 'contabilizado', label: c.contabilizado, help: c.statusHelp.contabilizado },
+  { value: 'anulado', label: c.anulado, help: c.statusHelp.anulado },
 ]
 
 const filters = reactive({ ...defaultFilters(), type: '', status: '' })
@@ -53,27 +53,27 @@ const warehouses = (r: InventoryTransaction) => [r.warehouseId?.name, r.targetWa
 const columns: Column<InventoryTransaction>[] = [
   { key: 'date', label: t.date, format: 'date', width: '7rem' },
   { key: 'type', label: c.type, value: (r) => copy.types[r.type] ?? r.type },
-  { key: 'number', label: t.number, width: '6rem' },
+  { key: 'number', label: t.number, width: '6rem', help: t.numberHelp },
   { key: 'warehouse', label: t.warehouse, value: warehouses },
-  { key: 'party', label: t.party, value: party },
-  { key: 'totalCost', label: t.total, format: 'money' },
+  { key: 'party', label: t.party, value: party, help: t.partyHelp },
+  { key: 'totalCost', label: t.total, format: 'money', help: t.totalHelp },
   { key: 'status', label: c.status, width: '8rem' },
 ]
 </script>
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="copy.pages.transactions">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="router.push({ name: 'InventoryTransactionNew' })">
         <AppIcon name="plus" /> {{ t.add }}
       </button>
     </PageHeader>
 
     <ReportFilters v-model="filters" :fields="['range', 'warehouse']" :loading="list.loading" @apply="apply">
-      <FormField :label="c.type" for="tx-type">
+      <FormField :label="c.type" :help="c.typeFilterHelp" for="tx-type">
         <BaseCombobox id="tx-type" v-model="filters.type" :options="typeOptions" :empty-label="c.allTypes" />
       </FormField>
-      <FormField :label="c.status" for="tx-status">
+      <FormField :label="c.status" :help="c.statusFilterHelp" for="tx-status">
         <BaseSegmented v-model="filters.status" :options="statusOptions" />
       </FormField>
     </ReportFilters>
@@ -88,6 +88,7 @@ const columns: Column<InventoryTransaction>[] = [
       :total="list.total"
       :fetch-all="list.fetchAll"
       :filters-text="summary"
+      :empty-message="t.empty"
       :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)"
       clickable
       landscape
