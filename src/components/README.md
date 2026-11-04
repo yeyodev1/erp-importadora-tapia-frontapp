@@ -16,10 +16,23 @@ Piezas para construir las pantallas de los módulos. **Montos siempre en CENTAVO
 | `BaseDatePicker` | Fecha `AAAA-MM-DD` (reemplaza `type=date`). | `id`, `rangeStart?`, `rangeEnd?`, `clearable?`, `placeholder?` (vacío: "Elegir fecha"). Nunca abrir vacío: hoy en documentos, `monthStart()` → hoy en reportes |
 | `BaseSwitch` | Interruptor (reemplaza checkbox). | `label`, `hint?`, `help?`, `disabled?` |
 | `BaseSegmented` | Pocas opciones visibles / pestañas. | `options: {value,label,count?,help?}[]`, `tabs?`. `help`: qué significa el caso (se ve al pasar el mouse y, el elegido, debajo) |
-| `BaseBadge` / `StatusBadge` | Etiqueta de color / estado de documento (`autorizado`, `anulado`, `pendiente`…, mapa en `site.status`). | `tone` / `status` |
+| `BaseBadge` / `StatusBadge` | Etiqueta de color / estado con **icono + color** (mapa `site.status`: SRI `autorizado` ✓ verde, `sin_firma` ámbar, `devuelto`/`no_autorizado`/`error` rojo, `recibido` azul; `vigente`, `anulado` gris tachado; cheques `en_cartera`/`depositado`/`acreditado`/`devuelto`; `abierta`/`cerrada`; `pendiente`/`aprobado`/`pagado`; `activo`/`inactivo`). Estado nuevo = una línea en `site.status`. | `tone` / `status` |
+| `AlertBanner` | Aviso dentro de una pantalla: nivel `info\|warning\|danger\|success` con su icono y color, acción opcional y cerrable. El de "PRUEBAS del SRI" ya lo pinta el layout en Facturación y Configuración. | `level`, `title`, `message` (o slot), `icon?`, `actionLabel?` + `to?` (enlace) o `@action`, `closable?`, `dismissKey?` (recuerda el cierre en la sesión) |
+| `LockedDateBanner` | "Este mes está cerrado" si la fecha cae en un mes cerrado (`settings.lockedThrough`). Ponlo arriba del formulario. | `date` |
 | `ConfirmModal` | Confirmación propia. Con `secondMessage` pide **doble confirmación** (todo lo destructivo). | `open`, `title`, `message`, `subject?`, `secondMessage?`, `danger?`, `loading?`, `error?` |
 | `FormDialog` / `EditorDialog` | Modal de formulario / el mismo atado a `useEditor` (doble confirmación al desactivar). | `editor`, `titleNew`, `titleEdit`, `readonly?`, `wide?` |
-| `EmptyState`, `UnderConstruction`, `SearchInput`, `AppIcon` | Vacío/error, pantalla pendiente, buscador, iconos (`icons.ts`). | |
+| `EmptyState`, `UnderConstruction`, `SearchInput`, `AppIcon` | Vacío/error/éxito con ilustración (icono grande en círculo tenue), pantalla pendiente, buscador, iconos (`icons.ts`). | `EmptyState`: `tone?: 'empty'\|'error'\|'success'\|'construction'`, `icon?` |
+| `PageHeader` (icono) | Sale solo: el icono de la pantalla (el mismo del menú, `layout/screenIcons.ts`). `icon?` para otro. | `icon?` |
+
+**Color con significado** (`levels.ts`, tokens `$success/$warning/$danger/$info` + `-bg` + `-line` y `$neutral`):
+rojo = actuar hoy, ámbar = revisar, azul = informativo, verde = al día. Nunca decorativo y nunca solo
+(siempre con icono o texto). **Iconos de acciones principales** (usa estos nombres): Nuevo `plus`, Grabar `save`
+(o `check`), Anular `void`, Imprimir `print`, Excel `excel`, Reintentar SRI `send`, Actualizar `refresh`.
+
+```vue
+<AlertBanner level="warning" :title="t.noRate" message="Sin tasa de IVA no se puede emitir." action-label="Configurar" :to="{ name: 'Company' }" closable />
+<LockedDateBanner :date="doc.date" />
+```
 
 ```vue
 <FormField v-bind="site.catalogs.products.fields.price" for="price" required>
@@ -69,7 +82,24 @@ primer hijo), y `<TransitionGroup name="list">` para listas cortas (no para tabl
 ## table/
 
 **`DataTable`** — listados y reportes. Columnas `Column<T>` (`columns.ts`):
-`{ key, label, help?, format?: 'text'|'money'|'qty'|'date'|'int', align?, width?, total?, value?: (row) => …, screenOnly? }`.
+`{ key, label, help?, format?: 'text'|'money'|'qty'|'date'|'int'|'amount-signed'|'qty-stock'|'days-overdue', align?, width?, total?, value?: (row) => …, min?: (row) => number, screenOnly? }`.
+
+**Indicadores** (solo cambia la columna; en Excel/impresión salen como su número o texto, sin color):
+
+| `format` | Valor | Se ve |
+|---|---|---|
+| `amount-signed` | centavos | como `money`; negativos en rojo |
+| `qty-stock` | cantidad + `min: (r) => r.minQty` | como `qty`; bajo el mínimo ámbar ⚠, negativo rojo |
+| `days-overdue` | días de atraso o la fecha de vencimiento | chip "Al día" verde / "5 días" ámbar / "+90 · 120 días" rojo |
+
+Filas por nivel: `rowClass: (r) => r.daysOverdue > 90 ? 'is-danger' : r.daysOverdue > 0 ? 'is-warning' : undefined`
+(fondo tenue + franja a la izquierda; `is-void` sigue tachando anuladas).
+
+```ts
+{ key: 'dueDate', label: 'Vence', format: 'days-overdue' },
+{ key: 'qty', label: 'Existencia', format: 'qty-stock', min: (r) => r.minQty },
+{ key: 'balance', label: 'Saldo', format: 'amount-signed', total: true },
+```
 
 Props: `columns`, `rows`, `loading`, `error`, `page`/`pages`/`total` (paginación del servidor,
 emite `update:page`), `totals?` (del servidor; si no, suma las filas), `title?`, `filtersText?: string[]`
@@ -95,6 +125,17 @@ razón social, RUC, título, filtros y pie con usuario y fecha/hora).
 `useList(fetch, filters?)` (composables) da `{ q, page, items, total, pages, loading, error, reload, fetchAll }`
 con búsqueda con espera y vuelta a página 1 al cambiar filtros. Para imprimir algo que no es una tabla:
 `printReport({ title, filters, columns, rows, totals })` de `composables/usePrint.ts`.
+
+## notifications/
+
+Avisos de la campana (`GET /api/notifications`, calculados al vuelo según el rol: SRI rechazado/sin firma,
+cheques por depositar, cartera +30/+90, CxP vencida y pagos aprobados, stock bajo/negativo, conciliaciones
+abiertas, mes sin cerrar, SRI en pruebas). Store `useNotificationsStore` (`stores/notifications.ts`): `items`,
+`unseen`, `worst`, `markSeen`, `summary(match)`; lo visto va en localStorage por usuario y vuelve a ser nuevo si
+cambia la cantidad. `NotificationBell` (topbar) refresca cada 2 min y al volver a la pestaña, y lanza un toast
+con cada aviso rojo nuevo; el menú lateral muestra el conteo por módulo y pantalla. `NotificationItem` pinta
+un aviso (lo usan el panel, `/notificaciones` y el tablero). Un aviso nuevo se agrega en el back
+(`notifications.service.ts` del API), no aquí.
 
 ## report/
 
