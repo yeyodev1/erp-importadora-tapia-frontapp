@@ -66,7 +66,7 @@ function cancel() {
 
           <div class="cm__actions">
             <button type="button" class="btn btn--ghost" :disabled="loading" @click="cancel">{{ site.confirm.cancel }}</button>
-            <BaseButton :variant="danger ? 'danger' : 'primary'" :loading="loading" @click="next">
+            <BaseButton :variant="danger ? 'danger' : 'primary'" :icon="step === 2 || !secondMessage ? (danger ? 'void' : 'check') : 'chevron-right'" :loading="loading" @click="next">
               {{ step === 2 ? (secondLabel ?? confirmLabel ?? site.confirm.continue) : (confirmLabel ?? site.confirm.continue) }}
             </BaseButton>
           </div>
