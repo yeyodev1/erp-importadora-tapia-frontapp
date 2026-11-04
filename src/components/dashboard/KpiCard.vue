@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { RouterLink, type RouteLocationRaw } from 'vue-router'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import SkeletonBlock from '@/components/ui/SkeletonBlock.vue'
 import type { IconName } from '@/components/ui/icons'
 
 /** Tarjeta del tablero: cifra grande, detalle y enlace a la pantalla que la explica. */
 defineProps<{
-  title: string
-  value: string
-  icon: IconName
+  /** Opcionales solo con `loading`: la tarjeta vacía se dibuja como skeleton. */
+  title?: string
+  value?: string
+  icon?: IconName
   /** Sin `to` (el rol no abre esa pantalla) la tarjeta no es enlace. */
   to?: RouteLocationRaw
   hint?: string
@@ -16,12 +18,18 @@ defineProps<{
   deltaLabel?: string
   /** Resalta la cifra cuando hay algo que atender (vencidos, pendientes). */
   alert?: boolean
+  loading?: boolean
 }>()
 </script>
 
 <template>
-  <component :is="to ? RouterLink : 'div'" :to="to" class="kpi" :class="{ 'kpi--link': to }">
-    <span class="kpi__head"><AppIcon :name="icon" /> {{ title }}</span>
+  <div v-if="loading" class="kpi" aria-busy="true">
+    <SkeletonBlock width="45%" height="0.65rem" />
+    <SkeletonBlock width="70%" height="1.7rem" />
+    <SkeletonBlock width="55%" />
+  </div>
+  <component :is="to ? RouterLink : 'div'" v-else :to="to" class="kpi" :class="{ 'kpi--link': to }">
+    <span class="kpi__head"><AppIcon v-if="icon" :name="icon" /> {{ title }}</span>
     <strong class="kpi__value num" :class="{ 'is-alert': alert }">{{ value }}</strong>
     <span v-if="delta !== undefined && delta !== null" class="kpi__delta" :class="delta >= 0 ? 'is-up' : 'is-down'">
       <AppIcon :name="delta >= 0 ? 'chevron-up' : 'chevron-down'" /> {{ Math.abs(delta).toFixed(1) }}% {{ deltaLabel }}
@@ -40,6 +48,7 @@ defineProps<{
   position: relative;
   padding: 0.9rem 1rem;
   box-shadow: $shadow-sm;
+  animation: fade-in 0.18s ease-out;
 
   &--link:hover {
     border-color: $accent;
