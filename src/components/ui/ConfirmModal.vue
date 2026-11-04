@@ -3,6 +3,7 @@ import { ref, toRef, watch } from 'vue'
 import { useBodyScroll } from '@/composables/useBodyScroll'
 import { site } from '@/config/site'
 import AppIcon from './AppIcon.vue'
+import BaseButton from './BaseButton.vue'
 
 /**
  * Confirmación propia (nunca window.confirm). Con `secondMessage` confirma
@@ -49,7 +50,7 @@ function cancel() {
 
 <template>
   <Teleport to="body">
-    <Transition name="fade">
+    <Transition name="modal">
       <div v-if="open" class="cm" @click.self="cancel" @keydown.esc="cancel">
         <div class="cm__box" role="alertdialog" aria-modal="true" :aria-label="title" :class="{ 'cm__box--danger': danger }">
           <span class="cm__icon"><AppIcon :name="danger ? 'alert' : 'help'" /></span>
@@ -65,10 +66,9 @@ function cancel() {
 
           <div class="cm__actions">
             <button type="button" class="btn btn--ghost" :disabled="loading" @click="cancel">{{ site.confirm.cancel }}</button>
-            <button type="button" class="btn" :class="danger ? 'btn--danger' : 'btn--primary'" :disabled="loading" @click="next">
-              <AppIcon v-if="loading" name="spinner" spin />
+            <BaseButton :variant="danger ? 'danger' : 'primary'" :loading="loading" @click="next">
               {{ step === 2 ? (secondLabel ?? confirmLabel ?? site.confirm.continue) : (confirmLabel ?? site.confirm.continue) }}
-            </button>
+            </BaseButton>
           </div>
         </div>
       </div>
