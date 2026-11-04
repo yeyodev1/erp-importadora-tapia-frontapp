@@ -9,13 +9,29 @@ import type { Column } from '@/components/table/columns'
 import { useReport } from '@/composables/receivables/useReport'
 import { receivablesService } from '@/services/receivables.service'
 import { cxc } from '@/config/copy/cxc'
+import { RouterLink } from 'vue-router'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import CustomerFilters from '@/components/receivables/CustomerFilters.vue'
+import { blankCustomerFilters, customerSummary } from '@/components/receivables/customerFilters'
+import { splitNumber } from '@/composables/sales/docNumber'
 
-/** Retenciones en venta del rango: por factura (cada línea con su comprobante) o por tipo y porcentaje. */
+/**
+ * Retenciones en venta del rango, como el reporte de hoy: por factura
+ * (Fecha | Tipo | Serie | Número | Cliente | Identificación | Vendedor | % |
+ * base | valor, con el comprobante) o por tipo; ordenado por factura o cliente.
+ * El formato ATS vive en Impuestos > ATS (botón en la barra).
+ */
 const t = cxc.withholdingsReport
 const w = cxc.withholdings
 const filters = ref(defaultFilters())
 const tax = ref<'' | 'renta' | 'iva'>('')
 const mode = ref<'invoice' | 'type'>('invoice')
+const order = ref<'invoice' | 'customer'>('invoice')
+const customer = ref(blankCustomerFilters())
+const orders = [
+  { value: 'invoice' as const, label: t.orderInvoice, help: t.orderHelp.invoice },
+  { value: 'customer' as const, label: t.orderCustomer, help: t.orderHelp.customer },
+]
 const byType = computed(() => mode.value === 'type')
 const taxTabs = [
   { value: '' as const, label: t.taxAll, help: t.taxHelp[''] },
@@ -31,6 +47,7 @@ const report = useReport(() =>
   receivablesService.withholdingsReport({
     ...filterParams(filters.value),
     tax: tax.value || undefined,
+    sellerName: customer.value.sellerName.trim() || undefined,
     groupBy: byType.value ? 'type' : undefined,
   }),
 )
@@ -44,8 +61,12 @@ const rows = computed(() => {
   const d = report.data.value
   if (!d) return []
   if (byType.value) return (d.types ?? []).map((x) => ({ ...x, key: `${x.tax}-${x.rate}` }))
-  return (d.rows ?? []).flatMap((row, i) =>
-    row.lines.map((l, j) => ({ ...row, ...l, key: `${i}-${j}` })),
+  // shortcut: la serie se filtra aquí sobre el número de factura (pocas filas por mes); pasarla al API si crece.
+  const series = customer.value.series
+  const kept = (d.rows ?? []).filter((row) => !series || splitNumber(row.invoiceNumber).series === series)
+  const sorted = order.value === 'customer' ? [...kept].sort((a, b) => (a.customer ?? '').localeCompare(b.customer ?? '')) : kept
+  return sorted.flatMap((row, i) =>
+    row.lines.map((l, j) => ({ ...row, ...l, ...splitNumber(row.invoiceNumber), doc: t.invoiceDoc, key: `${i}-${j}` })),
   )
 })
 
@@ -60,13 +81,15 @@ const columns = computed<Column[]>(() =>
       ]
     : [
         { key: 'date', label: 'Fecha', format: 'date', width: '6.5rem' },
-        { key: 'invoiceNumber', label: 'Factura', width: '10rem' },
+        { key: 'doc', label: 'Tipo', width: '7.5rem' },
+        { key: 'series', label: 'Serie', width: '5.5rem' },
+        { key: 'seq', label: 'Número', width: '7rem' },
         { key: 'customer', label: 'Cliente' },
         { key: 'identification', label: 'Identificación', width: '9rem' },
         { key: 'sellerName', label: 'Vendedor' },
         { key: 'voucherNumber', ...w.cols.voucher, width: '10rem' },
-        { key: 'tax', label: 'Impuesto', value: (x) => taxName(x.tax), width: '5rem' },
-        { key: 'rate', ...w.rate, value: (x) => rate(x.rate), align: 'right', width: '4rem' },
+        // "%" como el reporte de hoy, con el impuesto delante para no sumar una columna: "Renta 1 %".
+        { key: 'rate', label: '%', help: w.rate.help, value: (x) => `${taxName(x.tax)} ${rate(x.rate)}`, align: 'right' },
         { key: 'base', ...t.cols.base, format: 'money', total: true },
         { key: 'amount', ...t.cols.amount, format: 'money', total: true },
       ],
@@ -82,14 +105,16 @@ const columns = computed<Column[]>(() =>
       party-role="customer"
       :loading="report.loading.value"
       @apply="report.run"
-    />
+    >
+      <CustomerFilters v-model="customer" :fields="['sellerName', 'series']" id-prefix="wr" />
+    </ReportFilters>
     <DataTable
       :columns="columns"
       :rows="rows"
       row-key="key"
       :loading="report.loading.value"
       :error="report.error.value"
-      :filters-text="[...report.summary.value, taxTabs.find((x) => x.value === tax)!.label]"
+      :filters-text="[...report.summary.value, ...customerSummary(customer), taxTabs.find((x) => x.value === tax)!.label]"
       :empty-message="t.empty"
       landscape
       @retry="report.run()"
@@ -97,6 +122,8 @@ const columns = computed<Column[]>(() =>
       <template #toolbar>
         <BaseSegmented v-model="mode" :options="modes" :label="cxc.reports.modeLabel" />
         <BaseSegmented v-model="tax" :options="taxTabs" :label="t.taxLabel" />
+        <BaseSegmented v-if="!byType" v-model="order" :options="orders" :label="t.orderLabel" />
+        <RouterLink :to="{ name: 'Ats' }" class="btn btn--ghost btn--sm" :title="t.atsHelp"><AppIcon name="taxes" /> {{ t.ats }}</RouterLink>
       </template>
     </DataTable>
   </section>
