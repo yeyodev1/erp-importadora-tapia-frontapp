@@ -39,11 +39,11 @@ const setContainers = (e: Event) => (doc.containers = Math.max(0, Math.trunc(Num
     <form v-else class="tx" @submit.prevent="save">
       <div class="panel panel--pad">
         <div class="form-grid">
-          <FormField v-bind="f.type" for="tx-type" :hint="copy.typeHelp[doc.type]" required>
-            <BaseCombobox id="tx-type" :model-value="doc.type" :options="typeOptions" @update:model-value="doc.type = $event as typeof doc.type" />
-          </FormField>
           <FormField v-bind="f.warehouseId" for="tx-wh" required>
             <WarehousePicker id="tx-wh" v-model="doc.warehouseId" />
+          </FormField>
+          <FormField v-bind="f.type" for="tx-type" :hint="copy.typeHelp[doc.type]" required>
+            <BaseCombobox id="tx-type" :model-value="doc.type" :options="typeOptions" @update:model-value="doc.type = $event as typeof doc.type" />
           </FormField>
           <FormField v-if="isTransfer" v-bind="f.targetWarehouseId" for="tx-target" required>
             <WarehousePicker id="tx-target" v-model="doc.targetWarehouseId" :exclude="doc.warehouseId" />
