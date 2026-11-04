@@ -1,0 +1,71 @@
+// Clases de uso común en las vistas (panel, formularios, barras). Se importa una vez desde main.ts.
+
+// Tarjeta blanca de contenido (tablas, formularios de configuración)
+.panel {
+  @include card;
+  box-shadow: $shadow-sm;
+
+  &--pad {
+    padding: 1rem;
+
+    @include from('md') {
+      padding: 1.25rem 1.5rem;
+    }
+  }
+}
+
+// Formularios: campos que se acomodan en filas con flex-wrap (nunca grid).
+// Mobile first: un campo por fila; desde ~420px de ancho, varios.
+.form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1rem;
+
+  > * {
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+
+  > .field--full,
+  > .full {
+    flex-basis: 100%;
+  }
+
+  > .narrow {
+    flex: 0 1 140px;
+  }
+}
+
+.form-section {
+  @include eyebrow;
+  @include flex(row, center, flex-start, 0.5rem);
+  padding-top: 0.5rem;
+  border-top: 1px solid $line;
+  margin-top: 0.25rem;
+}
+
+// Barra sobre un listado: búsqueda, filtros y acciones
+.toolbar {
+  @include flex(row, center, flex-start, 0.5rem);
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+
+  &__search {
+    flex: 1 1 240px;
+    max-width: 420px;
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+}
+
+// Montos y cantidades: columnas alineadas a la derecha
+.num {
+  @include numeric;
+}
+
+.mono {
+  font-family: $font-mono;
+  font-size: 0.95em;
+}
