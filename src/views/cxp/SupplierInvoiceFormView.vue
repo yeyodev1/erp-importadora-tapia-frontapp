@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import HelpTip from '@/components/ui/HelpTip.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import EntryPreview from '@/components/documents/EntryPreview.vue'
 import InvoiceHeaderFields from '@/components/purchases/InvoiceHeaderFields.vue'
 import InvoiceLinesBlock from '@/components/purchases/InvoiceLinesBlock.vue'
@@ -67,6 +69,7 @@ async function save() {
     </PageHeader>
 
     <div class="if__body">
+      <LockedDateBanner :date="ctx.form.date" />
       <InvoiceHeaderFields :ctx="ctx">
         <template #xml>
           <span v-if="canWrite" class="if__xml">
@@ -88,9 +91,7 @@ async function save() {
       <p v-if="error" class="if__error" role="alert"><AppIcon name="alert-circle" /> {{ error }}</p>
       <div v-if="canWrite" class="if__actions">
         <span class="if__mayor">{{ accountingScreens.mayorizedNote }} <HelpTip :text="accountingScreens.mayorized.help" :label="accountingScreens.mayorized.label" /></span>
-        <button type="button" class="btn btn--primary" :disabled="saving" @click="save">
-          <AppIcon :name="saving ? 'spinner' : 'check'" :spin="saving" /> {{ t.save }}
-        </button>
+        <BaseButton variant="primary" icon="check" :loading="saving" @click="save">{{ t.save }}</BaseButton>
       </div>
     </div>
   </section>
