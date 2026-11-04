@@ -7,7 +7,7 @@ import { site } from '@/config/site'
 
 /** Barra de un reporte por mes (AAAA-MM): el mes, filtros propios en el slot y Consultar. */
 withDefaults(defineProps<{ field?: { label: string; help: string }; id?: string; loading?: boolean }>(), {
-  field: () => ({ label: 'Período', help: 'Mes del reporte (AAAA-MM).' }),
+  field: () => ({ label: 'Período', help: 'Mes que muestra el reporte. Abre en el mes actual. Ej.: Octubre 2026.' }),
   id: 'period',
 })
 const period = defineModel<string>({ required: true })
