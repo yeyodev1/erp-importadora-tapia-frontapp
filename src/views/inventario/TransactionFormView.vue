@@ -46,7 +46,7 @@ const setContainers = (e: Event) => (doc.containers = Math.max(0, Math.trunc(Num
             <WarehousePicker id="tx-wh" v-model="doc.warehouseId" />
           </FormField>
           <FormField v-if="isTransfer" v-bind="f.targetWarehouseId" for="tx-target" required>
-            <WarehousePicker id="tx-target" v-model="doc.targetWarehouseId" />
+            <WarehousePicker id="tx-target" v-model="doc.targetWarehouseId" :exclude="doc.warehouseId" />
           </FormField>
           <FormField v-bind="f.date" for="tx-date" class="narrow" required>
             <BaseDatePicker id="tx-date" v-model="doc.date" />
