@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { lineHelp } from '@/config/copy/lineHelp'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -30,10 +31,10 @@ const { form, blankLine, bank, isTransfer, kind, amount, description, entry, sav
 
 const typeOptions = BANK_TX_TYPES.map((v) => ({ value: v, label: bancos.types[v].label, hint: bancos.types[v].help }))
 const lineCols: LineColumn<BankTxLine>[] = [
-  { key: 'accountCode', label: t.lineCols.account, type: 'account', width: '36%' },
-  { key: 'description', label: t.lineCols.description, type: 'text' },
-  { key: 'costCenter', label: t.lineCols.costCenter, type: 'text', width: '7rem' },
-  { key: 'amount', label: t.lineCols.amount, type: 'money', total: true, width: '9rem' },
+  { key: 'accountCode', label: t.lineCols.account, type: 'account', width: '36%', help: lineHelp.account },
+  { key: 'description', label: t.lineCols.description, type: 'text', help: lineHelp.detail },
+  { key: 'costCenter', label: t.lineCols.costCenter, type: 'text', width: '7rem', help: lineHelp.costCenter },
+  { key: 'amount', label: t.lineCols.amount, type: 'money', total: true, width: '9rem', help: lineHelp.amount },
 ]
 
 function onParty(p: Party | null) {
