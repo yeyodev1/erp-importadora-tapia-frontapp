@@ -13,9 +13,9 @@ Piezas para construir las pantallas de los módulos. **Montos siempre en CENTAVO
 | `MoneyInput` | Escribe dólares ("1.234,56" o "1234.56"), **v-model en centavos** (`number \| null`). | `id?`, `allowNegative?`, `disabled?`, `invalid?` |
 | `QtyInput` | Cantidad con 4 decimales; `unit` al final. | `id?`, `unit?`, `allowNegative?` |
 | `BaseCombobox` | Selector con búsqueda local (reemplaza `<select>`). | `id`, `options: ComboOption[]`, `emptyLabel?`, `onCreate?` |
-| `BaseDatePicker` | Fecha `AAAA-MM-DD` (reemplaza `type=date`). | `id`, `rangeStart?`, `rangeEnd?`, `clearable?` |
+| `BaseDatePicker` | Fecha `AAAA-MM-DD` (reemplaza `type=date`). | `id`, `rangeStart?`, `rangeEnd?`, `clearable?`, `placeholder?` (vacío: "Elegir fecha"). Nunca abrir vacío: hoy en documentos, `monthStart()` → hoy en reportes |
 | `BaseSwitch` | Interruptor (reemplaza checkbox). | `label`, `hint?`, `help?`, `disabled?` |
-| `BaseSegmented` | Pocas opciones visibles / pestañas. | `options: {value,label,count?}[]`, `tabs?` |
+| `BaseSegmented` | Pocas opciones visibles / pestañas. | `options: {value,label,count?,help?}[]`, `tabs?`. `help`: qué significa el caso (se ve al pasar el mouse y, el elegido, debajo) |
 | `BaseBadge` / `StatusBadge` | Etiqueta de color / estado de documento (`autorizado`, `anulado`, `pendiente`…, mapa en `site.status`). | `tone` / `status` |
 | `ConfirmModal` | Confirmación propia. Con `secondMessage` pide **doble confirmación** (todo lo destructivo). | `open`, `title`, `message`, `subject?`, `secondMessage?`, `danger?`, `loading?`, `error?` |
 | `FormDialog` / `EditorDialog` | Modal de formulario / el mismo atado a `useEditor` (doble confirmación al desactivar). | `editor`, `titleNew`, `titleEdit`, `readonly?`, `wide?` |
@@ -69,12 +69,13 @@ primer hijo), y `<TransitionGroup name="list">` para listas cortas (no para tabl
 ## table/
 
 **`DataTable`** — listados y reportes. Columnas `Column<T>` (`columns.ts`):
-`{ key, label, format?: 'text'|'money'|'qty'|'date'|'int', align?, width?, total?, value?: (row) => …, screenOnly? }`.
+`{ key, label, help?, format?: 'text'|'money'|'qty'|'date'|'int', align?, width?, total?, value?: (row) => …, screenOnly? }`.
 
 Props: `columns`, `rows`, `loading`, `error`, `page`/`pages`/`total` (paginación del servidor,
 emite `update:page`), `totals?` (del servidor; si no, suma las filas), `title?`, `filtersText?: string[]`
 (para la hoja impresa), `fetchAll?` (trae todas las páginas para Excel/PDF), `landscape?`, `clickable`
-(emite `row-click`), `rowClass?` (`'is-void'` tacha filas anuladas). Slots: `toolbar`, `cell-<key>`, `empty`.
+(emite `row-click`), `rowClass?` (`'is-void'` tacha filas anuladas), `emptyTitle?`/`emptyMessage?` (tabla vacía: qué hacer).
+Columna con `help?` → (?) en el encabezado (no sale en Excel ni impresión). Slots: `toolbar`, `cell-<key>`, `empty`.
 Botones **Excel** (`write-excel-file`, dólares reales) e **Imprimir / PDF** (`printReport` → `ThePrintSheet`:
 razón social, RUC, título, filtros y pie con usuario y fecha/hora).
 
