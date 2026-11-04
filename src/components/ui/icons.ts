@@ -72,6 +72,37 @@ export const icons = {
   building: 'fa-solid fa-building',
   wallet: 'fa-solid fa-wallet',
   scale: 'fa-solid fa-scale-balanced',
+
+  // Avisos, indicadores y acciones principales (mismo icono en toda la app)
+  bell: 'fa-solid fa-bell',
+  'bell-slash': 'fa-regular fa-bell-slash',
+  'check-double': 'fa-solid fa-check-double',
+  eye: 'fa-regular fa-eye',
+  clock: 'fa-regular fa-clock',
+  dot: 'fa-solid fa-circle',
+  'trend-up': 'fa-solid fa-arrow-trend-up',
+  'trend-down': 'fa-solid fa-arrow-trend-down',
+  save: 'fa-solid fa-floppy-disk',
+  void: 'fa-solid fa-ban',
+  send: 'fa-solid fa-paper-plane',
+  // Pantallas (icono por opción del menú: src/layout/screenIcons.ts)
+  exchange: 'fa-solid fa-right-left',
+  'money-check': 'fa-solid fa-money-check-dollar',
+  money: 'fa-solid fa-money-bill-wave',
+  'file-lines': 'fa-regular fa-file-lines',
+  'file-minus': 'fa-solid fa-file-circle-minus',
+  'file-plus': 'fa-solid fa-file-circle-plus',
+  'file-import': 'fa-solid fa-file-import',
+  'file-contract': 'fa-solid fa-file-contract',
+  'chart-line': 'fa-solid fa-chart-line',
+  'calendar-check': 'fa-regular fa-calendar-check',
+  diagram: 'fa-solid fa-diagram-project',
+  clipboard: 'fa-solid fa-clipboard-check',
+  layers: 'fa-solid fa-layer-group',
+  list: 'fa-solid fa-list',
+  truck: 'fa-solid fa-truck',
+  trophy: 'fa-solid fa-trophy',
+  handshake: 'fa-solid fa-handshake',
 } as const
 
 export type IconName = keyof typeof icons
