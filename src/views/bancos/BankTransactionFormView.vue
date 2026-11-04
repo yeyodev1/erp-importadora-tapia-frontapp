@@ -44,7 +44,7 @@ const onAccount = (line: BankTxLine, a: Account | null) => (line.accountName = a
 
 <template>
   <section>
-    <PageHeader :title="t.newTitle">
+    <PageHeader :title="t.newTitle" :subtitle="t.newSubtitle">
       <RouterLink :to="{ name: 'BankTransactions' }" class="btn btn--ghost"><AppIcon name="arrow-left" /> {{ t.back }}</RouterLink>
     </PageHeader>
 
@@ -73,10 +73,10 @@ const onAccount = (line: BankTxLine, a: Account | null) => (line.accountName = a
             <PartyPicker id="tx-party" v-model="form.partyId" clearable @pick="onParty" />
           </FormField>
           <FormField v-bind="t.fields.beneficiary" for="tx-ben" :required="form.type === 'CHEQUE'">
-            <input id="tx-ben" v-model="form.beneficiary" :aria-invalid="error === t.errors.beneficiary" />
+            <input id="tx-ben" v-model="form.beneficiary" :placeholder="t.fields.beneficiaryPlaceholder" :aria-invalid="error === t.errors.beneficiary" />
           </FormField>
           <FormField v-bind="t.fields.note" for="tx-note" full>
-            <input id="tx-note" v-model="form.note" maxlength="200" />
+            <input id="tx-note" v-model="form.note" maxlength="200" :placeholder="t.fields.notePlaceholder" />
           </FormField>
         </div>
         <p class="txf__desc">
