@@ -38,8 +38,8 @@ const columns: Column<BalanceRow>[] = [
   { key: 'name', label: t.cols.name },
   { key: 'kind', label: t.cols.kind, value: (r) => site.catalogs.banks.kinds[r.kind], width: '6rem' },
   { key: 'number', label: t.cols.number },
-  { key: 'accountingBalance', label: t.cols.accounting, format: 'money', total: true },
-  { key: 'movementBalance', label: t.cols.movements, format: 'money', total: true },
+  { key: 'accountingBalance', label: t.cols.accounting, help: t.colHelp.accounting, format: 'money', total: true },
+  { key: 'movementBalance', label: t.cols.movements, help: t.colHelp.movements, format: 'money', total: true },
 ]
 </script>
 
@@ -52,7 +52,7 @@ const columns: Column<BalanceRow>[] = [
       </FormField>
       <button type="submit" class="btn btn--primary" :disabled="loading"><AppIcon name="search" /> {{ site.filters.apply }}</button>
     </form>
-    <DataTable :columns="columns" :rows="rows" row-key="bankAccountId" :loading="loading" :error="error" :filters-text="filters" @retry="run">
+    <DataTable :columns="columns" :rows="rows" row-key="bankAccountId" :loading="loading" :error="error" :filters-text="filters" :empty-message="t.empty" @retry="run">
       <template #cell-accountCode="{ row }"><span class="mono">{{ row.accountCode }}</span></template>
     </DataTable>
   </section>
