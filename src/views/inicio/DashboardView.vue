@@ -62,7 +62,15 @@ const isEmpty = computed(() => data.value && !cards.value.length && !data.value.
     <PageHeader :subtitle="user.user ? `${site.login.welcome} ${user.user.name}. ${t.subtitle}` : t.subtitle" />
     <PeriodBar id="db-month" v-model="month" :field="t.month" :loading="report.loading.value" @submit="report.run" />
 
-    <EmptyState v-if="report.error.value" tone="error" :message="report.error.value" @retry="report.run" />
+    <!-- Primera carga: tarjetas y gráfico en skeleton, nunca la pantalla en blanco. -->
+    <template v-if="report.loading.value && !data">
+      <div class="db__cards" aria-busy="true">
+        <KpiCard v-for="n in 4" :key="n" loading />
+      </div>
+      <SalesChart class="db__block" :series="[]" :title="t.chart.title" :empty="t.chart.empty" loading />
+    </template>
+
+    <EmptyState v-else-if="report.error.value" tone="error" :message="report.error.value" @retry="report.run" />
     <EmptyState v-else-if="isEmpty" :message="t.empty" />
 
     <template v-else-if="data">
