@@ -13,7 +13,7 @@ const sidebarOpen = ref(false)
       <AppTopbar @toggle-sidebar="sidebarOpen = !sidebarOpen" />
       <main class="layout__content">
         <RouterView v-slot="{ Component, route }">
-          <Transition name="fade" mode="out-in">
+          <Transition name="page" mode="out-in">
             <component :is="Component" :key="route.fullPath" />
           </Transition>
         </RouterView>
