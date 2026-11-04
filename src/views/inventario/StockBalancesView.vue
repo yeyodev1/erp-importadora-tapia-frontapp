@@ -4,6 +4,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import BaseSwitch from '@/components/ui/BaseSwitch.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { stockRow } from '@/components/table/indicators'
 import StockFilters from '@/components/inventory/StockFilters.vue'
 import { defaultStockFilters, stockParams } from '@/components/inventory/stockFilters'
 import { useReport } from '@/composables/inventory/useReport'
@@ -33,7 +34,7 @@ const columns = computed<Column<StockRow>[]>(() => [
   { key: 'code', label: c.code, width: '6rem', help: c.codeHelp },
   { key: 'name', label: c.product },
   { key: 'group', label: c.group, value: (r) => [r.group, r.subgroup].filter(Boolean).join(' / ') },
-  { key: 'qty', label: c.qty, format: 'qty', help: c.qtyHelp },
+  { key: 'qty', label: c.qty, format: 'qty-stock', min: (r) => r.minQty, help: c.qtyHelp },
   { key: 'unit', label: c.unit },
   { key: 'purchaseQty', label: c.purchaseQty, format: 'qty', help: c.purchaseQtyHelp, value: (r) => roundQty(r.qty / (r.purchaseUnit?.factor || 1)) },
   { key: 'purchaseUnit', label: c.purchaseUnit, value: (r) => r.purchaseUnit?.name },
@@ -61,6 +62,7 @@ const title = computed(() => (report.data ? `Saldos ${shownValued.value ? 'valor
       :columns="columns"
       :rows="report.data?.items ?? []"
       row-key="productId"
+      :row-class="(r) => stockRow(r.qty, r.minQty)"
       :loading="report.loading"
       :error="report.error"
       :title="title"
