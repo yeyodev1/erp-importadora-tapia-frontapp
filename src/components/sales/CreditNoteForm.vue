@@ -51,13 +51,13 @@ function onParty() {
         <BaseDatePicker id="nc-date" v-model="form.date" />
       </FormField>
       <FormField v-bind="f.reason" for="nc-reason" required full>
-        <input id="nc-reason" v-model="form.reason" required maxlength="300" />
+        <input id="nc-reason" v-model="form.reason" required maxlength="300" :placeholder="t.placeholders.reason" />
       </FormField>
       <BaseSwitch v-model="form.returnsStock" v-bind="f.returnsStock" :hint="form.returnsStock ? t.creditNotes.returns : t.creditNotes.valueOnly" />
     </div>
 
-    <p v-if="!invoice" class="ncf__muted">{{ t.creditNotes.pickInvoice }}</p>
-    <DocumentLines v-else v-model="lines" :columns="columns" :new-line="() => lines[0]!" readonly id-prefix="nc-l">
+    <p class="ncf__muted">{{ invoice ? t.creditNotes.linesHint : t.creditNotes.pickInvoice }}</p>
+    <DocumentLines v-if="invoice" v-model="lines" :columns="columns" :new-line="() => lines[0]!" readonly id-prefix="nc-l">
       <template #cell-qty="{ line, index }">
         <QtyInput :id="`nc-l-${index}-qty`" v-model="line.qty" :invalid="tooMuch(line)" />
       </template>
