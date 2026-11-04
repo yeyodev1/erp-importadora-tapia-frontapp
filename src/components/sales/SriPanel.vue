@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import HelpTip from '@/components/ui/HelpTip.vue'
 import { salesService, type DocKind, type SriFields } from '@/services/sales.service'
@@ -19,18 +18,14 @@ const emit = defineEmits<{ updated: [doc: SriFields] }>()
 
 const toast = useToastStore()
 const { printRide, printing } = useRide()
-const retrying = ref(false)
-
+// Sin estado propio: BaseButton muestra la espera y bloquea el doble clic.
 async function retry() {
-  retrying.value = true
   try {
     const doc = await salesService.retrySri(props.kind, props.doc._id)
     emit('updated', doc)
     toast.info(t.sri.retried)
   } catch (e) {
     toast.error((e as ApiError).message)
-  } finally {
-    retrying.value = false
   }
 }
 </script>
@@ -42,15 +37,9 @@ async function retry() {
       <StatusBadge :status="doc.sriStatus || 'pendiente'" />
       <HelpTip :text="t.colHelp.sri" :label="t.sri.title" />
       <span class="toolbar__spacer"></span>
-      <button v-if="canWrite && doc.sriStatus !== 'autorizado' && doc.status !== 'anulado'" type="button" class="btn btn--ghost btn--sm" :disabled="retrying" @click="retry">
-        <AppIcon name="refresh" :spin="retrying" /> {{ t.actions.retrySri }}
-      </button>
-      <button type="button" class="btn btn--ghost btn--sm" :disabled="!!printing" @click="printRide(kind, doc._id, 'a4')">
-        <AppIcon name="print" /> {{ t.actions.rideA4 }}
-      </button>
-      <button v-if="kind === 'invoices'" type="button" class="btn btn--ghost btn--sm" :disabled="!!printing" @click="printRide(kind, doc._id, 'ticket')">
-        <AppIcon name="print" /> {{ t.actions.rideTicket }}
-      </button>
+      <BaseButton v-if="canWrite && doc.sriStatus !== 'autorizado' && doc.status !== 'anulado'" size="sm" icon="send" :action="retry">{{ t.actions.retrySri }}</BaseButton>
+      <BaseButton size="sm" icon="print" :disabled="!!printing" :action="() => printRide(kind, doc._id, 'a4')">{{ t.actions.rideA4 }}</BaseButton>
+      <BaseButton v-if="kind === 'invoices'" size="sm" icon="print" :disabled="!!printing" :action="() => printRide(kind, doc._id, 'ticket')">{{ t.actions.rideTicket }}</BaseButton>
     </header>
     <ul v-if="doc.sriMessages?.length" class="sri__msgs">
       <li v-for="m in doc.sriMessages" :key="m">{{ m }}</li>
