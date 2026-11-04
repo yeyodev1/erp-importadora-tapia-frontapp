@@ -18,13 +18,13 @@ const tax = ref<'' | 'renta' | 'iva'>('')
 const mode = ref<'invoice' | 'type'>('invoice')
 const byType = computed(() => mode.value === 'type')
 const taxTabs = [
-  { value: '' as const, label: t.taxAll },
-  { value: 'renta' as const, label: w.renta },
-  { value: 'iva' as const, label: w.iva },
+  { value: '' as const, label: t.taxAll, help: t.taxHelp[''] },
+  { value: 'renta' as const, label: w.renta, help: t.taxHelp.renta },
+  { value: 'iva' as const, label: w.iva, help: t.taxHelp.iva },
 ]
 const modes = [
-  { value: 'invoice' as const, label: t.byInvoice },
-  { value: 'type' as const, label: t.byType },
+  { value: 'invoice' as const, label: t.byInvoice, help: t.modeHelp.invoice },
+  { value: 'type' as const, label: t.byType, help: t.modeHelp.type },
 ]
 
 const report = useReport(() =>
@@ -53,10 +53,10 @@ const columns = computed<Column[]>(() =>
   byType.value
     ? [
         { key: 'tax', label: 'Impuesto', value: (x) => taxName(x.tax) },
-        { key: 'rate', label: '%', value: (x) => rate(x.rate), align: 'right' },
-        { key: 'count', label: 'Líneas', format: 'int', total: true },
-        { key: 'base', label: 'Base', format: 'money', total: true },
-        { key: 'amount', label: 'Valor', format: 'money', total: true },
+        { key: 'rate', ...w.rate, value: (x) => rate(x.rate), align: 'right' },
+        { key: 'count', ...t.cols.count, format: 'int', total: true },
+        { key: 'base', ...t.cols.base, format: 'money', total: true },
+        { key: 'amount', ...t.cols.amount, format: 'money', total: true },
       ]
     : [
         { key: 'date', label: 'Fecha', format: 'date', width: '6.5rem' },
@@ -64,18 +64,18 @@ const columns = computed<Column[]>(() =>
         { key: 'customer', label: 'Cliente' },
         { key: 'identification', label: 'Identificación', width: '9rem' },
         { key: 'sellerName', label: 'Vendedor' },
-        { key: 'voucherNumber', label: 'Comprobante', width: '10rem' },
+        { key: 'voucherNumber', ...w.cols.voucher, width: '10rem' },
         { key: 'tax', label: 'Impuesto', value: (x) => taxName(x.tax), width: '5rem' },
-        { key: 'rate', label: '%', value: (x) => rate(x.rate), align: 'right', width: '4rem' },
-        { key: 'base', label: 'Base', format: 'money', total: true },
-        { key: 'amount', label: 'Valor', format: 'money', total: true },
+        { key: 'rate', ...w.rate, value: (x) => rate(x.rate), align: 'right', width: '4rem' },
+        { key: 'base', ...t.cols.base, format: 'money', total: true },
+        { key: 'amount', ...t.cols.amount, format: 'money', total: true },
       ],
 )
 </script>
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="t.subtitle" />
     <ReportFilters
       v-model="filters"
       :fields="['range', 'party']"
@@ -90,12 +90,13 @@ const columns = computed<Column[]>(() =>
       :loading="report.loading.value"
       :error="report.error.value"
       :filters-text="[...report.summary.value, taxTabs.find((x) => x.value === tax)!.label]"
+      :empty-message="t.empty"
       landscape
       @retry="report.run()"
     >
       <template #toolbar>
-        <BaseSegmented v-model="mode" :options="modes" label="Vista" />
-        <BaseSegmented v-model="tax" :options="taxTabs" label="Impuesto" />
+        <BaseSegmented v-model="mode" :options="modes" :label="cxc.reports.modeLabel" />
+        <BaseSegmented v-model="tax" :options="taxTabs" :label="t.taxLabel" />
       </template>
     </DataTable>
   </section>
