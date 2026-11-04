@@ -48,12 +48,12 @@ async function submit() {
 
       <div class="login__field">
         <label for="email">{{ t.email }}</label>
-        <input id="email" v-model="email" type="email" autocomplete="email" required />
+        <input id="email" v-model="email" type="email" autocomplete="email" :placeholder="t.emailPlaceholder" required />
       </div>
 
       <div class="login__field">
         <label for="password">{{ t.password }}</label>
-        <input id="password" v-model="password" type="password" autocomplete="current-password" required />
+        <input id="password" v-model="password" type="password" autocomplete="current-password" :placeholder="t.passwordPlaceholder" required />
       </div>
 
       <Transition name="rise">
