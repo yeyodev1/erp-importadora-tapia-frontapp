@@ -54,7 +54,7 @@ useBodyScroll(toRef(props, 'open'))
           <footer class="dialog__actions">
             <slot name="extra" />
             <button type="button" class="btn btn--ghost" @click="emit('close')">{{ readonly ? 'Cerrar' : site.common.cancel }}</button>
-            <BaseButton v-if="!readonly" type="submit" variant="primary" :loading="loading">
+            <BaseButton v-if="!readonly" type="submit" variant="primary" icon="save" :loading="loading">
               {{ submitLabel || site.common.save }}
             </BaseButton>
           </footer>
