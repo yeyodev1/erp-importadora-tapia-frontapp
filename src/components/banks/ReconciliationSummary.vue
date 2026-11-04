@@ -30,8 +30,6 @@ const t = bancos.rec.summary
             <th class="num"><span class="rs__th">{{ t.previous }} <HelpTip :text="t.help.previous" /></span></th>
             <th class="num"><span class="rs__th">{{ t.pending }} <HelpTip :text="t.help.pending" /></span></th>
             <th class="num"><span class="rs__th">{{ t.bookCol }} <HelpTip :text="t.help.bookCol" /></span></th>
-            <th class="num"><span class="rs__th">{{ t.records }}: {{ t.pending }} <HelpTip :text="t.help.recordsPending" /></span></th>
-            <th class="num"><span class="rs__th">{{ t.records }}: {{ t.cleared }} <HelpTip :text="t.help.cleared" /></span></th>
           </tr>
         </thead>
         <tbody>
@@ -40,8 +38,6 @@ const t = bancos.rec.summary
             <td class="num">{{ formatMoney(r.previousMonths) }}</td>
             <td class="num">{{ formatMoney(r.pendingInPeriod) }}</td>
             <td class="num">{{ formatMoney(r.bookInPeriod) }}</td>
-            <td class="num">{{ r.records.pending }}</td>
-            <td class="num">{{ r.records.cleared }}</td>
           </tr>
         </tbody>
       </table>
@@ -58,6 +54,27 @@ const t = bancos.rec.summary
     <p class="rs__msg" :class="summary.balanced ? 'is-ok' : 'is-off'">
       <AppIcon :name="summary.balanced ? 'check-circle' : 'alert'" /> {{ summary.balanced ? t.balanced : summary.message }}
     </p>
+
+    <!-- Panel "Registros" aparte, como en el sistema anterior: cuántos movimientos hay de cada tipo -->
+    <p class="form-section">{{ t.records }}</p>
+    <div class="rs__scroll">
+      <table class="rs__table">
+        <thead>
+          <tr>
+            <th>{{ t.type }}</th>
+            <th class="num"><span class="rs__th">{{ t.pending }} <HelpTip :text="t.help.recordsPending" /></span></th>
+            <th class="num"><span class="rs__th">{{ t.cleared }} <HelpTip :text="t.help.cleared" /></span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="r in summary.rows" :key="r.type">
+            <td>{{ bancos.rec.types[r.type] }}</td>
+            <td class="num">{{ r.records.pending }}</td>
+            <td class="num">{{ r.records.cleared }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
