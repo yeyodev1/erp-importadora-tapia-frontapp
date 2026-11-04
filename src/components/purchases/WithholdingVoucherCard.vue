@@ -20,11 +20,11 @@ const sending = ref(false)
 
 const columns: Column<WithholdingLine>[] = [
   { key: 'tax', label: 'Impuesto', value: (w) => cxp.tax[w.tax] },
-  { key: 'code', label: 'Código' },
+  { key: 'code', label: 'Código de retención' },
   { key: 'description', label: 'Concepto' },
-  { key: 'base', label: 'Base', format: 'money' },
-  { key: 'rate', label: '%', format: 'qty' },
-  { key: 'amount', label: 'Retenido', format: 'money', total: true },
+  { key: 'base', label: 'Base imponible', format: 'money', help: cxp.reports.columns.wBase },
+  { key: 'rate', label: 'Porcentaje', format: 'qty', help: cxp.reports.columns.wRate },
+  { key: 'amount', label: 'Retenido', format: 'money', total: true, help: cxp.reports.columns.wAmount },
 ]
 
 async function resend() {
