@@ -31,7 +31,7 @@ const lineText = (l: StatementLine) => [l.reference, l.description].filter(Boole
 
 const proposalCols: Column<MatchProposal>[] = [
   { key: 'accept', label: t.accept, screenOnly: true, width: '5rem' },
-  { key: 'rule', label: '', value: (p) => t.rules[p.rule] },
+  { key: 'rule', label: t.ruleLabel, help: t.ruleHelp, value: (p) => t.rules[p.rule] },
   { key: 'mov', label: t.colBook, value: (p) => `${formatDay(p.movement.date)} · ${p.movement.description}` },
   { key: 'line', label: t.colStatement, value: (p) => `${formatDay(p.line.date)} · ${lineText(p.line)}` },
   { key: 'amount', label: c.amount, format: 'money', value: (p) => signed(p.line.amount, p.line.direction) },
@@ -40,7 +40,7 @@ const lineCols: Column<StatementLine>[] = [
   { key: 'date', label: c.date, format: 'date', width: '7rem' },
   { key: 'text', label: c.description, value: lineText },
   { key: 'amount', label: c.amount, format: 'money', value: (l) => signed(l.amount, l.direction) },
-  { key: 'action', label: '', screenOnly: true },
+  { key: 'action', label: t.actionLabel, screenOnly: true },
 ]
 const movCols: Column<BankMovement>[] = [
   { key: 'date', label: c.date, format: 'date', width: '7rem' },
