@@ -118,6 +118,7 @@ export interface InvoicesReport {
     partyId: string
     name: string
     identification: string
+    parish?: string
     invoices: {
       invoiceId: string
       number: string
