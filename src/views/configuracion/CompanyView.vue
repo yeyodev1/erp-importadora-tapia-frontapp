@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseSwitch from '@/components/ui/BaseSwitch.vue'
@@ -69,9 +70,7 @@ async function confirmProduction() {
 
       <p v-if="error && form" class="company__error" role="alert"><AppIcon name="alert-circle" /> {{ error }}</p>
       <div v-if="canWrite && form" class="company__actions">
-        <button type="submit" class="btn btn--primary" :disabled="saving">
-          <AppIcon v-if="saving" name="spinner" spin /> {{ site.common.save }}
-        </button>
+        <BaseButton type="submit" variant="primary" icon="save" :loading="saving">{{ site.common.save }}</BaseButton>
       </div>
     </form>
 
