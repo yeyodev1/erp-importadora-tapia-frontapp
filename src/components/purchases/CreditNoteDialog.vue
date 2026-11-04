@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { lineHelp } from '@/config/copy/lineHelp'
 import { computed, reactive, ref, watch } from 'vue'
 import FormDialog from '@/components/ui/FormDialog.vue'
 import FormField from '@/components/ui/FormField.vue'
@@ -81,14 +82,14 @@ const totals = computed(() =>
 )
 
 const expenseColumns: LineColumn<ExpenseLine>[] = [
-  { key: 'accountCode', label: 'Cuenta contable', type: 'account', width: '40%' },
-  { key: 'base0', label: 'Base 0 %', type: 'money', total: true },
-  { key: 'baseVat', label: 'Base 15 %', type: 'money', total: true },
+  { key: 'accountCode', label: 'Cuenta contable', type: 'account', width: '40%', help: lineHelp.account },
+  { key: 'base0', label: 'Base 0 %', type: 'money', total: true, help: lineHelp.base0 },
+  { key: 'baseVat', label: 'Base 15 %', type: 'money', total: true, help: lineHelp.baseVat },
 ]
 const productColumns: LineColumn<ProductLine>[] = [
-  { key: 'description', label: 'Producto', type: 'readonly', width: '40%' },
-  { key: 'qty', label: 'Cantidad', type: 'qty', total: true },
-  { key: 'subtotal', label: 'Subtotal', type: 'money', total: true },
+  { key: 'description', label: 'Producto', type: 'readonly', width: '40%', help: lineHelp.product },
+  { key: 'qty', label: 'Cantidad', type: 'qty', total: true, help: lineHelp.returnQty },
+  { key: 'subtotal', label: 'Subtotal', type: 'money', total: true, help: lineHelp.subtotal },
 ]
 
 async function submit() {
