@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
@@ -48,9 +49,7 @@ const columns = statementColumns(t.common.amount).map((col) => (col.key === 'amo
           <BaseDatePicker id="bs-date" v-model="date" />
         </FormField>
         <div class="bs__submit">
-          <button type="submit" class="btn btn--primary" :disabled="report.loading.value || !date">
-            <AppIcon :name="report.loading.value ? 'spinner' : 'search'" :spin="report.loading.value" /> {{ site.filters.apply }}
-          </button>
+          <BaseButton type="submit" variant="primary" icon="search" :loading="report.loading.value" :disabled="!date">{{ site.filters.apply }}</BaseButton>
         </div>
       </div>
     </form>
