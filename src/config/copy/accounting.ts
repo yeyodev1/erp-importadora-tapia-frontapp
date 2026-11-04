@@ -45,7 +45,7 @@ export const accounting = {
     account: 'Cuenta',
     code: 'Código',
     name: 'Nombre',
-    party: 'Tercero',
+    party: 'Beneficiario',
     debit: 'Debe',
     credit: 'Haber',
     balance: 'Saldo',
@@ -67,7 +67,7 @@ export const accounting = {
     more: 'Más filtros',
     fields: {
       number: { label: 'Número', help: 'Número del asiento o parte de él (DIA-000123).' },
-      type: { label: 'Tipo', help: 'Tipo de asiento: los de otros módulos (venta, cobro, compra…) solo se consultan.' },
+      type: { label: 'Tipo de comprobante', help: 'Tipo de asiento: los de otros módulos (venta, cobro, compra…) solo se consultan.' },
       module: { label: 'Módulo', help: 'Módulo que generó el asiento.' },
       account: { label: 'Cuenta', help: 'Asientos que tocan esta cuenta; si es de mayor, también sus hijas.' },
       q: { label: 'Texto', help: 'Busca en la descripción, el detalle de las líneas y el número del documento origen.' },
@@ -85,7 +85,7 @@ export const accounting = {
     incomplete: 'Cada línea con valor necesita su cuenta, y solo debe o haber.',
     fields: {
       date: { label: 'Fecha', help: 'Fecha contable. Si el mes está cerrado el API no deja grabar.' },
-      subtype: { label: 'Subtipo', help: 'Todos son asientos de diario; el subtipo sirve para buscarlos y reportarlos.' },
+      subtype: { label: 'Tipo de comprobante', help: 'Todos son asientos de diario; el subtipo sirve para buscarlos y reportarlos.' },
       description: { label: 'Descripción', help: 'Concepto del comprobante. Se ve en el libro diario y en el mayor.' },
     },
     lines: {
@@ -94,7 +94,7 @@ export const accounting = {
       debit: 'Debe',
       credit: 'Haber',
       costCenter: 'Centro de costo',
-      party: 'Tercero',
+      party: 'Beneficiario',
     },
     costCenterHelp: 'Obligatorio si la cuenta controla centro de costo.',
   },
@@ -203,7 +203,7 @@ export const accounting = {
   },
 
   yearClose: {
-    intro: 'Lleva a cero las cuentas de resultados (4 y 5) contra "Utilidad o pérdida del ejercicio" con un asiento al 31 de diciembre y bloquea el año.',
+    intro: 'Pasa los saldos al siguiente período anual y genera el asiento de cierre: lleva a cero las cuentas de resultados (4 y 5) contra "Utilidad o pérdida del ejercicio" con un asiento al 31 de diciembre y bloquea el año.',
     year: { label: 'Año', help: 'Año a cerrar. Revisa antes el estado de resultados de ese año.' },
     transfer: { label: 'Trasladar a resultados acumulados', help: 'Además pasa la utilidad o pérdida a la cuenta de resultados acumulados.' },
     close: 'Cerrar año',
@@ -219,7 +219,7 @@ export const accounting = {
     reopenSecond: 'Confírmalo otra vez: el año vuelve a mostrar sus resultados.',
     reason: { label: 'Motivo', help: 'Por qué se reabre el año. Queda en el reverso.' },
     result: 'Resultado',
-    by: 'Grabó',
+    by: 'Responsable',
   },
 
   importChart: {
