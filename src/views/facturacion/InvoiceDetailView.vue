@@ -35,13 +35,13 @@ const lineCols: Column<SaleLine>[] = [
   { key: 'qty', label: c.qty, format: 'qty', total: true },
   { key: 'unitPrice', label: c.price, format: 'money' },
   { key: 'discount', label: c.discount, format: 'money', total: true },
-  { key: 'vatRate', label: c.vatRate, format: 'int', width: '4rem' },
+  { key: 'vatRate', label: c.vatRate, help: t.colHelp.vatRate, format: 'int', width: '4rem' },
   { key: 'subtotal', label: c.lineTotal, format: 'money', total: true },
 ]
 type Movement = NonNullable<SalesInvoice['movements']>[number]
 const movementCols: Column<Movement>[] = [
   { key: 'date', label: c.date, format: 'date', width: '7rem' },
-  { key: 'kind', label: c.kind, width: '9rem' },
+  { key: 'kind', label: c.movement, help: t.colHelp.movement, value: (r) => t.movementKinds[r.kind] ?? r.kind, width: '9rem' },
   { key: 'description', label: c.reason },
   { key: 'amount', label: c.value, format: 'money', total: true },
 ]
@@ -49,7 +49,7 @@ const movementCols: Column<Movement>[] = [
 
 <template>
   <section class="inv">
-    <PageHeader :title="invoice ? `${route.meta.title} ${invoice.number}` : undefined">
+    <PageHeader :title="invoice ? `${route.meta.title} ${invoice.number}` : undefined" :subtitle="t.pages.invoiceDetail.subtitle">
       <button type="button" class="btn btn--ghost" @click="router.push({ name: 'Invoices' })"><AppIcon name="arrow-left" /> {{ t.actions.back }}</button>
     </PageHeader>
 
@@ -68,7 +68,7 @@ const movementCols: Column<Movement>[] = [
       <SriPanel kind="invoices" :doc="invoice" :can-write="canWrite" @updated="d.updateSri" />
 
       <h3 class="inv__h">{{ t.invoices.lines }}</h3>
-      <DataTable :columns="lineCols" :rows="invoice.lines" :title="`${route.meta.title} ${invoice.number}`" />
+      <DataTable :columns="lineCols" :rows="invoice.lines" :title="`${route.meta.title} ${invoice.number}`" :empty-message="t.pages.noLines" />
       <div class="panel panel--pad"><SaleTotals :totals="invoice" :balance="invoice.balance" /></div>
 
       <template v-if="invoice.movements?.length">
@@ -81,7 +81,7 @@ const movementCols: Column<Movement>[] = [
 
       <div v-if="canWrite && invoice.status === 'vigente'" class="panel panel--pad inv__void">
         <FormField v-bind="t.fields.voidReason" for="inv-void" full>
-          <input id="inv-void" v-model="voidReason" maxlength="200" />
+          <input id="inv-void" v-model="voidReason" maxlength="200" :placeholder="t.placeholders.voidReason" />
         </FormField>
         <button type="button" class="btn btn--danger" :disabled="!voidReason.trim()" @click="voidOpen = true">
           <AppIcon name="x" /> {{ t.actions.void }}
