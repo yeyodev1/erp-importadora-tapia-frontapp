@@ -19,13 +19,13 @@ const catalog = useCatalogStore()
 catalog.ensure('productGroups')
 
 const f = t.fields
-const types = (Object.keys(t.report.types) as ReportType[]).map((value) => ({ value, label: t.report.types[value] }))
+const types = (Object.keys(t.report.types) as ReportType[]).map((value) => ({ value, label: t.report.types[value], help: t.report.typeHelp[value] }))
 const groups = computed(() => catalog.productGroups.map((g) => ({ value: g._id, label: g.name })))
 </script>
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="t.pages.salesReport.subtitle" />
     <BaseSegmented v-model="type" class="sr__types" :options="types" tabs :label="title" />
 
     <ReportFilters v-model="filters" :fields="['range', 'warehouse', 'party']" party-role="customer" :loading="loading" @apply="r.run">
@@ -33,13 +33,13 @@ const groups = computed(() => catalog.productGroups.map((g) => ({ value: g._id, 
         <BaseCombobox id="sr-group" v-model="extra.groupId" :options="groups" :empty-label="t.fields.all" />
       </FormField>
       <FormField v-bind="f.seller" for="sr-seller">
-        <input id="sr-seller" v-model="extra.sellerName" />
+        <input id="sr-seller" v-model="extra.sellerName" :placeholder="t.placeholders.seller" />
       </FormField>
       <FormField v-bind="f.parish" for="sr-parish">
-        <input id="sr-parish" v-model="extra.parish" />
+        <input id="sr-parish" v-model="extra.parish" :placeholder="t.placeholders.parish" />
       </FormField>
       <FormField v-bind="f.customerType" for="sr-ctype">
-        <input id="sr-ctype" v-model="extra.customerType" />
+        <input id="sr-ctype" v-model="extra.customerType" :placeholder="t.placeholders.customerType" />
       </FormField>
       <BaseSwitch v-model="extra.includeVoided" v-bind="f.includeVoided" />
     </ReportFilters>
@@ -52,6 +52,7 @@ const groups = computed(() => catalog.productGroups.map((g) => ({ value: g._id, 
       :totals="totals"
       :title="title"
       :filters-text="summary"
+      :empty-message="t.pages.salesReport.empty"
       :row-class="(row) => (row.status === 'anulado' ? 'is-void' : undefined)"
       landscape
       @retry="r.run()"
