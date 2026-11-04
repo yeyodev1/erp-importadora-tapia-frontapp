@@ -60,7 +60,7 @@ async function save() {
 
 <template>
   <section class="if">
-    <PageHeader>
+    <PageHeader :subtitle="cxp.pages.invoiceNew">
       <RouterLink :to="{ name: 'SupplierInvoices' }" class="btn btn--ghost"><AppIcon name="arrow-left" /> Facturas</RouterLink>
       <label v-if="canWrite" class="btn btn--ghost if__file">
         <AppIcon name="upload" /> {{ t.loadXml }}
