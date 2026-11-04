@@ -107,6 +107,7 @@ export interface CountRow {
   subgroup: string
   unit: string
   qty: number
+  minQty?: number
   purchaseUnit: string
   purchaseQty: number
   count: number | null
