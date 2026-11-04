@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { lineHelp } from '@/config/copy/lineHelp'
 import { computed } from 'vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseSegmented from '@/components/ui/BaseSegmented.vue'
@@ -20,16 +21,16 @@ const totals = computed(() => props.ctx.totals.value)
 const defaultAccount = computed(() => props.ctx.supplier.value?.supplier?.defaultExpenseAccount ?? '')
 
 const expenseColumns: LineColumn<ExpenseLine>[] = [
-  { key: 'accountCode', label: 'Cuenta de gasto', type: 'account', width: '34%' },
-  { key: 'description', label: 'Detalle', type: 'text', width: '26%' },
-  { key: 'base0', label: 'Base 0 %', type: 'money', total: true },
-  { key: 'baseVat', label: 'Base 15 %', type: 'money', total: true },
+  { key: 'accountCode', label: 'Cuenta de gasto', type: 'account', width: '34%', help: lineHelp.expenseAccount },
+  { key: 'description', label: 'Detalle', type: 'text', width: '26%', help: lineHelp.detail },
+  { key: 'base0', label: 'Base 0 %', type: 'money', total: true, help: lineHelp.base0 },
+  { key: 'baseVat', label: 'Base 15 %', type: 'money', total: true, help: lineHelp.baseVat },
 ]
 const productColumns: LineColumn<ProductLine>[] = [
-  { key: 'productId', label: 'Producto', type: 'product', width: '40%' },
-  { key: 'qty', label: 'Cantidad', type: 'qty', total: true },
-  { key: 'subtotal', label: 'Subtotal', type: 'money', total: true },
-  { key: 'vatRate', label: 'IVA', type: 'readonly', value: (l) => `${l.vatRate} %` },
+  { key: 'productId', label: 'Producto', type: 'product', width: '40%', help: lineHelp.product },
+  { key: 'qty', label: 'Cantidad', type: 'qty', total: true, help: lineHelp.qty },
+  { key: 'subtotal', label: 'Subtotal', type: 'money', total: true, help: lineHelp.subtotal },
+  { key: 'vatRate', label: 'IVA', type: 'readonly', value: (l) => `${l.vatRate} %`, help: lineHelp.vatRate },
 ]
 </script>
 
