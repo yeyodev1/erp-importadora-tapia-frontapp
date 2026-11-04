@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { lineHelp } from '@/config/copy/lineHelp'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import BaseCombobox from '@/components/ui/BaseCombobox.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import AlertBanner from '@/components/ui/AlertBanner.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
+import { overdueDays } from '@/components/table/indicators'
+import { receivablesService } from '@/services/receivables.service'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import WarehousePicker from '@/components/pickers/WarehousePicker.vue'
 import DocumentLines from '@/components/documents/DocumentLines.vue'
@@ -12,7 +17,7 @@ import type { LineColumn } from '@/components/documents/lines'
 import SaleTotals from './SaleTotals.vue'
 import { blankLine, type FormLine, type SaleForm } from '@/composables/sales/useSaleForm'
 import { lineSubtotal } from '@/composables/sales/saleMath'
-import { formatQty } from '@/utils/money'
+import { formatMoney, formatQty, sumCents } from '@/utils/money'
 import { facturacion as t } from '@/config/copy/facturacion'
 
 /** Formulario de factura o proforma (misma cabecera y líneas). La lógica vive en useSaleForm. */
@@ -23,6 +28,27 @@ const emit = defineEmits<{ cancel: [] }>()
 const { head: h, lines, totals, saving, error, short, stockOf, pickParty, pickProduct, save } = props.form
 const f = t.fields
 const priceLists = computed(() => [...new Set([...t.priceLists, h.priceList])].map((v) => ({ value: v, label: v, hint: t.priceListHints[v] })))
+
+// Aviso al elegir el cliente: sus facturas vencidas (una sola consulta a cartera; sin permiso, no se avisa).
+const overdue = ref<{ count: number; amount: number; days: number } | null>(null)
+watch(
+  () => h.partyId,
+  async (partyId) => {
+    overdue.value = null
+    if (!partyId) return
+    try {
+      const { items } = await receivablesService.openInvoices({ partyId })
+      const late = items.map((i) => ({ i, days: overdueDays(i.dueDate) ?? 0 })).filter((x) => x.days > 0)
+      if (h.partyId === partyId && late.length) {
+        overdue.value = { count: late.length, amount: sumCents(late, (x) => x.i.balance), days: Math.max(...late.map((x) => x.days)) }
+      }
+    } catch {
+      overdue.value = null
+    }
+  },
+  { immediate: true },
+)
+const shortNames = computed(() => lines.value.filter((l) => short(l)).map((l) => l.product?.name ?? '').join(', '))
 
 const columns: LineColumn<FormLine>[] = [
   { key: 'productId', label: t.cols.product, type: 'product', width: '34%', help: lineHelp.product },
@@ -37,6 +63,13 @@ const columns: LineColumn<FormLine>[] = [
 
 <template>
   <form class="sdf" @submit.prevent="save()">
+    <LockedDateBanner :date="h.date" />
+    <AlertBanner
+      v-if="overdue"
+      :level="overdue.days > 90 ? 'danger' : 'warning'"
+      :title="t.invoices.overdueTitle"
+      :message="t.invoices.overdueMessage(overdue.count, formatMoney(overdue.amount), overdue.days)"
+    />
     <div class="panel panel--pad form-grid">
       <FormField v-bind="f.warehouse" :for="`${idPrefix}-wh`" required>
         <WarehousePicker :id="`${idPrefix}-wh`" v-model="h.warehouseId" />
@@ -67,6 +100,7 @@ const columns: LineColumn<FormLine>[] = [
       </FormField>
     </div>
 
+    <AlertBanner v-if="shortNames" level="warning" :title="t.invoices.stockShortTitle" :message="t.invoices.stockShortMessage(shortNames)" />
     <DocumentLines v-model="lines" :columns="columns" :new-line="blankLine" :id-prefix="`${idPrefix}-l`" @pick-product="pickProduct">
       <template #cell-stock="{ line }">
         <span class="sdf__stock num" :class="{ 'is-short': short(line) }" :title="short(line) ? t.invoices.stockShort : undefined">
@@ -84,10 +118,7 @@ const columns: LineColumn<FormLine>[] = [
       <p v-if="error" class="sdf__error" role="alert">{{ error }}</p>
       <div class="sdf__actions">
         <button type="button" class="btn btn--ghost" :disabled="saving" @click="emit('cancel')">{{ t.actions.cancel }}</button>
-        <button type="submit" class="btn btn--primary" :disabled="saving">
-          <AppIcon :name="saving ? 'spinner' : 'check'" :spin="saving" />
-          {{ saving ? t.actions.saving : submitLabel }}
-        </button>
+        <BaseButton type="submit" variant="primary" icon="check" :loading="saving">{{ submitLabel }}</BaseButton>
       </div>
     </div>
   </form>
@@ -100,8 +131,9 @@ const columns: LineColumn<FormLine>[] = [
   &__stock {
     @include flex(row, center, flex-end, 0.3rem);
 
+    // Mismo ámbar que el aviso de arriba: atención, no error.
     &.is-short {
-      color: $danger;
+      color: $warning;
       font-weight: 600;
     }
   }
