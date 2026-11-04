@@ -21,13 +21,13 @@ const status = ref<'pending' | 'paid' | 'all'>('pending')
 const mode = ref<'summary' | 'detailed'>('summary')
 const detailed = computed(() => mode.value === 'detailed')
 const statusTabs = [
-  { value: 'pending' as const, label: r.statusPending },
-  { value: 'paid' as const, label: r.statusPaid },
-  { value: 'all' as const, label: r.statusAll },
+  { value: 'pending' as const, label: r.statusPending, help: r.statusHelp.pending },
+  { value: 'paid' as const, label: r.statusPaid, help: r.statusHelp.paid },
+  { value: 'all' as const, label: r.statusAll, help: r.statusHelp.all },
 ]
 const modes = [
-  { value: 'summary' as const, label: r.summary },
-  { value: 'detailed' as const, label: r.detailed },
+  { value: 'summary' as const, label: r.summary, help: r.modeHelp.summary },
+  { value: 'detailed' as const, label: r.detailed, help: r.modeHelp.detailed },
 ]
 
 const report = useReport(() =>
@@ -115,16 +115,16 @@ const columns = computed<Column<Row>[]>(() => [
   { key: 'customer', label: 'Cliente' },
   { key: 'number', label: 'Comprobante', width: '10rem' },
   { key: 'date', label: 'Fecha', format: 'date', width: '6.5rem' },
-  { key: 'dueDate', label: 'Vence', format: 'date', width: '6.5rem' },
+  { key: 'dueDate', ...r.cols.dueDate, format: 'date', width: '6.5rem' },
   ...(detailed.value
     ? [
         { key: 'detail', label: 'Detalle del abono' },
-        { key: 'movement', label: 'Abono', format: 'money' as const },
+        { key: 'movement', ...r.cols.movement, format: 'money' as const },
       ]
     : []),
   { key: 'total', label: 'Total', format: 'money', total: true },
-  { key: 'paid', label: 'Abonos', format: 'money', total: true },
-  { key: 'balance', label: 'Saldo', format: 'money', total: true },
+  { key: 'paid', ...r.cols.paid, format: 'money', total: true },
+  { key: 'balance', ...r.cols.balance, format: 'money', total: true },
 ])
 const totals = computed(() => {
   const d = report.data.value
@@ -134,7 +134,7 @@ const totals = computed(() => {
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="r.invoicesSubtitle" />
     <ReportFilters
       v-model="filters"
       :fields="['warehouse', 'party']"
@@ -155,13 +155,14 @@ const totals = computed(() => {
       :loading="report.loading.value"
       :error="report.error.value"
       :filters-text="filtersText"
+      :empty-message="r.invoicesEmpty"
       :row-class="(row) => (row.kind === 'invoice' ? undefined : `is-${row.kind}`)"
       landscape
       @retry="run()"
     >
       <template #toolbar>
-        <BaseSegmented v-model="status" :options="statusTabs" label="Estado" />
-        <BaseSegmented v-model="mode" :options="modes" label="Vista" />
+        <BaseSegmented v-model="status" :options="statusTabs" :label="r.statusLabel" />
+        <BaseSegmented v-model="mode" :options="modes" :label="r.modeLabel" />
       </template>
     </DataTable>
   </section>
