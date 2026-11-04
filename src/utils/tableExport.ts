@@ -1,6 +1,6 @@
 import { downloadXlsx, type XlsxValue } from './excel'
 import { todayISO } from './format'
-import { formatValue, rawValue, type Column } from '@/components/table/columns'
+import { baseFormat, formatValue, rawValue, type Column } from '@/components/table/columns'
 import { site } from '@/config/site'
 
 const slug = (s: string) =>
@@ -16,11 +16,13 @@ export async function exportTable<T>(title: string, columns: Column<T>[], rows: 
   const cols = columns.filter((c) => !c.screenOnly)
   const cell = (col: Column<T>, value: unknown): XlsxValue => {
     if (value == null || value === '') return null
-    if (col.format === 'money') return Number(value) / 100
-    if (col.format === 'qty' || col.format === 'int') return Number(value)
+    // Indicadores (amount-signed, qty-stock) van como su número; el color es solo de pantalla.
+    const format = baseFormat(col)
+    if (format === 'money') return Number(value) / 100
+    if (format === 'qty' || format === 'int') return Number(value)
     return formatValue(col, value)
   }
-  const formats = cols.map((c) => (c.format === 'qty' ? '#,##0.0000' : c.format === 'int' ? '#,##0' : '#,##0.00'))
+  const formats = cols.map((c) => (baseFormat(c) === 'qty' ? '#,##0.0000' : baseFormat(c) === 'int' ? '#,##0' : '#,##0.00'))
   const body = rows.map((row) => cols.map((c) => cell(c, rawValue(c, row))))
   if (totals && Object.keys(totals).length) {
     body.push(cols.map((c, i) => (c.key in totals ? cell(c, totals[c.key]) : i === 0 ? site.table.totals : null)))
