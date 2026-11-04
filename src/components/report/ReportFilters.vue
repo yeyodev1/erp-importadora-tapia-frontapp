@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import FormField from '@/components/ui/FormField.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -34,6 +34,7 @@ const catalog = useCatalogStore()
 const t = site.filters
 const labels = reactive({ party: '', product: '', account: '' })
 const has = (f: ReportFilterField) => props.fields.includes(f)
+const partyLabel = computed(() => (props.partyRole ? t.partyBy[props.partyRole] : t.party))
 
 function summary(): string[] {
   const m = model.value
@@ -41,7 +42,7 @@ function summary(): string[] {
   if (has('range') && (m.from || m.to)) out.push(`${t.from} ${formatDay(m.from) || '…'} ${t.to.toLowerCase()} ${formatDay(m.to) || '…'}`)
   if (m.warehouseId) out.push(`${t.warehouse}: ${catalog.warehouseName(m.warehouseId)}`)
   if (m.bankAccountId) out.push(`${t.bankAccount}: ${catalog.bankAccounts.find((b) => b._id === m.bankAccountId)?.name ?? ''}`)
-  if (m.partyId && labels.party) out.push(`${t.party}: ${labels.party}`)
+  if (m.partyId && labels.party) out.push(`${partyLabel.value}: ${labels.party}`)
   if (m.productId && labels.product) out.push(`${t.product}: ${labels.product}`)
   if (m.accountCode) out.push(`${t.account}: ${labels.account || m.accountCode}`)
   return out
@@ -52,26 +53,26 @@ function summary(): string[] {
   <form class="rf panel panel--pad" @submit.prevent="emit('apply', summary())">
     <div class="form-grid">
       <template v-if="has('range')">
-        <FormField :label="t.from" for="rf-from" class="narrow">
+        <FormField :label="t.from" :help="t.help.from" for="rf-from" class="narrow">
           <BaseDatePicker id="rf-from" v-model="model.from" :range-end="model.to" clearable />
         </FormField>
-        <FormField :label="t.to" for="rf-to" class="narrow">
+        <FormField :label="t.to" :help="t.help.to" for="rf-to" class="narrow">
           <BaseDatePicker id="rf-to" v-model="model.to" :range-start="model.from" clearable />
         </FormField>
       </template>
-      <FormField v-if="has('warehouse')" :label="t.warehouse" for="rf-wh">
+      <FormField v-if="has('warehouse')" :label="t.warehouse" :help="t.help.warehouse" for="rf-wh">
         <WarehousePicker id="rf-wh" v-model="model.warehouseId" :empty-label="t.all" />
       </FormField>
-      <FormField v-if="has('bankAccount')" :label="t.bankAccount" for="rf-bank">
+      <FormField v-if="has('bankAccount')" :label="t.bankAccount" :help="t.help.bankAccount" for="rf-bank">
         <BankAccountPicker id="rf-bank" v-model="model.bankAccountId" :empty-label="t.all" />
       </FormField>
-      <FormField v-if="has('party')" :label="t.party" for="rf-party">
+      <FormField v-if="has('party')" :label="partyLabel" :help="t.help.party" for="rf-party">
         <PartyPicker id="rf-party" v-model="model.partyId" :role="partyRole" clearable @pick="labels.party = $event?.name ?? ''" />
       </FormField>
-      <FormField v-if="has('product')" :label="t.product" for="rf-product">
+      <FormField v-if="has('product')" :label="t.product" :help="t.help.product" for="rf-product">
         <ProductPicker id="rf-product" v-model="model.productId" clearable @pick="labels.product = $event ? `${$event.code} ${$event.name}` : ''" />
       </FormField>
-      <FormField v-if="has('account')" :label="t.account" for="rf-account">
+      <FormField v-if="has('account')" :label="t.account" :help="t.help.account" for="rf-account">
         <AccountPicker id="rf-account" v-model="model.accountCode" clearable @pick="labels.account = $event ? `${$event.code} ${$event.name}` : ''" />
       </FormField>
       <slot />
