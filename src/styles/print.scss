@@ -1,0 +1,34 @@
+// ── Impresión / PDF ────────────────────────────────────────────────
+// La hoja de impresión (ThePrintSheet) vive fuera de #app; al imprimir se
+// oculta la app entera y queda solo la hoja con encabezado y pie de Tapia.
+.print-sheet {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm 10mm 16mm;
+  }
+
+  body {
+    background: #fff;
+    font-size: 9pt;
+  }
+
+  body.is-printing > *:not(.print-sheet) {
+    display: none !important;
+  }
+
+  body.is-printing .print-sheet {
+    display: block;
+  }
+
+  body.is-landscape .print-sheet {
+    page: landscape;
+  }
+
+  @page landscape {
+    size: A4 landscape;
+  }
+}
