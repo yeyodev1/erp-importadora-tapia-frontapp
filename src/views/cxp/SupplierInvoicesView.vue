@@ -14,7 +14,7 @@ import type { Column } from '@/components/table/columns'
 import { useList } from '@/composables/useList'
 import { useAccess } from '@/composables/useAccess'
 import { purchasesService } from '@/services/purchases.service'
-import { monthStart, todayISO } from '@/utils/format'
+import { todayISO } from '@/utils/format'
 import { cxp } from '@/config/copy/cxp'
 import { site } from '@/config/site'
 import type { PurchaseInvoice } from '@/types/purchases'
@@ -22,7 +22,8 @@ import type { PurchaseInvoice } from '@/types/purchases'
 const t = cxp.invoices
 const router = useRouter()
 const { canWrite } = useAccess()
-const filters = reactive({ pending: false, showVoid: false, supplierId: '', from: monthStart(), to: todayISO() })
+// Desde el 1 de enero: una factura pendiente de un mes anterior no debe quedar fuera de la vista inicial.
+const filters = reactive({ pending: false, showVoid: false, supplierId: '', from: `${todayISO().slice(0, 4)}-01-01`, to: todayISO() })
 
 const list = useList(
   (p) => purchasesService.listInvoices(p),
