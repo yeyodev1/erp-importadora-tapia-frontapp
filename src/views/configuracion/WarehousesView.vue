@@ -30,9 +30,9 @@ const list = useList(
 const columns: Column<Warehouse>[] = [
   { key: 'code', label: t.fields.code.label, width: '6rem' },
   { key: 'name', label: t.fields.name.label },
-  { key: 'serie', label: 'Serie SRI', value: (w) => `${w.establishment}-${w.emissionPoint}`, width: '8rem' },
+  { key: 'serie', label: t.cols.serie.label, help: t.cols.serie.help, value: (w) => `${w.establishment}-${w.emissionPoint}`, width: '8rem' },
   { key: 'address', label: t.fields.address.label },
-  { key: 'isActive', label: 'Estado', value: (w) => (w.isActive ? site.common.active : site.common.inactive), width: '7rem' },
+  { key: 'isActive', label: t.cols.status.label, help: t.cols.status.help, value: (w) => (w.isActive ? site.common.active : site.common.inactive), width: '7rem' },
 ]
 
 const editor = useEditor<FormOf<Warehouse>>({
@@ -48,7 +48,7 @@ const editor = useEditor<FormOf<Warehouse>>({
 
 <template>
   <section>
-    <PageHeader :subtitle="canWrite ? undefined : t.adminOnly">
+    <PageHeader :subtitle="canWrite ? t.subtitle : `${t.subtitle} ${t.adminOnly}`">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="editor.openNew()"><AppIcon name="plus" /> {{ t.add }}</button>
     </PageHeader>
 
@@ -61,6 +61,7 @@ const editor = useEditor<FormOf<Warehouse>>({
       :pages="list.pages"
       :total="list.total"
       :fetch-all="list.fetchAll"
+      :empty-message="t.empty"
       clickable
       @update:page="list.page = $event"
       @row-click="editor.openEdit($event._id, formOf($event))"
@@ -77,19 +78,19 @@ const editor = useEditor<FormOf<Warehouse>>({
     <EditorDialog :editor="editor" :title-new="t.newTitle" :title-edit="t.editTitle" :readonly="!canWrite">
       <div class="form-grid">
         <FormField v-bind="t.fields.code" for="wh-code" required class="narrow">
-          <input id="wh-code" v-model="editor.form.code" required maxlength="10" />
+          <input id="wh-code" v-model="editor.form.code" required maxlength="10" :placeholder="t.ph.code" />
         </FormField>
         <FormField v-bind="t.fields.name" for="wh-name" required>
-          <input id="wh-name" v-model="editor.form.name" required />
+          <input id="wh-name" v-model="editor.form.name" required :placeholder="t.ph.name" />
         </FormField>
         <FormField v-bind="t.fields.establishment" for="wh-est" required class="narrow">
-          <input id="wh-est" v-model="editor.form.establishment" inputmode="numeric" maxlength="3" class="mono" />
+          <input id="wh-est" v-model="editor.form.establishment" inputmode="numeric" maxlength="3" class="mono" :placeholder="t.ph.establishment" />
         </FormField>
         <FormField v-bind="t.fields.emissionPoint" for="wh-pto" required class="narrow">
-          <input id="wh-pto" v-model="editor.form.emissionPoint" inputmode="numeric" maxlength="3" class="mono" />
+          <input id="wh-pto" v-model="editor.form.emissionPoint" inputmode="numeric" maxlength="3" class="mono" :placeholder="t.ph.emissionPoint" />
         </FormField>
         <FormField v-bind="t.fields.address" for="wh-addr" full>
-          <input id="wh-addr" v-model="editor.form.address" />
+          <input id="wh-addr" v-model="editor.form.address" :placeholder="t.ph.address" />
         </FormField>
         <BaseSwitch v-model="editor.form.isActive" v-bind="t.fields.isActive" />
       </div>
