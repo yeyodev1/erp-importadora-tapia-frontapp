@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AxiosResponse, AxiosRequestConfig } from 'axios'
+import { requests } from '@/composables/useProgress'
 
 const TOKEN_KEY = 'access_token'
 
@@ -56,14 +57,19 @@ class APIBase {
     this.axiosInstance.interceptors.request.use(
       (config) => {
         config.timeout = config.timeout || 15000
+        requests.value++
         return config
       },
       (error) => Promise.reject(error),
     )
 
     this.axiosInstance.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        requests.value = Math.max(0, requests.value - 1)
+        return response
+      },
       (error) => {
+        requests.value = Math.max(0, requests.value - 1)
         if (error.response?.status === 401) {
           window.dispatchEvent(new CustomEvent('auth:token-expired'))
         }
