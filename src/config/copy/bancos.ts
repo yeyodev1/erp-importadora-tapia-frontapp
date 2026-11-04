@@ -28,6 +28,8 @@ export const bancos = {
     saved: 'Transacción grabada',
     back: 'Volver al listado',
     noEdit: 'Una transacción bancaria no se edita: si algo está mal, se anula y se rehace. Un cheque anulado no libera su número.',
+    checkTitle: (n?: number) => (n ? `Se emitirá el cheque N.° ${n}` : 'Se emitirá un cheque'),
+    checkMessage: 'Toma el siguiente número de la chequera del banco al grabar. Verifica que sea el cheque físico que vas a entregar.',
     fields: {
       kind: { label: 'Tipo', help: 'Caja o Banco, como en el sistema anterior: filtra las transacciones que se pueden elegir. Banco: depósito, notas y cheque. Caja: ingreso y egreso. La transferencia está en los dos.' },
       type: { label: 'Transacción', help: 'Qué se registra. Depósito, notas y cheques van en bancos; ingresos y egresos, en cajas. Ej.: Nota de débito bancaria.' },
