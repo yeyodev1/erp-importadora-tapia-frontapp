@@ -29,8 +29,8 @@ const cutoff = ref(todayISO())
 const mode = ref<'summary' | 'detailed'>('summary')
 const detailed = computed(() => mode.value === 'detailed')
 const modes = [
-  { value: 'summary' as const, label: r.summary },
-  { value: 'detailed' as const, label: r.detailed },
+  { value: 'summary' as const, label: r.summary, help: t.modeHelp.summary },
+  { value: 'detailed' as const, label: r.detailed, help: t.modeHelp.detailed },
 ]
 
 const report = useReport(() =>
@@ -55,6 +55,7 @@ type Detail = NonNullable<AgingReport['detail']>[number]
 const bucketCols = AGING_BUCKETS.map((b) => ({
   key: b,
   label: t.buckets[b],
+  help: t.bucketHelp[b],
   format: 'money' as const,
   total: true,
 }))
@@ -62,19 +63,19 @@ const summaryCols: Column<Summary>[] = [
   { key: 'name', label: 'Cliente' },
   { key: 'identification', label: 'RUC / cédula', width: '9rem' },
   ...bucketCols,
-  { key: 'total', label: 'Total', format: 'money', total: true },
+  { key: 'total', label: 'Total', help: t.totalHelp, format: 'money', total: true },
 ]
 const detailCols: Column<Detail>[] = [
   { key: 'customer', label: 'Cliente' },
   { key: 'number', label: 'Factura', width: '10rem' },
   { key: 'date', label: 'Fecha', format: 'date', width: '6.5rem' },
-  { key: 'dueDate', label: 'Vence', format: 'date', width: '6.5rem' },
-  { key: 'daysOverdue', label: t.days, format: 'int', width: '4rem' },
+  { key: 'dueDate', ...r.cols.dueDate, format: 'date', width: '6.5rem' },
+  { key: 'daysOverdue', label: t.days, help: t.daysHelp, format: 'int', width: '4rem' },
   ...bucketCols.map((c) => ({
     ...c,
     value: (d: Detail) => (d.bucket === c.key ? d.balance : null),
   })),
-  { key: 'balance', label: 'Total', format: 'money', total: true },
+  { key: 'balance', label: 'Total', help: t.totalHelp, format: 'money', total: true },
 ]
 
 const data = computed(() => report.data.value)
@@ -96,7 +97,7 @@ const checks = computed(() =>
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="t.subtitle" />
     <ReportFilters
       v-model="filters"
       :fields="['warehouse', 'party']"
@@ -129,11 +130,12 @@ const checks = computed(() =>
       :loading="report.loading.value"
       :error="report.error.value"
       :filters-text="filtersText"
+      :empty-message="t.empty"
       landscape
       @retry="run()"
     >
       <template #toolbar>
-        <BaseSegmented v-model="mode" :options="modes" label="Vista" />
+        <BaseSegmented v-model="mode" :options="modes" :label="r.modeLabel" />
       </template>
     </DataTable>
   </section>
