@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { formatMoney } from '@/utils/money'
 import { formatMonth } from '@/utils/format'
+import SkeletonBlock from '@/components/ui/SkeletonBlock.vue'
 import { compactMoney, linePoints, niceScale, type ChartBox } from './salesChart'
 
 /**
@@ -9,7 +10,7 @@ import { compactMoney, linePoints, niceScale, type ChartBox } from './salesChart
  * el último mes resaltado con su valor. El ancho del viewBox sigue al del
  * contenedor para que el texto no se achique en el teléfono.
  */
-const props = defineProps<{ series: { period: string; sales: number }[]; title: string; empty: string }>()
+const props = defineProps<{ series: { period: string; sales: number }[]; title: string; empty: string; loading?: boolean }>()
 
 const host = ref<HTMLElement | null>(null)
 const width = ref(640)
@@ -49,9 +50,10 @@ const summary = computed(() => props.series.map((s) => `${formatMonth(s.period)}
 </script>
 
 <template>
-  <figure ref="host" class="chart panel panel--pad">
+  <figure ref="host" class="chart panel panel--pad" :aria-busy="loading">
     <figcaption class="chart__title">{{ title }}</figcaption>
-    <p v-if="!hasData" class="chart__empty">{{ empty }}</p>
+    <SkeletonBlock v-if="loading && !hasData" :height="`${box.height}px`" radius="6px" />
+    <p v-else-if="!hasData" class="chart__empty">{{ empty }}</p>
     <svg v-else :viewBox="`0 0 ${box.width} ${box.height}`" :width="box.width" :height="box.height" role="img" :aria-label="`${title}. ${summary}`">
       <g class="chart__grid">
         <g v-for="t in ticks" :key="t.value">
