@@ -14,6 +14,7 @@ import { accountingService, type EntryLine } from '@/services/accounting.service
 import { useToastStore } from '@/stores/toast'
 import { formatDay } from '@/utils/format'
 import { accounting as t } from '@/config/copy/accounting'
+import { accountingScreens } from '@/config/copy/accountingScreens'
 import type { ApiError } from '@/types'
 
 /** Consulta de un comprobante: líneas, auditoría (usuario, fecha y hora), origen y anulación. */
@@ -21,6 +22,8 @@ const route = useRoute()
 const toast = useToastStore()
 const { canWrite } = useAccess()
 const d = t.detail
+const s = accountingScreens
+const h = s.columns
 
 const id = computed(() => String(route.params.id ?? ''))
 const report = useReport(() => accountingService.getEntry(id.value))
@@ -51,11 +54,11 @@ const canVoid = computed(() => canWrite.value && entry.value?.status === 'contab
 const columns: Column<EntryLine>[] = [
   { key: 'accountCode', label: t.common.code, width: '10rem' },
   { key: 'accountName', label: t.common.account },
-  { key: 'party', label: t.common.party, value: (l) => l.party?.name ?? '' },
-  { key: 'costCenter', label: t.common.costCenter },
+  { key: 'party', label: h.party, help: h.partyHelp, value: (l) => l.party?.name ?? '' },
+  { key: 'costCenter', label: t.common.costCenter, help: h.costCenterHelp },
   { key: 'description', label: t.common.description },
-  { key: 'debit', label: t.common.debit, format: 'money', total: true, value: (l) => l.debit || null },
-  { key: 'credit', label: t.common.credit, format: 'money', total: true, value: (l) => l.credit || null },
+  { key: 'debit', label: t.common.debit, help: h.debitHelp, format: 'money', total: true, value: (l) => l.debit || null },
+  { key: 'credit', label: t.common.credit, help: h.creditHelp, format: 'money', total: true, value: (l) => l.credit || null },
 ]
 
 const printFilters = computed(() => {
@@ -91,7 +94,7 @@ async function voidEntry(reason: string) {
 
 <template>
   <section>
-    <PageHeader :title="entry ? `${t.common.number} ${entry.number}` : ''">
+    <PageHeader :title="entry ? `${t.common.number} ${entry.number}` : undefined" :subtitle="s.detail.subtitle">
       <RouterLink :to="{ name: 'Vouchers' }" class="btn btn--ghost"><AppIcon name="arrow-left" /> {{ t.common.back }}</RouterLink>
       <button v-if="canVoid" type="button" class="btn btn--danger" @click="(error = ''), (voiding = true)"><AppIcon name="x" /> {{ d.void }}</button>
     </PageHeader>
@@ -127,7 +130,7 @@ async function voidEntry(reason: string) {
 
       <p v-if="blockedReason" class="vd__note"><AppIcon name="info" /> {{ blockedReason }}</p>
 
-      <DataTable :columns="columns" :rows="entry.lines" :title="`Comprobante ${entry.number}`" :filters-text="printFilters" landscape>
+      <DataTable :columns="columns" :rows="entry.lines" :title="`Comprobante ${entry.number}`" :filters-text="printFilters" :empty-message="s.detail.empty" landscape>
         <template #cell-accountCode="{ row }"><span class="mono">{{ row.accountCode }}</span></template>
       </DataTable>
     </template>
@@ -138,7 +141,7 @@ async function voidEntry(reason: string) {
       :subject="entry?.number"
       :message="d.voidMessage"
       :second-message="d.voidSecond"
-      :reason="d.reason"
+      :reason="s.detail.reason"
       :loading="saving"
       :error="error"
       @confirm="voidEntry"
