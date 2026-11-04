@@ -55,18 +55,19 @@ const rows = computed<Row[]>(() => {
 })
 
 // Valor unitario en dólares con 4 decimales (el API lo guarda con 6): no es un monto en centavos.
+const h = t.help
 const side = (key: 'in' | 'out' | 'bal', label: [string, string, string], total: boolean): Column<Row>[] => [
-  { key: `${key}Qty`, label: label[0], format: 'qty', value: (r) => r[key]?.qty, total },
-  { key: `${key}Cost`, label: label[1], format: 'qty', value: (r) => r[key]?.unitCost },
-  { key: `${key}Total`, label: label[2], format: 'money', value: (r) => r[key]?.total, total },
+  { key: `${key}Qty`, label: label[0], format: 'qty', value: (r) => r[key]?.qty, total, help: h[`${key}Qty`] },
+  { key: `${key}Cost`, label: label[1], format: 'qty', value: (r) => r[key]?.unitCost, help: h[`${key}Cost`] },
+  { key: `${key}Total`, label: label[2], format: 'money', value: (r) => r[key]?.total, total, help: h[`${key}Total`] },
 ]
 const columns: Column<Row>[] = [
-  { key: 'voucher', label: t.voucher },
+  { key: 'voucher', label: t.voucher, help: h.voucher },
   { key: 'date', label: t.date, format: 'date', width: '6.5rem' },
   ...side('in', [t.inQty, t.inCost, t.inTotal], true),
   ...side('out', [t.outQty, t.outCost, t.outTotal], true),
   ...side('bal', [t.balQty, t.balCost, t.balTotal], false),
-  { key: 'party', label: t.party },
+  { key: 'party', label: t.party, help: h.party },
 ]
 
 const title = computed(() => (report.data ? `${report.data.product.name} Cod:${report.data.product.code}` : undefined))
@@ -76,7 +77,7 @@ const closing = computed(() => report.data?.closing)
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="copy.pages.kardex" />
     <ReportFilters v-model="filters" :fields="['range', 'warehouse', 'product']" :loading="report.loading" @apply="report.run" />
 
     <p v-if="closing" class="closing">
