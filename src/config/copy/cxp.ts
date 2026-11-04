@@ -254,7 +254,7 @@ export const cxp = {
       o('toPay', 'Por pagar', 'Aprobaciones de gerencia que todavía no se pagan. Elige el beneficiario y ejecuta el pago.'),
       o('done', 'Pagos realizados', 'Pagos ya hechos, con su cheque o transferencia. Desde aquí se anulan.'),
     ],
-    empty: 'Este beneficiario no tiene aprobaciones pendientes. Apruébalas primero en "Aprobar pagos".',
+    empty: 'Este beneficiario no tiene aprobaciones pendientes. Apruébalas primero en "Aprobar pagos CXP".',
     doneEmpty: 'Aún no hay pagos. Ejecuta uno en la pestaña "Por pagar".',
   },
 
