@@ -21,7 +21,7 @@ const emit = defineEmits<{ cancel: [] }>()
 // Refs sueltos: el template los desenvuelve y v-model escribe en el ref, no en la prop.
 const { head: h, lines, totals, saving, error, short, stockOf, pickParty, pickProduct, save } = props.form
 const f = t.fields
-const priceLists = computed(() => [...new Set([...t.priceLists, h.priceList])].map((v) => ({ value: v, label: v })))
+const priceLists = computed(() => [...new Set([...t.priceLists, h.priceList])].map((v) => ({ value: v, label: v, hint: t.priceListHints[v] })))
 
 const columns: LineColumn<FormLine>[] = [
   { key: 'productId', label: t.cols.product, type: 'product', width: '34%' },
@@ -47,10 +47,10 @@ const columns: LineColumn<FormLine>[] = [
         <PartyPicker :id="`${idPrefix}-party`" v-model="h.partyId" role="customer" @pick="pickParty" />
       </FormField>
       <FormField v-bind="f.seller" :for="`${idPrefix}-seller`">
-        <input :id="`${idPrefix}-seller`" v-model="h.sellerName" />
+        <input :id="`${idPrefix}-seller`" v-model="h.sellerName" :placeholder="t.placeholders.seller" />
       </FormField>
       <FormField v-bind="f.creditDays" :for="`${idPrefix}-days`" class="narrow">
-        <input :id="`${idPrefix}-days`" v-model.number="h.creditDays" inputmode="numeric" class="num" />
+        <input :id="`${idPrefix}-days`" v-model.number="h.creditDays" inputmode="numeric" class="num" :placeholder="t.placeholders.creditDays" />
       </FormField>
       <FormField v-bind="f.priceList" :for="`${idPrefix}-list`">
         <BaseCombobox :id="`${idPrefix}-list`" v-model="h.priceList" :options="priceLists" />
@@ -59,10 +59,10 @@ const columns: LineColumn<FormLine>[] = [
         <BaseCombobox :id="`${idPrefix}-pay`" v-model="h.paymentMethod" :options="t.paymentMethods" />
       </FormField>
       <FormField v-bind="f.orderRef" :for="`${idPrefix}-order`" class="narrow">
-        <input :id="`${idPrefix}-order`" v-model="h.orderRef" />
+        <input :id="`${idPrefix}-order`" v-model="h.orderRef" :placeholder="t.placeholders.orderRef" />
       </FormField>
       <FormField v-bind="f.notes" :for="`${idPrefix}-notes`">
-        <input :id="`${idPrefix}-notes`" v-model="h.notes" />
+        <input :id="`${idPrefix}-notes`" v-model="h.notes" :placeholder="t.placeholders.notes" />
       </FormField>
     </div>
 
