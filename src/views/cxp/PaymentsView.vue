@@ -3,6 +3,7 @@ import { computed, reactive, ref, watch } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import FormField from '@/components/ui/FormField.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseSegmented from '@/components/ui/BaseSegmented.vue'
 import BaseSwitch from '@/components/ui/BaseSwitch.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -105,9 +106,7 @@ async function pay() {
           <p v-if="error" class="py__error" role="alert"><AppIcon name="alert-circle" /> {{ error }}</p>
           <div class="py__actions">
             <span>Total <strong class="num">{{ formatMoney(total) }}</strong></span>
-            <button type="button" class="btn btn--primary" :disabled="saving" @click="pay">
-              <AppIcon :name="saving ? 'spinner' : 'wallet'" :spin="saving" /> {{ t.execute }}
-            </button>
+            <BaseButton variant="primary" icon="wallet" :loading="saving" @click="pay">{{ t.execute }}</BaseButton>
           </div>
         </section>
       </template>
