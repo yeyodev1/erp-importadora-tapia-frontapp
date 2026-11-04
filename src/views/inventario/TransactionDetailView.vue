@@ -28,12 +28,12 @@ const { doc, entryLines, seesEntry, loading, error, load, voiding, askVoid, conf
 const title = computed(() => (doc.value ? `${copy.types[doc.value.type]} #${doc.value.number}` : d.title))
 const product = (l: InventoryLine) => (typeof l.productId === 'object' ? l.productId : null)
 const columns: Column<InventoryLine>[] = [
-  { key: 'code', label: c.code, value: (l) => product(l)?.code, width: '6rem' },
+  { key: 'code', label: c.code, value: (l) => product(l)?.code, width: '6rem', help: c.codeHelp },
   { key: 'product', label: c.product, value: (l) => product(l)?.name },
   { key: 'unit', label: c.unit, value: (l) => product(l)?.unit },
   { key: 'qty', label: c.qty, format: 'qty', total: true },
   // Costo aplicado en dólares con 4 decimales (el API lo guarda con 6).
-  { key: 'unitCost', label: t.cost, format: 'qty' },
+  { key: 'unitCost', label: t.cost, format: 'qty', help: t.costHelp },
   { key: 'totalCost', label: t.lineTotal, format: 'money', total: true },
 ]
 const facts = computed(() => {
@@ -56,7 +56,7 @@ const facts = computed(() => {
 
 <template>
   <section>
-    <PageHeader :title="title">
+    <PageHeader :title="title" :subtitle="copy.pages.detail">
       <RouterLink :to="{ name: 'InventoryTransactions' }" class="btn btn--ghost"><AppIcon name="arrow-left" /> {{ t.back }}</RouterLink>
       <button v-if="canWrite && doc && doc.status !== 'anulado'" type="button" class="btn btn--danger" @click="voiding.show = !voiding.show">
         <AppIcon name="x" /> {{ d.void }}
@@ -67,7 +67,7 @@ const facts = computed(() => {
     <div v-else-if="doc" class="txd">
       <div v-if="voiding.show" class="panel panel--pad txd__void">
         <FormField v-bind="d.reason" for="txd-reason" required full>
-          <input id="txd-reason" v-model="voiding.reason" />
+          <input id="txd-reason" v-model="voiding.reason" :placeholder="t.placeholders.reason" />
         </FormField>
         <div class="txd__void-actions">
           <button type="button" class="btn btn--ghost" @click="voiding.show = false">{{ site.common.cancel }}</button>
