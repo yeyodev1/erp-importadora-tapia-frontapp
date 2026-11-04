@@ -110,7 +110,7 @@ function onKey(event: KeyboardEvent) {
   >
     <img v-if="selected?.image" class="combo__thumb" :src="thumb(selected.image, 64)" alt="" />
     <span class="field-trigger__value" :class="{ 'field-trigger__value--placeholder': !selected }">
-      {{ selected?.label ?? (model && loading ? 'Cargando…' : emptyLabel && !model ? emptyLabel : placeholder) }}
+      {{ selected?.label ?? (model && loading ? 'Cargando…' : emptyLabel && !model ? emptyLabel : placeholder || 'Elegir una opción') }}
     </span>
     <AppIcon name="chevron-down" class="field-trigger__chevron" />
   </button>
