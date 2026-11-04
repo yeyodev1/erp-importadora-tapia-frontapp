@@ -66,9 +66,9 @@ const movCols: Column<BankMovement>[] = [
   { key: 'date', label: t.cols.date, format: 'date' },
   { key: 'bank', label: t.cols.bank, value: (m) => find(m.bankAccountId)?.name ?? '' },
   { key: 'type', label: t.cols.type, value: (m) => bancos.movType(m.type) },
-  { key: 'checkNumber', label: t.cols.check },
+  { key: 'checkNumber', label: t.cols.check, help: t.colHelp.check },
   { key: 'amount', label: t.cols.amount, format: 'money', value: (m) => (m.direction === 'in' ? m.amount : -m.amount) },
-  { key: 'status', label: t.cols.status },
+  { key: 'status', label: t.cols.status, help: t.colHelp.movStatus },
 ]
 
 async function doVoid(reason: string) {
@@ -89,7 +89,7 @@ async function doVoid(reason: string) {
 
 <template>
   <section>
-    <PageHeader :title="tx ? `${t.detailTitle} ${tx.number}` : t.detailTitle">
+    <PageHeader :title="tx ? `${t.detailTitle} ${tx.number}` : t.detailTitle" :subtitle="t.detailSubtitle">
       <RouterLink :to="{ name: 'BankTransactions' }" class="btn btn--ghost"><AppIcon name="arrow-left" /> {{ t.back }}</RouterLink>
       <button v-if="canWrite && tx?.status === 'vigente'" type="button" class="btn btn--danger" @click="voiding = true">
         <AppIcon name="trash" /> {{ t.voidAction }}
@@ -112,7 +112,7 @@ async function doVoid(reason: string) {
         <p class="txd__note"><AppIcon name="info" /> {{ t.noEdit }}</p>
       </div>
       <EntryPreview :lines="entry" />
-      <DataTable :columns="movCols" :rows="tx.movements" :title="t.movements" :exportable="false">
+      <DataTable :columns="movCols" :rows="tx.movements" :title="t.movements" :exportable="false" :empty-message="t.emptyMovements">
         <template #cell-status="{ row }"><StatusBadge :status="row.status" /></template>
       </DataTable>
     </div>
