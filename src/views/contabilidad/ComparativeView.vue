@@ -19,6 +19,7 @@ const periodB = ref(currentMonth())
 const periodA = ref(shiftMonth(periodB.value, -12))
 const filter = ref<'todas' | 'mayor'>('mayor')
 const months = monthOptions(60)
+const filters = t.trial.filters.map((f) => ({ ...f, help: t.trial.filterHelp[f.value] }))
 
 const report = useReport(() => accountingService.comparative({ periodA: periodA.value, periodB: periodB.value, filter: filter.value }))
 const data = report.data
@@ -27,9 +28,9 @@ report.run()
 const columns = computed<Column<ComparativeRow>[]>(() => [
   { key: 'code', label: t.common.code, width: '10rem' },
   { key: 'name', label: t.common.name, value: indentName },
-  { key: 'balanceA', label: monthLabel(data.value?.periodA ?? periodA.value), format: 'money' },
-  { key: 'balanceB', label: monthLabel(data.value?.periodB ?? periodB.value), format: 'money' },
-  { key: 'difference', label: c.difference, format: 'money' },
+  { key: 'balanceA', label: monthLabel(data.value?.periodA ?? periodA.value), help: c.balanceHelp, format: 'money' },
+  { key: 'balanceB', label: monthLabel(data.value?.periodB ?? periodB.value), help: c.balanceHelp, format: 'money' },
+  { key: 'difference', label: c.difference, help: c.differenceHelp, format: 'money' },
 ])
 const filtersText = computed(() => (data.value ? [`${monthLabel(data.value.periodA)} vs. ${monthLabel(data.value.periodB)}`] : []))
 </script>
@@ -37,12 +38,12 @@ const filtersText = computed(() => (data.value ? [`${monthLabel(data.value.perio
 <template>
   <section>
     <PageHeader :subtitle="c.intro" />
-    <PeriodBar id="cmp-b" v-model="periodB" :field="c.periodB" :loading="report.loading.value" @submit="report.run">
-      <FormField v-bind="c.periodA" for="cmp-a">
+    <PeriodBar id="cmp-b" v-model="periodB" :field="c.fieldB" :loading="report.loading.value" @submit="report.run">
+      <FormField v-bind="c.fieldA" for="cmp-a">
         <BaseCombobox id="cmp-a" v-model="periodA" :options="months" />
       </FormField>
-      <FormField v-bind="t.trial.filter">
-        <BaseSegmented v-model="filter" :options="t.trial.filters" :label="t.trial.filter.label" />
+      <FormField v-bind="t.trial.filterField">
+        <BaseSegmented v-model="filter" :options="filters" :label="t.trial.filterField.label" />
       </FormField>
     </PeriodBar>
 
@@ -55,6 +56,7 @@ const filtersText = computed(() => (data.value ? [`${monthLabel(data.value.perio
       :error="report.error.value"
       :filters-text="filtersText"
       :row-class="treeRowClass"
+      :empty-message="c.empty"
       landscape
       @retry="report.run"
     />
