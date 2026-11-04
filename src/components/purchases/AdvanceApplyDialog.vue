@@ -87,7 +87,7 @@ async function submit() {
       </FormField>
       <template v-if="mode === 'cross'">
         <FormField v-bind="cxp.payments.fields.description" for="aa-desc">
-          <input id="aa-desc" v-model="form.description" maxlength="200" />
+          <input id="aa-desc" v-model="form.description" maxlength="200" :placeholder="cxp.payments.descriptionPlaceholder" />
         </FormField>
       </template>
       <template v-else>
