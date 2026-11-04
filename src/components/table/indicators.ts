@@ -1,0 +1,43 @@
+import type { Level } from '../ui/levels'
+
+/**
+ * Indicadores de celda (formatos `days-overdue`, `qty-stock`, `amount-signed`
+ * de DataTable). Lógica pura, sin Vue, para probarla con node:test.
+ */
+export interface Indicator {
+  level: Level
+  label: string
+}
+
+const DAY = 86_400_000
+
+/** Fecha de hoy "AAAA-MM-DD" en la hora local (Ecuador), no en UTC. */
+export const localToday = () => new Date().toLocaleDateString('en-CA')
+
+/** Días de atraso: el número tal cual, o desde una fecha de vencimiento "AAAA-MM-DD"/ISO hasta hoy. */
+export function overdueDays(value: unknown, today = localToday()): number | null {
+  if (value == null || value === '') return null
+  if (typeof value === 'number') return Number.isFinite(value) ? Math.round(value) : null
+  const due = Date.parse(String(value).slice(0, 10))
+  if (Number.isNaN(due)) return null
+  return Math.round((Date.parse(today) - due) / DAY)
+}
+
+/** Chip de vencimiento: al día (verde), 1–90 días (ámbar), más de 90 (rojo). */
+export function overdueIndicator(days: number | null): Indicator | null {
+  if (days == null) return null
+  if (days <= 0) return { level: 'success', label: 'Al día' }
+  return { level: days > 90 ? 'danger' : 'warning', label: `${days > 90 ? '+90 · ' : ''}${days} ${days === 1 ? 'día' : 'días'}` }
+}
+
+/** Existencia: negativa en rojo, bajo el mínimo en ámbar; normal sin marca. */
+export function stockLevel(qty: unknown, min?: number | null): Level | null {
+  const n = Number(qty)
+  if (qty == null || qty === '' || Number.isNaN(n)) return null
+  if (n < 0) return 'danger'
+  if (min && n < min) return 'warning'
+  return null
+}
+
+/** Monto con signo: los negativos se pintan en rojo. */
+export const signedLevel = (value: unknown): Level | null => (Number(value) < 0 ? 'danger' : null)
