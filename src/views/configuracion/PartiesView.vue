@@ -31,10 +31,10 @@ const { canWrite } = useAccess()
 const showInactive = ref(false)
 const tab = ref<'' | Kind>(props.kind ?? '')
 const tabs = [
-  { value: '' as const, label: t.tabs.all },
-  { value: 'customer' as const, label: t.tabs.customer },
-  { value: 'supplier' as const, label: t.tabs.supplier },
-  { value: 'employee' as const, label: t.tabs.employee },
+  { value: '' as const, label: t.tabs.all, help: t.tabHelp.all },
+  { value: 'customer' as const, label: t.tabs.customer, help: t.tabHelp.customer },
+  { value: 'supplier' as const, label: t.tabs.supplier, help: t.tabHelp.supplier },
+  { value: 'employee' as const, label: t.tabs.employee, help: t.tabHelp.employee },
 ]
 const FLAG = { customer: 'isCustomer', supplier: 'isSupplier', employee: 'isEmployee' } as const
 
@@ -46,17 +46,18 @@ const list = useList(
 const columns = computed<Column<Party>[]>(() => [
   { key: 'identification', label: t.fields.identification.label, width: '9.5rem' },
   { key: 'name', label: t.fields.name.label },
-  { key: 'roles', label: 'Tipo', value: (p) => kinds(p).map((k) => t.badges[k]).join(', ') },
+  { key: 'roles', label: t.cols.kinds.label, help: t.cols.kinds.help, value: (p) => kinds(p).map((k) => t.badges[k]).join(', ') },
   { key: 'phone', label: t.fields.phone.label },
   { key: 'email', label: t.fields.email.label },
   {
     key: 'creditDays',
-    label: t.fields.creditDays.label,
+    label: t.cols.creditDays.label,
+    help: t.cols.creditDays.help,
     format: 'int',
     width: '7rem',
     value: (p) => (tab.value === 'supplier' ? p.supplier?.creditDays : p.isCustomer ? p.customer?.creditDays : p.supplier?.creditDays),
   },
-  { key: 'isActive', label: 'Estado', value: (p) => (p.isActive ? site.common.active : site.common.inactive), width: '6rem' },
+  { key: 'isActive', label: t.cols.status.label, help: t.cols.status.help, value: (p) => (p.isActive ? site.common.active : site.common.inactive), width: '6rem' },
 ])
 
 const kinds = (p: Party) => (Object.keys(FLAG) as Kind[]).filter((k) => p[FLAG[k]])
@@ -92,7 +93,7 @@ function edit(p: Party) {
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.subtitle[kind ?? 'all']">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="editor.openNew()"><AppIcon name="plus" /> {{ t.add }}</button>
     </PageHeader>
 
@@ -107,6 +108,7 @@ function edit(p: Party) {
       :pages="list.pages"
       :total="list.total"
       :fetch-all="list.fetchAll"
+      :empty-message="t.empty[tab || 'all']"
       clickable
       @update:page="list.page = $event"
       @row-click="edit"
