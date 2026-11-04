@@ -13,12 +13,15 @@ import { useReport } from '@/composables/accounting/useReport'
 import { taxesService } from '@/services/taxes.service'
 import { sumCents } from '@/utils/money'
 import { taxes as t } from '@/config/copy/taxes'
+import { cxp } from '@/config/copy/cxp'
 
 /** Retenciones emitidas en compras y recibidas en ventas (alias /api/taxes/reports/*). */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Row = Record<string, any>
 const w = t.withholdings
 const C = w.cols
+const H = w.colsHelp
+const supportName = (r: Row) => cxp.taxSupports.find((o) => o.value === r.taxSupport)?.label ?? r.taxSupport
 const filters = ref(defaultFilters())
 const side = ref<'compras' | 'ventas'>('compras')
 const by = ref('code')
@@ -47,17 +50,17 @@ const byTax = (tax: string) => (r: Row) => sumCents((r.lines ?? []) as Row[], (l
 const COLUMNS: Record<string, Column<Row>[]> = {
   code: [
     { key: 'tax', label: C.tax, value: taxLabel },
-    { key: 'code', label: C.code },
+    { key: 'code', label: C.code, help: H.code },
     { key: 'description', label: C.description },
-    { key: 'count', label: C.count, format: 'int', total: true },
-    { key: 'base', label: C.base, format: 'money', total: true },
-    { key: 'amount', label: C.amount, format: 'money', total: true },
+    { key: 'count', label: C.count, help: H.count, format: 'int', total: true },
+    { key: 'base', label: C.base, help: H.base, format: 'money', total: true },
+    { key: 'amount', label: C.amount, help: H.amount, format: 'money', total: true },
   ],
   support: [
-    { key: 'taxSupport', label: C.support },
-    { key: 'count', label: C.count, format: 'int', total: true },
-    { key: 'base', label: C.base, format: 'money', total: true },
-    { key: 'amount', label: C.amount, format: 'money', total: true },
+    { key: 'taxSupport', label: C.support, help: H.support, value: supportName },
+    { key: 'count', label: C.count, help: H.count, format: 'int', total: true },
+    { key: 'base', label: C.base, help: H.base, format: 'money', total: true },
+    { key: 'amount', label: C.amount, help: H.amount, format: 'money', total: true },
   ],
   number: [
     { key: 'withholdingNumber', label: C.number },
@@ -65,27 +68,27 @@ const COLUMNS: Record<string, Column<Row>[]> = {
     { key: 'docNumber', label: C.doc },
     { key: 'supplierName', label: C.supplier },
     { key: 'tax', label: C.tax, value: taxLabel },
-    { key: 'code', label: C.code },
-    { key: 'base', label: C.base, format: 'money', total: true },
-    { key: 'rate', label: C.rate, format: 'qty' },
-    { key: 'amount', label: C.amount, format: 'money', total: true },
-    { key: 'sriStatus', label: C.sri },
+    { key: 'code', label: C.code, help: H.code },
+    { key: 'base', label: C.base, help: H.base, format: 'money', total: true },
+    { key: 'rate', label: C.rate, help: H.rate, format: 'qty' },
+    { key: 'amount', label: C.amount, help: H.amount, format: 'money', total: true },
+    { key: 'sriStatus', label: C.sri, help: H.sri },
   ],
   invoice: [
     { key: 'date', label: C.date, format: 'date' },
     { key: 'invoiceNumber', label: C.doc },
     { key: 'customer', label: C.customer },
-    { key: 'voucherNumber', label: C.voucher },
+    { key: 'voucherNumber', label: C.voucher, help: H.voucher },
     { key: 'renta', label: C.renta, format: 'money', total: true, value: byTax('renta') },
     { key: 'iva', label: C.iva, format: 'money', total: true, value: byTax('iva') },
     { key: 'total', label: C.total, format: 'money', total: true },
   ],
   type: [
     { key: 'tax', label: C.tax, value: taxLabel },
-    { key: 'rate', label: C.rate, format: 'qty' },
-    { key: 'count', label: C.count, format: 'int', total: true },
-    { key: 'base', label: C.base, format: 'money', total: true },
-    { key: 'amount', label: C.amount, format: 'money', total: true },
+    { key: 'rate', label: C.rate, help: H.rate, format: 'qty' },
+    { key: 'count', label: C.count, help: H.count, format: 'int', total: true },
+    { key: 'base', label: C.base, help: H.base, format: 'money', total: true },
+    { key: 'amount', label: C.amount, help: H.amount, format: 'money', total: true },
   ],
 }
 const columns = computed(() => COLUMNS[by.value] ?? COLUMNS.code!)
@@ -111,7 +114,7 @@ const title = computed(() => `Retenciones ${side.value === 'compras' ? 'en compr
       </FormField>
     </ReportFilters>
     <StatChips v-if="data" :items="chips" />
-    <DataTable :columns="columns" :rows="rows" :loading="report.loading.value" :error="report.error.value" :title="title" :filters-text="summary" landscape @retry="report.run">
+    <DataTable :columns="columns" :rows="rows" :loading="report.loading.value" :error="report.error.value" :title="title" :filters-text="summary" :empty-message="w.empty" landscape @retry="report.run">
       <template #cell-sriStatus="{ row }"><StatusBadge :status="row.sriStatus" /></template>
     </DataTable>
   </section>
