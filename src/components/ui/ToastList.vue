@@ -69,10 +69,16 @@ const icons: Record<string, IconName> = {
 }
 
 .toast-enter-active,
+.toast-move {
+  transition:
+    opacity 0.2s $ease,
+    transform 0.2s $ease;
+}
+
 .toast-leave-active {
   transition:
-    opacity 0.35s ease,
-    transform 0.35s $ease;
+    opacity 0.15s ease,
+    transform 0.15s ease;
 }
 
 .toast-enter-from,
