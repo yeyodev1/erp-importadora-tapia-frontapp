@@ -28,12 +28,12 @@ const subgroups = computed(() =>
   (catalog.productGroups.find((g) => g._id === form.value.groupId)?.subgroups ?? []).map((s) => ({ value: s, label: s })),
 )
 const kinds = [
-  { value: 'bien' as const, label: t.kinds.bien },
-  { value: 'servicio' as const, label: t.kinds.servicio },
+  { value: 'bien' as const, label: t.kinds.bien, help: t.kindHelp.bien },
+  { value: 'servicio' as const, label: t.kinds.servicio, help: t.kindHelp.servicio },
 ]
 const vatRates = [
-  { value: 0 as const, label: t.vat[0] },
-  { value: 15 as const, label: t.vat[15] },
+  { value: 0 as const, label: t.vat[0], help: t.vatHelp[0] },
+  { value: 15 as const, label: t.vat[15], help: t.vatHelp[15] },
 ]
 const priceColumns: LineColumn[] = [
   { key: 'list', label: f.priceList.label, type: 'text', placeholder: 'GENERAL' },
@@ -44,16 +44,16 @@ const priceColumns: LineColumn[] = [
 <template>
   <div class="form-grid">
     <FormField v-bind="f.code" for="pr-code" required class="narrow">
-      <input id="pr-code" v-model="form.code" class="mono" required />
+      <input id="pr-code" v-model="form.code" class="mono" required :placeholder="t.ph.code" />
     </FormField>
     <FormField v-bind="f.barcode" for="pr-bar" class="narrow">
-      <input id="pr-bar" v-model="form.barcode" class="mono" inputmode="numeric" />
+      <input id="pr-bar" v-model="form.barcode" class="mono" inputmode="numeric" :placeholder="t.ph.barcode" />
     </FormField>
     <FormField v-bind="f.kind">
       <BaseSegmented v-model="form.kind" :options="kinds" :label="f.kind.label" />
     </FormField>
     <FormField v-bind="f.name" for="pr-name" required full>
-      <input id="pr-name" v-model="form.name" required />
+      <input id="pr-name" v-model="form.name" required :placeholder="t.ph.name" />
     </FormField>
     <FormField v-bind="f.groupId" for="pr-group" required>
       <BaseCombobox id="pr-group" v-model="form.groupId" :options="groups" :loading="!catalog.loaded.productGroups" placeholder="Elegir grupo" />
@@ -65,15 +65,15 @@ const priceColumns: LineColumn[] = [
       <PartyPicker id="pr-sup" v-model="form.supplierId" role="supplier" clearable />
     </FormField>
     <FormField v-bind="f.location" for="pr-loc">
-      <input id="pr-loc" v-model="form.location" />
+      <input id="pr-loc" v-model="form.location" :placeholder="t.ph.location" />
     </FormField>
 
     <p class="form-section full">{{ t.unitsSection }}</p>
     <FormField v-bind="f.unit" for="pr-unit" required>
-      <input id="pr-unit" v-model="form.unit" class="upper" required />
+      <input id="pr-unit" v-model="form.unit" class="upper" required :placeholder="t.ph.unit" />
     </FormField>
     <FormField v-bind="f.purchaseUnitName" for="pr-punit">
-      <input id="pr-punit" v-model="form.purchaseUnit.name" class="upper" />
+      <input id="pr-punit" v-model="form.purchaseUnit.name" class="upper" :placeholder="t.ph.purchaseUnitName" />
     </FormField>
     <FormField v-bind="f.factor" for="pr-factor" required>
       <QtyInput id="pr-factor" v-model="form.purchaseUnit.factor" :unit="form.unit" />
