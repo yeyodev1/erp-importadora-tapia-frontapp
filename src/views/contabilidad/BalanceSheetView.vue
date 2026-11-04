@@ -35,7 +35,8 @@ const rows = computed<StatementRow[]>(() => {
     totalRow(c.totalLe, d.liabilitiesAndEquity),
   ]
 })
-const filtersText = computed(() => (data.value ? [`${c.date.label} ${formatDay(data.value.date)}`] : []))
+const filtersText = computed(() => (data.value ? [`${c.cutoff.label}: ${formatDay(data.value.date)}`] : []))
+const columns = statementColumns(t.common.amount).map((col) => (col.key === 'amount' ? { ...col, help: c.amountHelp } : col))
 </script>
 
 <template>
@@ -43,7 +44,7 @@ const filtersText = computed(() => (data.value ? [`${c.date.label} ${formatDay(d
     <PageHeader :subtitle="c.intro" />
     <form class="panel panel--pad bs" @submit.prevent="report.run">
       <div class="form-grid">
-        <FormField v-bind="c.date" for="bs-date" class="narrow">
+        <FormField v-bind="c.cutoff" for="bs-date" class="narrow">
           <BaseDatePicker id="bs-date" v-model="date" />
         </FormField>
         <div class="bs__submit">
@@ -56,13 +57,14 @@ const filtersText = computed(() => (data.value ? [`${c.date.label} ${formatDay(d
 
     <DataTable
       class="tree"
-      :columns="statementColumns(t.common.amount)"
+      :columns="columns"
       :rows="rows"
       :loading="report.loading.value"
       :error="report.error.value"
       :title="data ? `Balance general al ${formatDay(data.date)}` : undefined"
       :filters-text="filtersText"
       :row-class="treeRowClass"
+      :empty-message="c.empty"
       @retry="report.run"
     >
       <template #toolbar>
