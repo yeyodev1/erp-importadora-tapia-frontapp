@@ -132,6 +132,9 @@ async function doVoid(reason: string) {
 
       <section class="panel panel--pad">
         <EntryPreview v-if="entry" :lines="entry.lines" :title="`${t.entry} N.° ${entry.number}`" />
+        <RouterLink v-if="entry" :to="{ name: 'VoucherDetail', params: { id: entry._id } }" class="btn btn--ghost btn--sm sd__print">
+          <AppIcon name="print" /> {{ t.printEntry }}
+        </RouterLink>
       </section>
 
       <section class="panel panel--pad">
@@ -201,5 +204,9 @@ async function doVoid(reason: string) {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+}
+
+.sd__print {
+  margin-top: 0.75rem;
 }
 </style>
