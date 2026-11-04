@@ -42,7 +42,7 @@ const groupColumns: Column<GroupRow>[] = [
   { key: 'group', label: c.group },
   { key: 'sales', label: c.sales, help: c.salesHelp, format: 'money', total: true },
   { key: 'cost', label: c.cost, help: c.costHelp, format: 'money', total: true },
-  { key: 'grossMargin', label: c.margin, help: c.marginHelp, format: 'money', total: true },
+  { key: 'grossMargin', label: c.margin, help: c.marginHelp, format: 'amount-signed', total: true },
 ]
 const columns = statementColumns(t.common.amount).map((col) => (col.key === 'amount' ? { ...col, help: c.amountHelp } : col))
 </script>
