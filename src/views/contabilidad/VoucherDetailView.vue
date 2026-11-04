@@ -7,6 +7,8 @@ import StatusBadge from '@/components/ui/StatusBadge.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import ReasonConfirm from '@/components/accounting/ReasonConfirm.vue'
+import PrintSignatures from '@/components/accounting/PrintSignatures.vue'
+import HelpTip from '@/components/ui/HelpTip.vue'
 import type { Column } from '@/components/table/columns'
 import { useAccess } from '@/composables/useAccess'
 import { useReport } from '@/composables/accounting/useReport'
@@ -51,14 +53,18 @@ const blockedReason = computed(() => {
 })
 const canVoid = computed(() => canWrite.value && entry.value?.status === 'contabilizado' && !blockedReason.value)
 
+/** Beneficiario del encabezado, como en la consulta de hoy: las personas de las líneas. */
+const beneficiary = computed(() => [...new Set((entry.value?.lines ?? []).map((l) => l.party?.name).filter(Boolean))].join(', '))
+
+// Mismo orden que la consulta de comprobante del sistema anterior: Código | Nombre | Debe | Haber | … | Descripción.
 const columns: Column<EntryLine>[] = [
   { key: 'accountCode', label: t.common.code, width: '10rem' },
-  { key: 'accountName', label: t.common.account },
-  { key: 'party', label: h.party, help: h.partyHelp, value: (l) => l.party?.name ?? '' },
-  { key: 'costCenter', label: t.common.costCenter, help: h.costCenterHelp },
-  { key: 'description', label: t.common.description },
+  { key: 'accountName', label: t.common.name },
   { key: 'debit', label: t.common.debit, help: h.debitHelp, format: 'money', total: true, value: (l) => l.debit || null },
   { key: 'credit', label: t.common.credit, help: h.creditHelp, format: 'money', total: true, value: (l) => l.credit || null },
+  { key: 'costCenter', label: t.common.costCenter, help: h.costCenterHelp },
+  { key: 'description', label: t.common.description },
+  { key: 'party', label: h.party, help: h.partyHelp, value: (l) => l.party?.name ?? '' },
 ]
 
 const printFilters = computed(() => {
@@ -66,6 +72,7 @@ const printFilters = computed(() => {
   if (!e) return []
   return [
     `${typeLabel.value} · ${formatDay(e.date)}`,
+    ...(beneficiary.value ? [`${s.detail.beneficiary}: ${beneficiary.value}`] : []),
     e.description,
     `${d.source}: ${moduleLabel(e.source.module)} ${e.source.docNumber}`.trim(),
     `${d.user}: ${e.audit.user} · ${formatDay(e.audit.date)} ${e.audit.time ?? ''}`,
@@ -104,7 +111,11 @@ async function voidEntry(reason: string) {
     <template v-else-if="entry">
       <div class="vd panel panel--pad">
         <div class="vd__main">
-          <p class="vd__type">{{ typeLabel }} <StatusBadge :status="entry.status" /></p>
+          <p class="vd__type">
+            {{ typeLabel }} <StatusBadge :status="entry.status" />
+            <HelpTip v-if="entry.status === 'contabilizado'" :text="s.mayorized.help" :label="s.mayorized.label" />
+          </p>
+          <p v-if="beneficiary" class="vd__meta">{{ s.detail.beneficiary }} <HelpTip :text="s.detail.beneficiaryHelp" />: <strong>{{ beneficiary }}</strong></p>
           <p class="vd__desc">{{ entry.description }}</p>
           <p class="vd__meta">{{ t.common.date }}: <strong>{{ formatDay(entry.date) }}</strong></p>
           <p class="vd__meta">
@@ -130,9 +141,10 @@ async function voidEntry(reason: string) {
 
       <p v-if="blockedReason" class="vd__note"><AppIcon name="info" /> {{ blockedReason }}</p>
 
-      <DataTable :columns="columns" :rows="entry.lines" :title="`Comprobante ${entry.number}`" :filters-text="printFilters" :empty-message="s.detail.empty" landscape>
+      <DataTable :columns="columns" :rows="entry.lines" :title="`${typeLabel} ${entry.number}`" :filters-text="printFilters" :empty-message="s.detail.empty" landscape>
         <template #cell-accountCode="{ row }"><span class="mono">{{ row.accountCode }}</span></template>
       </DataTable>
+      <PrintSignatures />
     </template>
 
     <ReasonConfirm
