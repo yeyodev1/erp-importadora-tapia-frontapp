@@ -23,10 +23,15 @@ export function overdueDays(value: unknown, today = localToday()): number | null
   return Math.round((Date.parse(today) - due) / DAY)
 }
 
-/** Chip de vencimiento: al día (verde), 1–90 días (ámbar), más de 90 (rojo). */
+/**
+ * Chip de vencimiento: al día (verde), vence en la próxima semana (azul),
+ * vence hoy (ámbar), 1–90 días vencido (ámbar), más de 90 (rojo).
+ */
 export function overdueIndicator(days: number | null): Indicator | null {
   if (days == null) return null
-  if (days <= 0) return { level: 'success', label: 'Al día' }
+  if (days < -7) return { level: 'success', label: 'Al día' }
+  if (days < 0) return { level: 'info', label: `Vence en ${-days} ${days === -1 ? 'día' : 'días'}` }
+  if (days === 0) return { level: 'warning', label: 'Vence hoy' }
   return { level: days > 90 ? 'danger' : 'warning', label: `${days > 90 ? '+90 · ' : ''}${days} ${days === 1 ? 'día' : 'días'}` }
 }
 
