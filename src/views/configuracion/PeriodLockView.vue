@@ -29,7 +29,13 @@ const error = ref('')
 onMounted(() => catalog.invalidate('settings'))
 const locked = computed(() => catalog.settings?.lockedThrough ?? null)
 const label = (p: string) => formatMonth(p).replace(/^./, (c) => c.toUpperCase())
-const months = Array.from({ length: 36 }, (_, i) => shiftMonth(current, -i)).map((p) => ({ value: p, label: label(p) }))
+const months = computed(() =>
+  Array.from({ length: 36 }, (_, i) => shiftMonth(current, -i)).map((p) => ({
+    value: p,
+    label: label(p),
+    hint: locked.value && p <= locked.value ? t.closedHint : t.openHint,
+  })),
+)
 
 const canClose = computed(() => !locked.value || month.value > locked.value)
 const canReopen = computed(() => Boolean(locked.value && month.value <= locked.value))
