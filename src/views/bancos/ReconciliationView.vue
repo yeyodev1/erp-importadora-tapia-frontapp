@@ -29,9 +29,9 @@ const { canWrite } = useAccess()
 const bankAccountId = ref('')
 const status = ref<'' | 'abierta' | 'cerrada'>('')
 const tabs = [
-  { value: '' as const, label: t.statusTabs.all },
-  { value: 'abierta' as const, label: t.statusTabs.abierta },
-  { value: 'cerrada' as const, label: t.statusTabs.cerrada },
+  { value: '' as const, label: t.statusTabs.all, help: t.statusHelp.all },
+  { value: 'abierta' as const, label: t.statusTabs.abierta, help: t.statusHelp.abierta },
+  { value: 'cerrada' as const, label: t.statusTabs.cerrada, help: t.statusHelp.cerrada },
 ]
 const list = useList(
   (p) => banksService.listReconciliations(p),
@@ -42,7 +42,7 @@ const columns: Column<Reconciliation>[] = [
   { key: 'description', label: t.listCols.description },
   { key: 'from', label: t.listCols.from, format: 'date', width: '7rem' },
   { key: 'to', label: t.listCols.to, format: 'date', width: '7rem' },
-  { key: 'statementBalance', label: t.listCols.statement, format: 'money' },
+  { key: 'statementBalance', label: t.listCols.statement, help: t.fields.statementBalance.help, format: 'money' },
   { key: 'status', label: t.listCols.status, width: '6rem' },
 ]
 
@@ -76,7 +76,7 @@ async function create() {
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.subtitle">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="openNew"><AppIcon name="plus" /> {{ t.add }}</button>
     </PageHeader>
 
@@ -89,14 +89,19 @@ async function create() {
       :pages="list.pages"
       :total="list.total"
       :fetch-all="list.fetchAll"
+      :empty-message="t.empty"
       clickable
       @update:page="list.page = $event"
       @row-click="router.push({ name: 'BankReconciliationWork', params: { id: $event._id } })"
       @retry="list.reload"
     >
       <template #toolbar>
-        <BaseSegmented v-model="status" :options="tabs" :label="t.listCols.status" />
-        <div class="rl__bank"><BankAccountPicker id="rl-bank" v-model="bankAccountId" kind="banco" :empty-label="site.filters.all" /></div>
+        <FormField v-bind="t.status">
+          <BaseSegmented v-model="status" :options="tabs" :label="t.status.label" />
+        </FormField>
+        <FormField v-bind="t.bankFilter" for="rl-bank" class="rl__bank">
+          <BankAccountPicker id="rl-bank" v-model="bankAccountId" kind="banco" :empty-label="site.filters.all" />
+        </FormField>
       </template>
       <template #cell-status="{ row }"><StatusBadge :status="row.status" /></template>
     </DataTable>
