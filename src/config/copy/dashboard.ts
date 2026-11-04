@@ -1,0 +1,26 @@
+/** Copy del tablero de Inicio. */
+export const dashboard = {
+  month: { label: 'Mes', help: 'Mes del tablero; los tops son del año de ese mes.' },
+  cards: {
+    sales: 'Ventas del mes',
+    salesHint: 'Base sin IVA de facturas vigentes',
+    vsPrev: 'vs. mes anterior',
+    receivables: 'Cartera total',
+    overdue: 'vencida',
+    payables: 'CxP vencida',
+    invoices: 'facturas',
+    lowStock: 'Stock bajo mínimo',
+    products: 'productos',
+    checks: 'Cheques posfechados',
+    checksHint: 'vencen en 7 días',
+    sri: 'Pendientes SRI',
+    sriParts: { invoices: 'Fact.', creditNotes: 'NC', debitNotes: 'ND', withholdings: 'Ret.' } as Record<string, string>,
+  },
+  chart: { title: 'Ventas de los últimos 12 meses', empty: 'Sin ventas en el período.' },
+  byWarehouse: 'Ventas del mes por bodega',
+  bySeller: 'Ventas del mes por vendedor',
+  topProducts: 'Top 10 productos del año',
+  topCustomers: 'Top 10 clientes del año',
+  cols: { name: 'Nombre', code: 'Código', sales: 'Ventas', count: 'Docs.', qty: 'Cantidad', warehouse: 'Bodega', seller: 'Vendedor' },
+  empty: 'Tu rol no tiene secciones en el tablero todavía.',
+}
