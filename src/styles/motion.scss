@@ -1,0 +1,145 @@
+// Movimiento: skeletons, transiciones compartidas y movimiento reducido.
+// Se importa una vez desde main.ts (index.scss no puede emitir CSS).
+
+// Bloque de carga con brillo: la página no salta cuando llegan los datos.
+.skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: $sand;
+  border-radius: 4px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba($surface, 0.75), transparent);
+    animation: skeleton-shimmer 1.3s ease-in-out infinite;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+// Barra indeterminada de 40% de ancho que cruza su contenedor (TheProgressBar, DataTable).
+@keyframes slide-across {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+// Transiciones compartidas (<Transition name="…">). Entrar con ease-out y
+// rápido; salir aún más rápido: quien trabaja 8 horas no debe esperar a la UI.
+.fade-enter-active {
+  transition: opacity 0.15s ease;
+}
+.fade-leave-active {
+  transition: opacity 0.1s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.rise-enter-active,
+.rise-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s $ease;
+}
+.rise-enter-from,
+.rise-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+// Cambio de pantalla (DashboardLayout, mode out-in): la vieja se apaga y la nueva sube apenas.
+.page-enter-active {
+  transition:
+    opacity 0.18s $ease,
+    transform 0.18s $ease;
+}
+.page-leave-active {
+  transition: opacity 0.1s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.page-leave-to {
+  opacity: 0;
+}
+
+// Modales y diálogos: el fondo se funde y la caja (primer hijo) sube desde
+// abajo en el teléfono (hoja) o crece apenas en pantallas anchas. Misma
+// duración en fondo y caja: Vue mide la del fondo para desmontar.
+.modal-enter-active,
+.modal-enter-active > * {
+  transition:
+    opacity 0.18s $ease,
+    transform 0.18s $ease;
+}
+.modal-leave-active,
+.modal-leave-active > * {
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+
+  > * {
+    transform: translateY(24px);
+
+    @include from('sm') {
+      transform: translateY(6px) scale(0.97);
+    }
+  }
+}
+
+// Listas con <TransitionGroup name="list">: entra, sale y las demás se reacomodan.
+.list-enter-active,
+.list-move {
+  transition:
+    opacity 0.18s $ease,
+    transform 0.18s $ease;
+}
+.list-leave-active {
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+// Un spinner que gira rápido hace sentir más corta la misma espera.
+.fa-spin {
+  --fa-animation-duration: 0.8s;
+}
+
+@include reduced-motion {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
