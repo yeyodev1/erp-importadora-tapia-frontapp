@@ -8,11 +8,14 @@ import type { Column } from '@/components/table/columns'
 import { useReport } from '@/composables/accounting/useReport'
 import { taxesService } from '@/services/taxes.service'
 import { taxes as t } from '@/config/copy/taxes'
+import { cxp } from '@/config/copy/cxp'
 
 /** Compras por tipo de sustento, tarifa 0 y tarifa 15 separadas (alias /api/taxes/reports/purchases-by-tax-support). */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Row = Record<string, any>
 const C = t.support.cols
+const H = t.support.colsHelp
+const supportName = (r: Row) => cxp.taxSupports.find((o) => o.value === r.taxSupport)?.label ?? r.taxSupport
 const filters = ref(defaultFilters())
 const summary = ref<string[]>([])
 const report = useReport(() => taxesService.report('purchases-by-tax-support', { from: filters.value.from, to: filters.value.to }))
@@ -24,11 +27,11 @@ function apply(lines: string[]) {
 }
 
 const columns: Column<Row>[] = [
-  { key: 'taxSupport', label: C.support },
-  { key: 'count', label: C.count, format: 'int', total: true },
-  { key: 'base0', label: C.base0, format: 'money', total: true },
-  { key: 'baseVat', label: C.baseVat, format: 'money', total: true },
-  { key: 'vat', label: C.vat, format: 'money', total: true },
+  { key: 'taxSupport', label: C.support, help: H.support, value: supportName },
+  { key: 'count', label: C.count, help: H.count, format: 'int', total: true },
+  { key: 'base0', label: C.base0, help: H.base0, format: 'money', total: true },
+  { key: 'baseVat', label: C.baseVat, help: H.baseVat, format: 'money', total: true },
+  { key: 'vat', label: C.vat, help: H.vat, format: 'money', total: true },
   { key: 'total', label: C.total, format: 'money', total: true },
 ]
 </script>
@@ -44,6 +47,7 @@ const columns: Column<Row>[] = [
       :loading="report.loading.value"
       :error="report.error.value"
       :filters-text="summary"
+      :empty-message="t.support.empty"
       @retry="report.run"
     />
   </section>
