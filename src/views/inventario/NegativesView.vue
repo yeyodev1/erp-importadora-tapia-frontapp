@@ -29,7 +29,7 @@ const columns: Column<NegativeRow>[] = [
   { key: 'type', label: t.movement, value: (r) => copy.movements[r.type] ?? r.type },
   { key: 'number', label: t.number, value: (r) => r.source?.docNumber },
   { key: 'qty', label: c.qty, format: 'qty', help: t.qtyHelp },
-  { key: 'balanceQty', label: t.balance, format: 'qty', help: t.balanceHelp },
+  { key: 'balanceQty', label: t.balance, format: 'qty-stock', help: t.balanceHelp },
   { key: 'unit', label: c.unit, value: (r) => r.productId?.unit },
 ]
 </script>
@@ -47,6 +47,7 @@ const columns: Column<NegativeRow>[] = [
       :rows="report.data?.items ?? []"
       :loading="report.loading"
       :error="report.error"
+      :row-class="() => 'is-danger'"
       :filters-text="report.summary"
       :empty-message="t.empty"
       landscape
