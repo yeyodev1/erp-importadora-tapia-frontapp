@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterLink, type RouteLocationRaw } from 'vue-router'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import HelpTip from '@/components/ui/HelpTip.vue'
 import SkeletonBlock from '@/components/ui/SkeletonBlock.vue'
 import type { IconName } from '@/components/ui/icons'
 
@@ -13,6 +14,8 @@ defineProps<{
   /** Sin `to` (el rol no abre esa pantalla) la tarjeta no es enlace. */
   to?: RouteLocationRaw
   hint?: string
+  /** Qué significa la cifra. */
+  help?: string
   /** Variación en % contra el período anterior; null = sin base para comparar. */
   delta?: number | null
   deltaLabel?: string
@@ -28,18 +31,41 @@ defineProps<{
     <SkeletonBlock width="70%" height="1.7rem" />
     <SkeletonBlock width="55%" />
   </div>
-  <component :is="to ? RouterLink : 'div'" v-else :to="to" class="kpi" :class="{ 'kpi--link': to }">
-    <span class="kpi__head"><AppIcon v-if="icon" :name="icon" /> {{ title }}</span>
-    <strong class="kpi__value num" :class="{ 'is-alert': alert }">{{ value }}</strong>
-    <span v-if="delta !== undefined && delta !== null" class="kpi__delta" :class="delta >= 0 ? 'is-up' : 'is-down'">
-      <AppIcon :name="delta >= 0 ? 'chevron-up' : 'chevron-down'" /> {{ Math.abs(delta).toFixed(1) }}% {{ deltaLabel }}
-    </span>
-    <span v-if="hint" class="kpi__hint">{{ hint }}</span>
-    <AppIcon v-if="to" name="chevron-right" class="kpi__go" />
-  </component>
+  <!-- La ayuda va fuera del enlace: un botón dentro de un <a> no es válido. -->
+  <div v-else class="kpi-box">
+    <component :is="to ? RouterLink : 'div'" :to="to" class="kpi" :class="{ 'kpi--link': to }">
+      <span class="kpi__head"><AppIcon v-if="icon" :name="icon" /> {{ title }}</span>
+      <strong class="kpi__value num" :class="{ 'is-alert': alert }">{{ value }}</strong>
+      <span v-if="delta !== undefined && delta !== null" class="kpi__delta" :class="delta >= 0 ? 'is-up' : 'is-down'">
+        <AppIcon :name="delta >= 0 ? 'chevron-up' : 'chevron-down'" /> {{ Math.abs(delta).toFixed(1) }}% {{ deltaLabel }}
+      </span>
+      <span v-if="hint" class="kpi__hint">{{ hint }}</span>
+      <AppIcon v-if="to" name="chevron-right" class="kpi__go" />
+    </component>
+    <span v-if="help" class="kpi-box__help" :class="{ 'kpi-box__help--link': to }"><HelpTip :text="help" :label="`Ayuda: ${title}`" /></span>
+  </div>
 </template>
 
 <style scoped lang="scss">
+.kpi-box {
+  @include flex(column, stretch, flex-start);
+  position: relative;
+
+  > .kpi {
+    flex: 1;
+  }
+
+  &__help {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.9rem;
+
+    &--link {
+      right: 2.1rem;
+    }
+  }
+}
+
 .kpi {
   @include card;
   @include flex(column, flex-start, flex-start, 0.25rem);
