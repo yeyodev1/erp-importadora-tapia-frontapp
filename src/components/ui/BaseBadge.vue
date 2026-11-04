@@ -13,32 +13,39 @@ withDefaults(defineProps<{ tone?: BadgeTone }>(), { tone: 'neutral' })
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.1rem 0.5rem;
+  padding: 0.05rem 0.45rem;
   border-radius: 4px;
   font-size: $text-xs;
   font-weight: 600;
   line-height: 1.5;
   white-space: nowrap;
+  border: 1px solid transparent;
 
+  // Fondo suave + borde del mismo tono + texto oscuro del tono (contraste AA).
   &--neutral {
     color: $ink-soft;
-    background: $sand;
+    background: $neutral-bg;
+    border-color: $line;
   }
   &--success {
     color: $success;
     background: $success-bg;
+    border-color: $success-line;
   }
   &--warning {
     color: $warning;
     background: $warning-bg;
+    border-color: $warning-line;
   }
   &--danger {
     color: $danger;
     background: $danger-bg;
+    border-color: $danger-line;
   }
   &--info {
     color: $info;
     background: $info-bg;
+    border-color: $info-line;
   }
 }
 </style>
