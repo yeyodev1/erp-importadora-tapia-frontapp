@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import FormField from '@/components/ui/FormField.vue'
@@ -9,6 +9,7 @@ import BaseSegmented from '@/components/ui/BaseSegmented.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import MoneyInput from '@/components/ui/MoneyInput.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import BankAccountPicker from '@/components/pickers/BankAccountPicker.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
@@ -23,11 +24,16 @@ import type { ApiError } from '@/types'
 
 const t = bancos.rec
 const router = useRouter()
+const route = useRoute()
 const toast = useToastStore()
 const { canWrite } = useAccess()
 
 const bankAccountId = ref('')
-const status = ref<'' | 'abierta' | 'cerrada'>('')
+type Status = '' | 'abierta' | 'cerrada'
+// `?status=abierta` del aviso de la campana "conciliaciones abiertas".
+const statusOf = (q: unknown): Status => (q === 'abierta' || q === 'cerrada' ? q : '')
+const status = ref<Status>(statusOf(route.query.status))
+watch(() => route.query.status, (q) => (status.value = statusOf(q)))
 const tabs = [
   { value: '' as const, label: t.statusTabs.all, help: t.statusHelp.all },
   { value: 'abierta' as const, label: t.statusTabs.abierta, help: t.statusHelp.abierta },
@@ -107,6 +113,7 @@ async function create() {
     </DataTable>
 
     <FormDialog :open="open" :title="t.newTitle" :submit-label="t.add" :loading="saving" :error="error" @submit="create" @close="open = false">
+      <LockedDateBanner :date="form.to" />
       <div class="form-grid">
         <FormField v-bind="t.fields.bank" for="rn-bank" required full>
           <BankAccountPicker id="rn-bank" v-model="form.bankAccountId" kind="banco" :invalid="!!error && !form.bankAccountId" />
