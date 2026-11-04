@@ -63,7 +63,7 @@ const bars = computed(() =>
   }
 
   &__label {
-    flex: 0 0 5.5rem;
+    flex: 0 0 7.5rem;
     font-weight: 500;
   }
 
