@@ -13,9 +13,13 @@ import { currentMonth, monthEndLong, monthLabel, useReport } from '@/composables
 import { indentName, treeRowClass } from '@/composables/accounting/tree'
 import { accountingService, type TrialRow } from '@/services/accounting.service'
 import { accounting as t } from '@/config/copy/accounting'
+import { accountingScreens } from '@/config/copy/accountingScreens'
 
 /** "Reporte de saldos" (balance de comprobación) en árbol; clic en una cuenta abre su mayor. */
 const tb = t.trial
+const h = accountingScreens.columns
+const modes = tb.modes.map((m) => ({ ...m, help: tb.modeHelp[m.value] }))
+const filters = tb.filters.map((f) => ({ ...f, help: tb.filterHelp[f.value] }))
 const router = useRouter()
 const period = ref(currentMonth())
 const mode = ref<'acumulado' | 'mensual'>('acumulado')
@@ -35,10 +39,10 @@ const filtersText = computed(() => {
 const columns: Column<TrialRow>[] = [
   { key: 'code', label: t.common.code, width: '10rem' },
   { key: 'name', label: t.common.name, value: indentName },
-  { key: 'previous', label: t.common.previous, format: 'money', total: true },
-  { key: 'debit', label: t.common.debit, format: 'money', total: true },
-  { key: 'credit', label: t.common.credit, format: 'money', total: true },
-  { key: 'balance', label: t.common.balance, format: 'money', total: true },
+  { key: 'previous', label: t.common.previous, help: tb.previousHelp, format: 'money', total: true },
+  { key: 'debit', label: t.common.debit, help: h.debitHelp, format: 'money', total: true },
+  { key: 'credit', label: t.common.credit, help: h.creditHelp, format: 'money', total: true },
+  { key: 'balance', label: t.common.balance, help: h.balanceHelp, format: 'money', total: true },
 ]
 
 function openLedger(row: TrialRow) {
@@ -50,12 +54,12 @@ function openLedger(row: TrialRow) {
 <template>
   <section>
     <PageHeader :subtitle="tb.intro" />
-    <PeriodBar v-model="period" :field="tb.period" :loading="report.loading.value" @submit="report.run">
-      <FormField v-bind="tb.mode">
-        <BaseSegmented v-model="mode" :options="tb.modes" :label="tb.mode.label" />
+    <PeriodBar v-model="period" :field="tb.periodField" :loading="report.loading.value" @submit="report.run">
+      <FormField v-bind="tb.modeField">
+        <BaseSegmented v-model="mode" :options="modes" :label="tb.modeField.label" />
       </FormField>
-      <FormField v-bind="tb.filter">
-        <BaseSegmented v-model="filter" :options="tb.filters" :label="tb.filter.label" />
+      <FormField v-bind="tb.filterField">
+        <BaseSegmented v-model="filter" :options="filters" :label="tb.filterField.label" />
       </FormField>
     </PeriodBar>
 
@@ -70,6 +74,7 @@ function openLedger(row: TrialRow) {
       :title="title"
       :filters-text="filtersText"
       :row-class="treeRowClass"
+      :empty-message="tb.empty"
       clickable
       landscape
       @row-click="openLedger"
