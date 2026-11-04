@@ -64,21 +64,14 @@ function openEdit(c: WithholdingCode) {
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="cxp.pages.codes">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="openNew"><AppIcon name="plus" /> {{ t.add }}</button>
     </PageHeader>
 
-    <DataTable :columns="columns" :rows="list.items" :loading="list.loading" :error="list.error" clickable @row-click="openEdit" @retry="list.reload">
+    <DataTable :columns="columns" :rows="list.items" :loading="list.loading" :error="list.error" :empty-message="t.empty" clickable @row-click="openEdit" @retry="list.reload">
       <template #toolbar>
         <SearchInput v-model="list.q" class="toolbar__search" />
-        <BaseSegmented
-          v-model="tax"
-          :options="[
-            { value: '', label: 'Todos' },
-            { value: 'renta', label: 'Renta' },
-            { value: 'iva', label: 'IVA' },
-          ]"
-        />
+        <BaseSegmented v-model="tax" :options="[t.allTaxes, ...t.taxOptions]" :label="t.fields.tax.label" />
         <BaseSwitch v-model="showInactive" :label="site.common.showInactive" />
       </template>
       <template #cell-code="{ row }"><span class="mono">{{ row.code }}</span></template>
@@ -88,23 +81,16 @@ function openEdit(c: WithholdingCode) {
     <EditorDialog :editor="editor" :title-new="t.newTitle" :title-edit="t.editTitle" :readonly="!canWrite">
       <div class="form-grid">
         <FormField v-bind="t.fields.tax" full>
-          <BaseSegmented
-            v-model="editor.form.tax"
-            :label="t.fields.tax.label"
-            :options="[
-              { value: 'renta', label: 'Renta' },
-              { value: 'iva', label: 'IVA' },
-            ]"
-          />
+          <BaseSegmented v-model="editor.form.tax" :label="t.fields.tax.label" :options="t.taxOptions" />
         </FormField>
         <FormField v-bind="t.fields.code" for="wc-code" required class="narrow">
-          <input id="wc-code" v-model="editor.form.code" class="mono" maxlength="10" />
+          <input id="wc-code" v-model="editor.form.code" class="mono" maxlength="10" :placeholder="t.placeholders.code" />
         </FormField>
         <FormField v-bind="t.fields.rate" for="wc-rate" required class="narrow">
-          <input id="wc-rate" v-model="rateText" class="num" inputmode="decimal" />
+          <input id="wc-rate" v-model="rateText" class="num" inputmode="decimal" :placeholder="t.placeholders.rate" />
         </FormField>
         <FormField v-bind="t.fields.description" for="wc-desc" full>
-          <input id="wc-desc" v-model="editor.form.description" />
+          <input id="wc-desc" v-model="editor.form.description" :placeholder="t.placeholders.description" />
         </FormField>
         <FormField v-bind="t.fields.accountCode" for="wc-acc" full>
           <AccountPicker id="wc-acc" v-model="editor.form.accountCode" clearable />
