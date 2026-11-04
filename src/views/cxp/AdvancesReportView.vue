@@ -21,12 +21,12 @@ const report = useReport(() => purchasesService.report('advances', { cutoff: cut
 const columns: Column[] = [
   { key: 'number', label: 'Número', width: '9rem' },
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
-  { key: 'party', label: 'Beneficiario', value: (r) => r.party?.name },
+  { key: 'party', label: 'Beneficiario', value: (r) => r.party?.name, help: t.columns.party },
   { key: 'identification', label: 'Identificación', value: (r) => r.party?.identification },
-  { key: 'type', label: 'Tipo', value: (r) => (r.party?.isEmployee ? cxp.advances.employee : cxp.advances.supplier) },
-  { key: 'method', label: 'Medio', value: (r) => (r.checkNumber ? `${r.method} # ${r.checkNumber}` : r.method) },
+  { key: 'type', label: 'Proveedor o empleado', value: (r) => (r.party?.isEmployee ? cxp.advances.employee : cxp.advances.supplier) },
+  { key: 'method', label: 'Medio de pago', value: (r) => (r.checkNumber ? `${r.method} # ${r.checkNumber}` : r.method) },
   { key: 'amount', label: 'Valor', format: 'money', total: true },
-  { key: 'open', label: 'Saldo', format: 'money', total: true },
+  { key: 'open', label: 'Saldo', format: 'money', total: true, help: t.columns.open },
 ]
 
 const run = (summary: string[]) => report.run([`Corte al ${formatDay(cutoff.value)}`, ...summary])
@@ -35,13 +35,13 @@ onMounted(() => run([]))
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="cxp.pages.advancesReport" />
     <ReportFilters v-model="filters" :fields="['party']" :loading="report.loading" @apply="run">
       <FormField v-bind="t.cutoff" for="ar-cutoff" class="narrow">
         <BaseDatePicker id="ar-cutoff" v-model="cutoff" />
       </FormField>
     </ReportFilters>
-    <DataTable :columns="columns" :rows="report.rows" :loading="report.loading" :error="report.error" :filters-text="report.summary" @retry="run(report.summary)">
+    <DataTable :columns="columns" :rows="report.rows" :loading="report.loading" :error="report.error" :filters-text="report.summary" :empty-message="t.emptyAdvances" @retry="run(report.summary)">
       <template #cell-number="{ row }"><span class="mono">{{ row.number }}</span></template>
     </DataTable>
   </section>
