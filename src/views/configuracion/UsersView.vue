@@ -11,6 +11,9 @@ import FormField from '@/components/ui/FormField.vue'
 import EditorDialog from '@/components/ui/EditorDialog.vue'
 import WarehousePicker from '@/components/pickers/WarehousePicker.vue'
 import DataTable from '@/components/table/DataTable.vue'
+import RoleAccess from '@/components/users/RoleAccess.vue'
+import RolesOverview from '@/components/users/RolesOverview.vue'
+import { accessCopy } from '@/config/copy/roles'
 import type { Column } from '@/components/table/columns'
 import { useEditor } from '@/composables/useEditor'
 import { settingsService, type UserInput } from '@/services/settings.service'
@@ -83,6 +86,8 @@ function edit(u: ErpUser) {
       <button type="button" class="btn btn--primary" @click="editor.openNew()"><AppIcon name="plus" /> {{ t.add }}</button>
     </PageHeader>
 
+    <RolesOverview />
+
     <DataTable :columns="columns" :rows="rows" :loading="loading" :error="error" clickable @row-click="edit" @retry="load">
       <template #toolbar><SearchInput v-model="q" /></template>
       <template #cell-role="{ row }"><BaseBadge tone="info">{{ site.roles[row.role] }}</BaseBadge></template>
@@ -93,16 +98,16 @@ function edit(u: ErpUser) {
     <EditorDialog :editor="editor" :title-new="t.newTitle" :title-edit="t.editTitle">
       <div class="form-grid">
         <FormField v-bind="t.fields.name" for="us-name" required>
-          <input id="us-name" v-model="editor.form.name" required />
+          <input id="us-name" v-model="editor.form.name" required placeholder="Ej.: María José Tapia" />
         </FormField>
         <FormField v-bind="t.fields.email" for="us-email" required>
-          <input id="us-email" v-model="editor.form.email" type="email" :disabled="!!editor.id" required autocomplete="off" />
+          <input id="us-email" v-model="editor.form.email" type="email" :disabled="!!editor.id" required autocomplete="off" placeholder="Ej.: cartera@importadoratapia.app" />
         </FormField>
         <FormField v-if="!editor.id" v-bind="t.fields.password" for="us-pass" required>
-          <input id="us-pass" v-model="editor.form.password" type="password" autocomplete="new-password" minlength="8" required />
+          <input id="us-pass" v-model="editor.form.password" type="password" autocomplete="new-password" minlength="8" required placeholder="Mínimo 8 caracteres" />
         </FormField>
         <FormField v-bind="t.fields.phone" for="us-phone">
-          <input id="us-phone" v-model="editor.form.phone" inputmode="tel" />
+          <input id="us-phone" v-model="editor.form.phone" inputmode="tel" placeholder="Ej.: 0991234567" />
         </FormField>
         <FormField v-bind="t.fields.role" for="us-role" required>
           <BaseCombobox id="us-role" v-model="editor.form.role" :options="roleOptions" />
@@ -112,6 +117,24 @@ function edit(u: ErpUser) {
         </FormField>
         <BaseSwitch v-if="editor.id" v-model="editor.form.isActive" v-bind="t.fields.isActive" />
       </div>
+      <div class="us-access">
+        <p class="us-access__title">{{ accessCopy.title }}</p>
+        <RoleAccess :role="editor.form.role" />
+      </div>
     </EditorDialog>
   </section>
 </template>
+
+<style scoped lang="scss">
+.us-access {
+  @include flex(column, stretch, flex-start, 0.5rem);
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid $line;
+
+  &__title {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+</style>
