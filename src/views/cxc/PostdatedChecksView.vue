@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BaseSegmented from '@/components/ui/BaseSegmented.vue'
@@ -10,6 +11,7 @@ import ReportFilters from '@/components/report/ReportFilters.vue'
 import { defaultFilters, filterParams } from '@/components/report/filters'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { overdueDays } from '@/components/table/indicators'
 import StepDialog from '@/components/receivables/StepDialog.vue'
 import { useAccess } from '@/composables/useAccess'
 import { useStep } from '@/composables/receivables/useStep'
@@ -34,10 +36,17 @@ const filters = ref(
   }),
 )
 const summary = ref<string[]>([])
-const status = ref('')
+const STATUSES = ['en_cartera', 'depositado', 'acreditado', 'devuelto']
+// `?status=en_cartera` (campana): el estado elegido vive en la URL.
+const route = useRoute()
+const router = useRouter()
+const status = computed({
+  get: () => (STATUSES.includes(String(route.query.status)) ? String(route.query.status) : ''),
+  set: (v: string) => router.replace({ query: { ...route.query, status: v || undefined } }),
+})
 const statusTabs = [
   { value: '', label: t.active, help: t.statusHelp[''] },
-  ...['en_cartera', 'depositado', 'acreditado', 'devuelto'].map((s) => ({
+  ...STATUSES.map((s) => ({
     value: s,
     label: site.status[s]!.label,
     help: t.statusHelp[s],
@@ -69,6 +78,13 @@ const filtersText = computed(() => [
   `${t.cols.dueDate.label}: ${formatDay(filters.value.from)} – ${formatDay(filters.value.to)}`,
   ...summary.value,
 ])
+// Atraso solo de los que siguen en cartera: hoy o antes → depositar ya (rojo); en 7 días → ámbar, como la campana.
+const pendingDue = (r: Receipt) => (r.check?.status === 'en_cartera' ? r.check.dueDate : null)
+function rowClass(r: Receipt) {
+  const days = overdueDays(pendingDue(r))
+  if (days == null) return undefined
+  return days >= 0 ? 'is-danger' : days >= -7 ? 'is-warning' : undefined
+}
 const name = (r: Receipt) => (typeof r.partyId === 'object' ? r.partyId.name : '')
 const columns: Column<Receipt>[] = [
   {
@@ -78,6 +94,7 @@ const columns: Column<Receipt>[] = [
     width: '7rem',
     value: (r) => r.check?.dueDate,
   },
+  { key: 'days', ...t.cols.days, format: 'days-overdue', width: '7rem', value: pendingDue },
   { key: 'customer', label: 'Cliente', value: name },
   { key: 'check.number', label: 'Cheque', width: '7rem' },
   { key: 'check.bank', ...t.cols.bank },
@@ -151,21 +168,11 @@ const dialog = computed(() => {
       :filters-text="filtersText"
       :empty-title="t.emptyTitle"
       :empty-message="t.empty"
+      :row-class="rowClass"
       @retry="load()"
     >
       <template #toolbar>
         <BaseSegmented v-model="status" :options="statusTabs" :label="t.statusLabel" />
-      </template>
-      <template #cell-dueDate="{ row, value }">
-        <span
-          :class="{
-            due:
-              row.check?.status === 'en_cartera' &&
-              String(row.check?.dueDate).slice(0, 10) <= today,
-          }"
-          :title="t.overdue"
-          >{{ formatDay(String(value)) }}</span
-        >
       </template>
       <template #cell-checkStatus="{ row }"><StatusBadge :status="row.check?.status" /></template>
       <template #cell-actions="{ row }">
@@ -197,11 +204,6 @@ const dialog = computed(() => {
 </template>
 
 <style scoped lang="scss">
-.due {
-  color: $warning;
-  font-weight: 600;
-}
-
 .acts {
   @include flex(row, center, flex-end, 0.35rem);
   flex-wrap: wrap;
