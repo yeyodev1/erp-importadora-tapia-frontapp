@@ -86,22 +86,4 @@ useBodyScroll(toRef(props, 'open'))
     margin-top: 0.8rem;
   }
 }
-
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.25s ease;
-
-  .modal__box {
-    transition: transform 0.3s $ease;
-  }
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-
-  .modal__box {
-    transform: translateY(12px) scale(0.98);
-  }
-}
 </style>
