@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import FormField from '@/components/ui/FormField.vue'
@@ -11,6 +12,7 @@ import ReportFilters from '@/components/report/ReportFilters.vue'
 import { defaultFilters, filterParams } from '@/components/report/filters'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { overdueRow } from '@/components/table/indicators'
 import AgingChart from '@/components/receivables/AgingChart.vue'
 import CustomerFilters from '@/components/receivables/CustomerFilters.vue'
 import { blankCustomerFilters, customerParams, customerSummary } from '@/components/receivables/customerFilters'
@@ -30,7 +32,16 @@ const r = cxc.reports
 const filters = ref(defaultFilters({ from: '', to: '' }))
 const cutoff = ref(todayISO())
 const customer = ref(blankCustomerFilters())
-const mode = ref<'summary' | 'detailed'>('summary')
+const route = useRoute()
+const router = useRouter()
+// `?bucket=d30|d90` (campana): 31–90 días vencidos o más de 90; el filtro vive en la URL.
+type Due = '' | 'd30' | 'd90'
+const due = computed<Due>({
+  get: () => (route.query.bucket === 'd30' || route.query.bucket === 'd90' ? route.query.bucket : ''),
+  set: (v) => router.replace({ query: { ...route.query, bucket: v || undefined } }),
+})
+const dueOptions = (['', 'd30', 'd90'] as const).map((value) => ({ value, label: t.due[value || 'all'], help: t.dueHelp[value || 'all'] }))
+const mode = ref<'summary' | 'detailed'>(due.value ? 'detailed' : 'summary')
 const detailed = computed(() => mode.value === 'detailed')
 const modes = [
   { value: 'summary' as const, label: r.summary, help: t.modeHelp.summary },
@@ -50,6 +61,7 @@ const run = (s?: string[]) => report.run(s)
 const filtersText = computed(() => [
   `${r.cutoff.label}: ${formatDay(cutoff.value)}`,
   detailed.value ? r.detailed : r.summary,
+  ...(due.value ? [t.due[due.value]] : []),
   ...report.summary.value,
   ...customerSummary(customer.value),
   `${t.records}: ${rows.value.length}`,
@@ -79,7 +91,7 @@ const detailCols: Column<Detail>[] = [
   { key: 'series', label: 'Serie', width: '5.5rem', value: (d) => splitNumber(d.number).series },
   { key: 'number', label: 'Número', width: '6.5rem', value: (d) => splitNumber(d.number).seq },
   { key: 'dueDate', ...r.cols.dueDate, format: 'date', width: '6.5rem' },
-  { key: 'daysOverdue', label: t.days, help: t.daysHelp, format: 'int', width: '4rem' },
+  { key: 'daysOverdue', label: t.days, help: t.daysHelp, format: 'days-overdue', width: '7rem' },
   ...bucketCols.map((c) => ({
     ...c,
     value: (d: Detail) => (d.bucket === c.key ? d.balance : null),
@@ -89,8 +101,12 @@ const detailCols: Column<Detail>[] = [
 
 const data = computed(() => report.data.value)
 // Las dos vistas tienen filas distintas: la tabla las recibe sin tipo fijo.
-const rows = computed<Record<string, unknown>[]>(
-  () => (detailed.value ? data.value?.detail : data.value?.summary) ?? [],
+const inDue = (days: number) => (due.value === 'd90' ? days > 90 : due.value === 'd30' ? days > 30 && days <= 90 : true)
+const dueBalance = (s: Summary) => (due.value === 'd90' ? s.d91_120 + s.over120 : s.d31_60 + s.d61_90)
+const rows = computed<Record<string, unknown>[]>(() =>
+  detailed.value
+    ? (data.value?.detail ?? []).filter((d) => inDue(d.daysOverdue))
+    : (data.value?.summary ?? []).filter((s) => !due.value || dueBalance(s) > 0),
 )
 const columns = computed(() => (detailed.value ? detailCols : summaryCols) as Column[])
 const checks = computed(() =>
@@ -140,11 +156,13 @@ const checks = computed(() =>
       :title="title"
       :filters-text="filtersText"
       :empty-message="t.empty"
+      :row-class="detailed ? (d) => overdueRow(d.daysOverdue) : undefined"
       landscape
       @retry="run()"
     >
       <template #toolbar>
         <BaseSegmented v-model="mode" :options="modes" :label="r.modeLabel" />
+        <BaseSegmented v-model="due" :options="dueOptions" :label="t.dueLabel" />
       </template>
     </DataTable>
 
