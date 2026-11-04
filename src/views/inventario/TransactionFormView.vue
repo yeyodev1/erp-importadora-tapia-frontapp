@@ -7,6 +7,8 @@ import FormField from '@/components/ui/FormField.vue'
 import BaseCombobox from '@/components/ui/BaseCombobox.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import WarehousePicker from '@/components/pickers/WarehousePicker.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import DocumentLines from '@/components/documents/DocumentLines.vue'
@@ -37,6 +39,7 @@ const setContainers = (e: Event) => (doc.containers = Math.max(0, Math.trunc(Num
 
     <EmptyState v-if="!canWrite" tone="error" :message="site.access.denied" />
     <form v-else class="tx" @submit.prevent="save">
+      <LockedDateBanner :date="doc.date" />
       <div class="panel panel--pad">
         <div class="form-grid">
           <FormField v-bind="f.warehouseId" for="tx-wh" required>
@@ -84,9 +87,7 @@ const setContainers = (e: Event) => (doc.containers = Math.max(0, Math.trunc(Num
       <div class="tx__foot">
         <p v-if="error" class="tx__error" role="alert">{{ error }}</p>
         <span v-if="showsCost" class="tx__total">{{ t.total }}: <strong class="num">{{ formatMoney(total) }}</strong></span>
-        <button type="submit" class="btn btn--primary" :disabled="saving">
-          <AppIcon :name="saving ? 'spinner' : 'check'" :spin="saving" /> {{ t.save }}
-        </button>
+        <BaseButton type="submit" variant="primary" icon="check" :loading="saving">{{ t.save }}</BaseButton>
       </div>
     </form>
   </section>
