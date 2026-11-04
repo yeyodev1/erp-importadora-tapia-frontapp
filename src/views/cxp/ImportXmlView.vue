@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseSegmented from '@/components/ui/BaseSegmented.vue'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 import DataTable from '@/components/table/DataTable.vue'
@@ -63,7 +64,7 @@ function open(row: Row) {
 <template>
   <section class="ix">
     <PageHeader :subtitle="cxp.pages.xml">
-      <button v-if="b.count.value" type="button" class="btn btn--ghost" :disabled="b.loading.value" @click="b.check"><AppIcon name="refresh" :spin="b.loading.value" /> Revisar de nuevo</button>
+      <BaseButton v-if="b.count.value" icon="refresh" :loading="b.loading.value" @click="b.check">Revisar de nuevo</BaseButton>
       <button v-if="b.count.value" type="button" class="btn btn--ghost" @click="b.clear"><AppIcon name="trash" /> Limpiar</button>
     </PageHeader>
 
