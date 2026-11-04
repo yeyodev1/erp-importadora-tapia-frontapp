@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useNavigation } from '@/composables/useNavigation'
+import type { Screen } from '@/router/defineModule'
 import { site, type ModuleKey } from '@/config/site'
 
 /**
@@ -23,6 +24,9 @@ watch(
     emit('close')
   },
 )
+
+// Bajar el código de la pantalla al pasar el mouse o enfocar: al hacer clic ya está.
+const prefetch = (screen: Screen) => void screen.component().catch(() => {})
 
 function toggle(key: ModuleKey) {
   expanded.value = expanded.value === key ? undefined : key
@@ -49,8 +53,11 @@ function toggle(key: ModuleKey) {
           :to="{ name: mod.screens[0]!.name }"
           class="sb__mod"
           :class="{ 'sb__mod--current': route.meta.module === mod.key }"
+          @pointerenter="prefetch(mod.screens[0]!)"
+          @focus="prefetch(mod.screens[0]!)"
         >
-          <AppIcon :name="mod.icon" class="sb__icon" /> <span class="sb__label">{{ mod.label }}</span>
+          <AppIcon :name="mod.icon" class="sb__icon" />
+          <span class="sb__label">{{ mod.label }}</span>
         </RouterLink>
 
         <div v-else class="sb__group">
@@ -65,14 +72,25 @@ function toggle(key: ModuleKey) {
             <span class="sb__label">{{ mod.label }}</span>
             <AppIcon name="chevron-down" class="sb__chev" />
           </button>
-          <div v-show="expanded === mod.key" class="sb__menu">
-            <div v-for="sec in mod.sections" :key="sec.key" class="sb__sec">
-              <p class="sb__sec-title">{{ sec.label }}</p>
-              <RouterLink v-for="item in sec.items" :key="item.name" :to="{ name: item.name }" class="sb__link" active-class="sb__link--active">
-                {{ item.title }}
-              </RouterLink>
+          <!-- Solo anima al abrir: al cerrar, un menú que se demora empuja al que se abre. -->
+          <Transition name="reveal">
+            <div v-show="expanded === mod.key" class="sb__menu">
+              <div v-for="sec in mod.sections" :key="sec.key" class="sb__sec">
+                <p class="sb__sec-title">{{ sec.label }}</p>
+                <RouterLink
+                  v-for="item in sec.items"
+                  :key="item.name"
+                  :to="{ name: item.name }"
+                  class="sb__link"
+                  active-class="sb__link--active"
+                  @pointerenter="prefetch(item)"
+                  @focus="prefetch(item)"
+                >
+                  {{ item.title }}
+                </RouterLink>
+              </div>
             </div>
-          </div>
+          </Transition>
         </div>
       </template>
     </nav>
@@ -193,6 +211,17 @@ function toggle(key: ModuleKey) {
 
   &__menu {
     padding: 0.2rem 0 0.5rem 1.75rem;
+  }
+
+  .reveal-enter-active {
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s $ease;
+  }
+
+  .reveal-enter-from {
+    opacity: 0;
+    transform: translateY(-4px);
   }
 
   &__sec {
