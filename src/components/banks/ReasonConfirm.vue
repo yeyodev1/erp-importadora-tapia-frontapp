@@ -63,7 +63,7 @@ function next() {
       required
       :error="missing ? bancos.reason.required : ''"
     >
-      <textarea id="rc-reason" v-model="text" rows="3" maxlength="300" />
+      <textarea id="rc-reason" v-model="text" rows="3" maxlength="300" :placeholder="bancos.reason.placeholder" />
     </FormField>
   </FormDialog>
   <ConfirmModal
