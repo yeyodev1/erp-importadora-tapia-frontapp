@@ -12,6 +12,8 @@ export interface Card {
   icon: IconName
   to: RouteLocationRaw
   hint?: string
+  /** Qué significa la cifra (HelpTip junto al título). */
+  help?: string
   delta?: number | null
   alert?: boolean
 }
@@ -30,6 +32,7 @@ export function useDashboardCards(data: Ref<Dashboard | null>) {
       cards.push({
         key: 'sales',
         title: C.sales,
+        help: C.salesHelp,
         value: formatMoney(current.sales),
         icon: 'invoice',
         to: { name: 'SalesReport' },
@@ -40,23 +43,23 @@ export function useDashboardCards(data: Ref<Dashboard | null>) {
     }
     if (d.receivables) {
       const r = d.receivables
-      cards.push({ key: 'receivables', title: C.receivables, value: formatMoney(r.total), icon: 'receivables', to: { name: 'Aging' }, hint: `${formatMoney(r.overdue)} ${C.overdue}` })
+      cards.push({ key: 'receivables', title: C.receivables, help: C.receivablesHelp, value: formatMoney(r.total), icon: 'receivables', to: { name: 'Aging' }, hint: `${formatMoney(r.overdue)} ${C.overdue}` })
     }
     if (d.payables) {
       const o = d.payables.overdue
-      cards.push({ key: 'payables', title: C.payables, value: formatMoney(o.amount), icon: 'payables', to: { name: 'SupplierBalances' }, hint: `${n(o.count)} ${C.invoices}`, alert: o.amount > 0 })
+      cards.push({ key: 'payables', title: C.payables, help: C.payablesHelp, value: formatMoney(o.amount), icon: 'payables', to: { name: 'SupplierBalances' }, hint: `${n(o.count)} ${C.invoices}`, alert: o.amount > 0 })
     }
     if (d.lowStock) {
-      cards.push({ key: 'lowStock', title: C.lowStock, value: n(d.lowStock.products), icon: 'inventory', to: { name: 'StockBalances' }, hint: C.products, alert: d.lowStock.products > 0 })
+      cards.push({ key: 'lowStock', title: C.lowStock, help: C.lowStockHelp, value: n(d.lowStock.products), icon: 'inventory', to: { name: 'StockBalances' }, hint: C.products, alert: d.lowStock.products > 0 })
     }
     if (d.postdatedChecks) {
       const p = d.postdatedChecks
-      cards.push({ key: 'checks', title: C.checks, value: formatMoney(p.amount), icon: 'wallet', to: { name: 'PostdatedChecks' }, hint: `${n(p.count)} · ${C.checksHint}` })
+      cards.push({ key: 'checks', title: C.checks, help: C.checksHelp, value: formatMoney(p.amount), icon: 'wallet', to: { name: 'PostdatedChecks' }, hint: `${n(p.count)} · ${C.checksHint}` })
     }
     if (d.sriPending) {
       const s = d.sriPending
       const parts = Object.entries(C.sriParts).map(([k, label]) => `${label} ${n(s[k as keyof typeof s] ?? 0)}`)
-      cards.push({ key: 'sri', title: C.sri, value: n(s.total), icon: 'alert-circle', to: { name: 'Invoices' }, hint: parts.join(' · '), alert: s.total > 0 })
+      cards.push({ key: 'sri', title: C.sri, help: C.sriHelp, value: n(s.total), icon: 'alert-circle', to: { name: 'Invoices' }, hint: parts.join(' · '), alert: s.total > 0 })
     }
     return cards
   })
