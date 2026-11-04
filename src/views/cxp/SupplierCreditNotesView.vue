@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import FormField from '@/components/ui/FormField.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
@@ -10,6 +11,7 @@ import { useList } from '@/composables/useList'
 import { useAccess } from '@/composables/useAccess'
 import { purchasesService } from '@/services/purchases.service'
 import { cxp } from '@/config/copy/cxp'
+import { site } from '@/config/site'
 import type { SupplierCreditNote } from '@/types/purchases'
 
 const { canWrite } = useAccess()
@@ -24,8 +26,8 @@ const columns: Column<SupplierCreditNote>[] = [
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
   { key: 'docNumber', label: 'Número', width: '11rem' },
   { key: 'reason', label: 'Motivo' },
-  { key: 'base0', label: 'Base 0', format: 'money', total: true },
-  { key: 'baseVat', label: 'Base 15 %', format: 'money', total: true },
+  { key: 'base0', label: 'Base 0 %', format: 'money', total: true, help: cxp.reports.columns.base0 },
+  { key: 'baseVat', label: 'Base 15 %', format: 'money', total: true, help: cxp.reports.columns.baseVat },
   { key: 'vat', label: 'IVA', format: 'money', total: true },
   { key: 'total', label: 'Total', format: 'money', total: true },
 ]
@@ -38,12 +40,14 @@ function onSaved() {
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="cxp.pages.creditNotes">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="creating = true"><AppIcon name="plus" /> {{ cxp.creditNotes.add }}</button>
     </PageHeader>
-    <DataTable :columns="columns" :rows="list.items" :loading="list.loading" :error="list.error" :total="list.total" @retry="list.reload">
+    <DataTable :columns="columns" :rows="list.items" :loading="list.loading" :error="list.error" :total="list.total" :empty-message="cxp.creditNotes.empty" @retry="list.reload">
       <template #toolbar>
-        <div class="cn__party"><PartyPicker id="cn-supplier" v-model="supplierId" role="supplier" placeholder="Proveedor" clearable /></div>
+        <FormField :label="cxp.invoices.fields.supplier.label" :help="site.filters.help.party" for="cn-supplier" class="cn__party">
+          <PartyPicker id="cn-supplier" v-model="supplierId" role="supplier" :placeholder="cxp.creditNotes.supplierFilter" clearable />
+        </FormField>
       </template>
       <template #cell-docNumber="{ row }"><span class="mono">{{ row.docNumber }}</span></template>
     </DataTable>
