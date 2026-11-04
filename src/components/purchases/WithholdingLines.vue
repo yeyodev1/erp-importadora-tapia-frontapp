@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import FormField from '@/components/ui/FormField.vue'
+import HelpTip from '@/components/ui/HelpTip.vue'
 import BaseCombobox from '@/components/ui/BaseCombobox.vue'
 import MoneyInput from '@/components/ui/MoneyInput.vue'
 import { formatMoney } from '@/utils/money'
@@ -58,9 +59,12 @@ const remove = (index: number) => form.value.withholdings.splice(index, 1)
     </div>
 
     <footer class="wl__foot">
-      <button type="button" class="btn btn--ghost btn--sm" @click="form.withholdings.push(blankWithholding())"><AppIcon name="plus" /> {{ t.addWithholding }}</button>
-      <span>Retención <strong class="num">{{ formatMoney(totals.withholdingTotal) }}</strong></span>
-      <span class="wl__payable">Neto a pagar <strong class="num">{{ formatMoney(totals.payable) }}</strong></span>
+      <span class="wl__add">
+        <button type="button" class="btn btn--ghost btn--sm" @click="form.withholdings.push(blankWithholding())"><AppIcon name="search" /> {{ t.addWithholding }}</button>
+        <HelpTip :text="t.addWithholdingHelp" :label="t.addWithholding" />
+      </span>
+      <span>{{ t.amounts.withholding }} <strong class="num">{{ formatMoney(totals.withholdingTotal) }}</strong></span>
+      <span class="wl__payable">{{ t.amounts.payable }} <strong class="num">{{ formatMoney(totals.payable) }}</strong></span>
     </footer>
   </section>
 </template>
@@ -123,7 +127,8 @@ const remove = (index: number) => form.value.withholdings.splice(index, 1)
   @include flex(row, center, flex-end, 0.75rem 1.5rem);
   flex-wrap: wrap;
 
-  > button {
+  > .wl__add {
+    @include flex(row, center, flex-start, 0.25rem);
     margin-right: auto;
   }
 
