@@ -43,12 +43,12 @@ const rates = (w: Withholding) =>
   w.lines.map((l) => `${t[l.tax]} ${String(l.rate).replace('.', ',')} %`).join(' · ')
 const columns: Column<Withholding>[] = [
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
-  { key: 'voucherNumber', label: 'Comprobante', width: '11rem' },
+  { key: 'voucherNumber', ...t.cols.voucher, width: '11rem' },
   { key: 'invoiceNumber', label: 'Factura', width: '11rem' },
   { key: 'partyName', label: 'Cliente' },
-  { key: 'rates', label: '%', value: rates },
-  { key: 'renta', label: t.renta, format: 'money', total: true, value: (w) => byTax(w, 'renta') },
-  { key: 'iva', label: t.iva, format: 'money', total: true, value: (w) => byTax(w, 'iva') },
+  { key: 'rates', ...t.cols.rates, value: rates },
+  { key: 'renta', ...t.cols.renta, format: 'money', total: true, value: (w) => byTax(w, 'renta') },
+  { key: 'iva', ...t.cols.iva, format: 'money', total: true, value: (w) => byTax(w, 'iva') },
   { key: 'total', label: 'Total', format: 'money', total: true },
 ]
 
@@ -61,7 +61,7 @@ function onSaved() {
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.subtitle">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="creating = true">
         <AppIcon name="plus" /> {{ t.add }}
       </button>
@@ -84,6 +84,8 @@ function onSaved() {
       :total="list.total"
       :fetch-all="list.fetchAll"
       :filters-text="summary"
+      :empty-title="t.emptyTitle"
+      :empty-message="t.empty"
       @update:page="list.page = $event"
       @retry="list.reload"
     >
