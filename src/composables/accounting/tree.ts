@@ -20,5 +20,5 @@ export const treeRowClass = (r: { kind: string }) => (r.kind === 'total' ? 'is-t
 export const statementColumns = (amountLabel: string): Column<StatementRow>[] => [
   { key: 'code', label: 'Código', width: '10rem' },
   { key: 'name', label: 'Nombre', value: indentName },
-  { key: 'amount', label: amountLabel, format: 'money' },
+  { key: 'amount', label: amountLabel, format: 'amount-signed' },
 ]
