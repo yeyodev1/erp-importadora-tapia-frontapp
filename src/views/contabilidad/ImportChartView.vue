@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
@@ -81,9 +82,7 @@ const updateCols: Column<ChartRow>[] = [
       <div class="ic__actions">
         <input ref="file" type="file" accept=".csv,.txt,text/csv,text/plain" class="ic__file" @change="onFile" />
         <button type="button" class="btn btn--ghost" @click="file?.click()"><AppIcon name="upload" /> {{ c.upload }}</button>
-        <button type="button" class="btn btn--primary" :disabled="loading || !csv.trim()" @click="send('preview')">
-          <AppIcon :name="loading ? 'spinner' : 'search'" :spin="loading" /> {{ c.preview }}
-        </button>
+        <BaseButton variant="primary" icon="search" :loading="loading" :disabled="!csv.trim()" @click="send('preview')">{{ c.preview }}</BaseButton>
         <button v-if="canApply" type="button" class="btn btn--dark" @click="confirming = true"><AppIcon name="check" /> {{ c.apply }}</button>
       </div>
       <p v-if="error && !confirming" class="ic__error" role="alert"><AppIcon name="alert" /> {{ error }}</p>
