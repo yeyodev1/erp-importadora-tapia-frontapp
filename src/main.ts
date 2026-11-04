@@ -8,6 +8,7 @@ import '@/styles/global.scss'
 import '@/styles/controls.scss'
 import '@/styles/utilities.scss'
 import '@/styles/print.scss'
+import '@/styles/motion.scss'
 
 const app = createApp(App)
 const pinia = createPinia()
