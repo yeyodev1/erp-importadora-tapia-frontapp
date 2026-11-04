@@ -56,7 +56,7 @@ const total = computed(() => chosen.value.reduce((s, a) => s + a.total, 0))
 
 const columns: Column<PaymentApproval>[] = [
   { key: 'pay', label: t.select, screenOnly: true, width: '6rem' },
-  { key: 'number', label: 'Aprobación', format: 'int', width: '7rem' },
+  { key: 'number', label: 'N.° de aprobación', format: 'int', width: '7rem' },
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
   { key: 'invoices', label: 'Facturas', value: (a) => a.lines.map((l) => `${l.invoiceId?.docNumber} (${formatMoney(l.amount)})`).join(', ') },
   { key: 'note', label: 'Nota' },
@@ -84,15 +84,8 @@ async function pay() {
 
 <template>
   <section class="py">
-    <PageHeader />
-    <BaseSegmented
-      v-model="tab"
-      tabs
-      :options="[
-        { value: 'toPay', label: t.toPay },
-        { value: 'done', label: t.done },
-      ]"
-    />
+    <PageHeader :subtitle="cxp.pages.payments" />
+    <BaseSegmented v-model="tab" tabs :options="t.tabs" :label="$route.meta.title" />
 
     <template v-if="tab === 'toPay'">
       <section class="panel panel--pad">
@@ -104,7 +97,7 @@ async function pay() {
       </section>
       <EmptyState v-if="!beneficiaryId" :message="t.choose" />
       <template v-else>
-        <DataTable :columns="columns" :rows="approvals" :loading="loading" :exportable="false">
+        <DataTable :columns="columns" :rows="approvals" :loading="loading" :exportable="false" :empty-message="t.empty">
           <template #cell-pay="{ row }"><BaseSwitch v-model="selected[row._id]" :label="t.select" /></template>
         </DataTable>
         <section v-if="canWrite && approvals.length" class="panel panel--pad">
@@ -120,7 +113,7 @@ async function pay() {
       </template>
     </template>
 
-    <div v-show="tab === 'done'"><TransactionsTable ref="done" kind="pago" :can-write="canWrite" /></div>
+    <div v-show="tab === 'done'"><TransactionsTable ref="done" kind="pago" :can-write="canWrite" :empty-message="t.doneEmpty" /></div>
   </section>
 </template>
 
