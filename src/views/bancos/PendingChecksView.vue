@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import FormField from '@/components/ui/FormField.vue'
-import BaseBadge from '@/components/ui/BaseBadge.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import BankAccountPicker from '@/components/pickers/BankAccountPicker.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { overdueRow } from '@/components/table/indicators'
 import { banksService, type PendingCheck } from '@/services/banks.service'
 import { useCatalogStore } from '@/stores/catalog'
 import { site } from '@/config/site'
@@ -48,7 +48,7 @@ const columns: Column<PendingCheck>[] = [
   { key: 'beneficiary', label: t.cols.beneficiary },
   { key: 'description', label: t.cols.description },
   { key: 'amount', label: t.cols.amount, format: 'money', total: true },
-  { key: 'ageDays', label: t.cols.age, help: t.ageHelp, format: 'int', width: '6rem' },
+  { key: 'ageDays', label: t.cols.age, help: t.ageHelp, format: 'days-overdue', width: '8rem' },
 ]
 </script>
 
@@ -62,7 +62,7 @@ const columns: Column<PendingCheck>[] = [
       <FormField v-bind="t.bank" for="pc-bank" class="pc__field">
         <BankAccountPicker id="pc-bank" v-model="bankAccountId" kind="banco" :empty-label="site.filters.all" />
       </FormField>
-      <button type="submit" class="btn btn--primary" :disabled="loading"><AppIcon name="search" /> {{ site.filters.apply }}</button>
+      <BaseButton type="submit" variant="primary" icon="search" :loading="loading">{{ site.filters.apply }}</BaseButton>
     </form>
     <DataTable
       :columns="columns"
@@ -72,14 +72,10 @@ const columns: Column<PendingCheck>[] = [
       :filters-text="filters"
       :empty-message="t.empty"
       landscape
-      :row-class="(r) => (isOld(r) ? 'is-old' : undefined)"
+      :row-class="(r) => overdueRow(r.ageDays)"
       @retry="run"
     >
       <template #cell-checkNumber="{ row }"><span class="mono">{{ row.checkNumber }}</span></template>
-      <template #cell-ageDays="{ row }">
-        <BaseBadge v-if="isOld(row)" tone="danger" :title="t.old">{{ row.ageDays }}</BaseBadge>
-        <span v-else class="num">{{ row.ageDays }}</span>
-      </template>
     </DataTable>
   </section>
 </template>
@@ -92,9 +88,5 @@ const columns: Column<PendingCheck>[] = [
 .pc__field {
   flex: 1 1 200px;
   max-width: 280px;
-}
-
-:deep(tr.is-old td) {
-  background: $danger-bg;
 }
 </style>
