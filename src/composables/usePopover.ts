@@ -27,12 +27,14 @@ export function usePopover(options: { matchWidth?: boolean; width?: number } = {
     const height = panel.value.offsetHeight
 
     let top = rect.bottom + GAP
+    let origin = 'top center'
     if (top + height > window.innerHeight - MARGIN && rect.top - GAP - height > MARGIN) {
       top = rect.top - GAP - height
+      origin = 'bottom center'
     }
     const left = Math.min(Math.max(rect.left, MARGIN), window.innerWidth - width - MARGIN)
 
-    style.value = { top: `${top}px`, left: `${left}px`, width: `${width}px` }
+    style.value = { top: `${top}px`, left: `${left}px`, width: `${width}px`, transformOrigin: origin }
   }
 
   function swallowClick(event: MouseEvent) {
