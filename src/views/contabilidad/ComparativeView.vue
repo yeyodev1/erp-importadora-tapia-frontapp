@@ -28,9 +28,9 @@ report.run()
 const columns = computed<Column<ComparativeRow>[]>(() => [
   { key: 'code', label: t.common.code, width: '10rem' },
   { key: 'name', label: t.common.name, value: indentName },
-  { key: 'balanceA', label: monthLabel(data.value?.periodA ?? periodA.value), help: c.balanceHelp, format: 'money' },
-  { key: 'balanceB', label: monthLabel(data.value?.periodB ?? periodB.value), help: c.balanceHelp, format: 'money' },
-  { key: 'difference', label: c.difference, help: c.differenceHelp, format: 'money' },
+  { key: 'balanceA', label: monthLabel(data.value?.periodA ?? periodA.value), help: c.balanceHelp, format: 'amount-signed' },
+  { key: 'balanceB', label: monthLabel(data.value?.periodB ?? periodB.value), help: c.balanceHelp, format: 'amount-signed' },
+  { key: 'difference', label: c.difference, help: c.differenceHelp, format: 'amount-signed' },
 ])
 const filtersText = computed(() => (data.value ? [`${monthLabel(data.value.periodA)} vs. ${monthLabel(data.value.periodB)}`] : []))
 </script>
