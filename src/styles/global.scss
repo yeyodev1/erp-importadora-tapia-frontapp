@@ -131,7 +131,17 @@ label {
   border-radius: $radius-sm;
   border: 1px solid transparent;
   white-space: nowrap;
-  @include transition;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease,
+    transform 0.12s $ease;
+
+  // Se hunde al presionar: confirma el clic antes de que responda el servidor.
+  &:active {
+    transform: scale(0.97);
+  }
 
   &--primary {
     background: $accent;
@@ -193,59 +203,4 @@ label {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-
-// Bloque de carga con brillo: la página no salta cuando llegan los datos.
-.skeleton {
-  display: block;
-  position: relative;
-  overflow: hidden;
-  background: $sand;
-  border-radius: 4px;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, rgba($surface, 0.75), transparent);
-    animation: skeleton-shimmer 1.3s ease-in-out infinite;
-  }
-}
-
-@keyframes skeleton-shimmer {
-  to {
-    transform: translateX(100%);
-  }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.rise-enter-active,
-.rise-leave-active {
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s $ease;
-}
-.rise-enter-from,
-.rise-leave-to {
-  opacity: 0;
-  transform: translateY(8px);
-}
-
-@include reduced-motion {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
 }
