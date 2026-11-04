@@ -9,6 +9,7 @@ import BaseCombobox from '@/components/ui/BaseCombobox.vue'
 import HelpTip from '@/components/ui/HelpTip.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import { pct, RATES, useWithholdingForm } from '@/composables/receivables/useWithholdingForm'
 import { cxc } from '@/config/copy/cxc'
 import { site } from '@/config/site'
@@ -41,6 +42,7 @@ watch(
     @submit="w.submit"
     @close="emit('close')"
   >
+    <LockedDateBanner :date="w.form.date" />
     <div class="form-grid">
       <FormField v-bind="cxc.receipts.fields.party" for="wh-party" required>
         <PartyPicker id="wh-party" v-model="w.form.partyId" role="customer" />
