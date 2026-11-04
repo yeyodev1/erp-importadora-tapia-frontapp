@@ -72,16 +72,22 @@
   border-radius: $radius-md;
   box-shadow: $shadow-lg;
   overflow: hidden;
+  // usePopover lo cambia a 'bottom' cuando el panel abre hacia arriba: crece desde su campo.
+  transform-origin: top center;
 }
 
-.pop-enter-active,
+.pop-enter-active {
+  transition:
+    opacity 0.15s $ease,
+    transform 0.15s $ease;
+}
 .pop-leave-active {
   transition:
-    opacity 0.14s ease,
-    transform 0.18s $ease;
+    opacity 0.1s ease,
+    transform 0.1s ease;
 }
 .pop-enter-from,
 .pop-leave-to {
   opacity: 0;
-  transform: translateY(-4px);
+  transform: scale(0.97);
 }
