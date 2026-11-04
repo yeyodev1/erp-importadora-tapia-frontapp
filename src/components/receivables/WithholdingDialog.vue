@@ -20,7 +20,10 @@ const emit = defineEmits<{ close: []; saved: [] }>()
 const t = cxc.withholdings
 const w = useWithholdingForm(() => emit('saved'))
 const rateOptions = (tax: 'renta' | 'iva') =>
-  RATES[tax].map((r) => ({ value: r, label: `${String(r).replace('.', ',')} %` }))
+  RATES[tax].map((r) => {
+    const label = `${String(r).replace('.', ',')} %`
+    return { value: r, label, help: t.rateHelp[tax](label.replace(' %', '')) }
+  })
 
 watch(
   () => props.open,
@@ -48,6 +51,7 @@ watch(
           v-model="w.form.invoiceId"
           :options="w.invoiceOptions.value"
           :disabled="!w.form.partyId"
+          :placeholder="w.form.partyId ? undefined : cxc.receipts.pickParty"
         />
       </FormField>
       <FormField v-bind="t.date" for="wh-date" required>
@@ -58,11 +62,17 @@ watch(
           id="wh-voucher"
           v-model="w.form.voucherNumber"
           class="mono"
-          placeholder="001-001-000000123"
+          placeholder="Ej.: 001-001-000000123"
         />
       </FormField>
       <FormField v-bind="t.authorization" for="wh-auth" full>
-        <input id="wh-auth" v-model="w.form.authorization" class="mono" inputmode="numeric" />
+        <input
+          id="wh-auth"
+          v-model="w.form.authorization"
+          class="mono"
+          inputmode="numeric"
+          :placeholder="t.authorizationPlaceholder"
+        />
       </FormField>
     </div>
 
@@ -72,7 +82,7 @@ watch(
       {{ formatMoney(w.invoice.value.vat) }} · saldo {{ formatMoney(w.invoice.value.balance) }}
     </p>
 
-    <h4 class="form-section">{{ t.lines }} <HelpTip :text="t.base.help" /></h4>
+    <h4 class="form-section">{{ t.lines }} <HelpTip :text="`${t.rate.help} ${t.base.help}`" /></h4>
     <ul class="wl">
       <li v-for="(l, i) in w.lines.value" :key="i" class="wl__row">
         <strong class="wl__tax">{{ t[l.tax] }}</strong>
