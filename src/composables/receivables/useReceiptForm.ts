@@ -19,7 +19,7 @@ const blank = () => ({
   bankAccountId: '',
   reference: '',
   amount: null as number | null,
-  check: { number: '', bank: '', dueDate: '' },
+  check: { number: '', bank: '', dueDate: todayISO() },
   notes: '',
 })
 
