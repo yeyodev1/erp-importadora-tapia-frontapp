@@ -1,3 +1,4 @@
+import { lineHelp } from '@/config/copy/lineHelp'
 import { computed, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { LineColumn } from '@/components/documents/lines'
@@ -59,14 +60,14 @@ export function useTransactionForm() {
   watch(isTransfer, (v) => !v && (doc.targetWarehouseId = ''))
 
   const columns = computed<LineColumn<TxLine>[]>(() => [
-    { key: 'productId', label: c.product, type: 'product', width: '34%' },
-    { key: 'unit', label: c.unit, type: 'readonly', value: (l) => l.product?.unit ?? '', width: '6rem' },
-    { key: 'qty', label: c.qty, type: 'qty', total: true, width: '9rem' },
-    { key: 'purchase', label: c.purchaseQty, type: 'readonly', value: inPurchase, width: '9rem' },
+    { key: 'productId', label: c.product, type: 'product', width: '34%', help: lineHelp.product },
+    { key: 'unit', label: c.unit, type: 'readonly', value: (l) => l.product?.unit ?? '', width: '6rem', help: lineHelp.unit },
+    { key: 'qty', label: c.qty, type: 'qty', total: true, width: '9rem', help: lineHelp.qty },
+    { key: 'purchase', label: c.purchaseQty, type: 'readonly', value: inPurchase, width: '9rem', help: lineHelp.purchaseQty },
     ...(showsCost.value
       ? ([
-          { key: 'unitCost', label: t.cost, type: 'money', width: '8rem' },
-          { key: 'total', label: t.lineTotal, type: 'readonly', format: 'money', total: true, value: lineTotal, width: '8rem' },
+          { key: 'unitCost', label: t.cost, type: 'money', width: '8rem', help: lineHelp.unitCost },
+          { key: 'total', label: t.lineTotal, type: 'readonly', format: 'money', total: true, value: lineTotal, width: '8rem', help: lineHelp.lineTotal },
         ] as LineColumn<TxLine>[])
       : []),
   ])
