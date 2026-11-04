@@ -22,7 +22,7 @@ const defaultAccount = computed(() => props.ctx.supplier.value?.supplier?.defaul
 const expenseColumns: LineColumn<ExpenseLine>[] = [
   { key: 'accountCode', label: 'Cuenta de gasto', type: 'account', width: '34%' },
   { key: 'description', label: 'Detalle', type: 'text', width: '26%' },
-  { key: 'base0', label: 'Base 0', type: 'money', total: true },
+  { key: 'base0', label: 'Base 0 %', type: 'money', total: true },
   { key: 'baseVat', label: 'Base 15 %', type: 'money', total: true },
 ]
 const productColumns: LineColumn<ProductLine>[] = [
@@ -35,14 +35,7 @@ const productColumns: LineColumn<ProductLine>[] = [
 
 <template>
   <section class="panel panel--pad il">
-    <BaseSegmented
-      v-model="form.lineKind"
-      tabs
-      :options="[
-        { value: 'gasto', label: t.expenseLines },
-        { value: 'producto', label: t.productLines },
-      ]"
-    />
+    <BaseSegmented v-model="form.lineKind" tabs :options="cxp.lineKinds" :label="t.expenseLines" />
     <DocumentLines
       v-if="form.lineKind === 'gasto'"
       v-model="form.expenseLines"
@@ -60,7 +53,7 @@ const productColumns: LineColumn<ProductLine>[] = [
     </template>
 
     <div class="il__totals">
-      <span>Base 0 <strong class="num">{{ formatMoney(totals.base0) }}</strong></span>
+      <span>Base 0 % <strong class="num">{{ formatMoney(totals.base0) }}</strong></span>
       <span>Base 15 % <strong class="num">{{ formatMoney(totals.baseVat) }}</strong></span>
       <FormField v-bind="t.fields.vat" for="inv-vat" :hint="form.vat != null && form.vat !== totals.vatAuto ? `Calculado: ${formatMoney(totals.vatAuto)}` : ''">
         <MoneyInput id="inv-vat" :model-value="totals.vat" @update:model-value="form.vat = $event" />
