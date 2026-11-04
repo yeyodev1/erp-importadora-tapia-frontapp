@@ -11,10 +11,12 @@ import { useAccess } from '@/composables/useAccess'
 import { accountingService, type ChartImportResult, type ChartRow } from '@/services/accounting.service'
 import { useToastStore } from '@/stores/toast'
 import { accounting as t } from '@/config/copy/accounting'
+import { accountingScreens } from '@/config/copy/accountingScreens'
 import type { ApiError } from '@/types'
 
 /** Importar plan de cuentas: pegar o subir CSV → previsualizar (errores) → aplicar con doble confirmación. */
 const c = t.importChart
+const s = accountingScreens.importChart
 const { canWrite } = useAccess()
 const toast = useToastStore()
 
@@ -57,14 +59,14 @@ const applyMessage = computed(() =>
 
 const kind = (k?: string) => (k === 'mayor' ? 'Mayor' : k === 'movimiento' ? 'Movimiento' : '')
 const createCols: Column<ChartRow>[] = [
-  { key: 'line', label: '#', format: 'int', width: '4rem' },
+  { key: 'line', label: s.line, help: s.lineHelp, format: 'int', width: '4rem' },
   { key: 'code', label: t.common.code },
   { key: 'name', label: t.common.name },
-  { key: 'kind', label: c.kind, value: (r) => kind(r.kind) },
+  { key: 'kind', label: s.kind, help: s.kindHelp, value: (r) => kind(r.kind) },
 ]
 const updateCols: Column<ChartRow>[] = [
   ...createCols,
-  { key: 'before', label: c.before, value: (r) => `${r.previousName} · ${kind(r.previousKind)}` },
+  { key: 'before', label: c.before, help: s.beforeHelp, value: (r) => `${r.previousName} · ${kind(r.previousKind)}` },
 ]
 </script>
 
