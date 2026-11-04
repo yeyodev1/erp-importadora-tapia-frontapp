@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="L extends Record<string, any>">
 import { computed } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import HelpTip from '@/components/ui/HelpTip.vue'
 import MoneyInput from '@/components/ui/MoneyInput.vue'
 import QtyInput from '@/components/ui/QtyInput.vue'
 import ProductPicker from '@/components/pickers/ProductPicker.vue'
@@ -59,10 +60,11 @@ const set = (line: L, key: string, value: unknown) => ((line as Record<string, u
 
 <template>
   <div class="dl" :class="{ 'dl--readonly': readonly }">
-    <div class="dl__head" aria-hidden="true">
+    <div class="dl__head">
       <span class="dl__n">#</span>
       <span v-for="c in columns" :key="c.key" class="dl__cell" :class="{ 'is-num': ['money', 'qty'].includes(c.type ?? '') || c.format === 'money' }" :style="c.width ? { flexBasis: c.width } : undefined">
         {{ c.label }}
+        <HelpTip v-if="c.help" :text="c.help" :label="c.label" />
       </span>
       <span v-if="!readonly" class="dl__ops"></span>
     </div>
@@ -70,7 +72,7 @@ const set = (line: L, key: string, value: unknown) => ((line as Record<string, u
     <div v-for="(line, i) in lines" :key="lineKey(line)" class="dl__row">
       <span class="dl__n">{{ i + 1 }}</span>
       <div v-for="c in columns" :key="c.key" class="dl__cell" :style="c.width ? { flexBasis: c.width } : undefined">
-        <label class="dl__label" :for="`${idPrefix}-${i}-${c.key}`">{{ c.label }}</label>
+        <span class="dl__label"><label :for="`${idPrefix}-${i}-${c.key}`">{{ c.label }}</label><HelpTip v-if="c.help && i === 0" :text="c.help" :label="c.label" /></span>
         <slot :name="`cell-${c.key}`" :line="line" :index="i">
           <span v-if="c.type === 'readonly' || readonly" class="dl__static" :class="{ 'is-num': fmt(c).format !== 'text' }">
             {{ formatValue(fmt(c), cellValue(c, line)) }}
@@ -206,6 +208,15 @@ const set = (line: L, key: string, value: unknown) => ((line as Record<string, u
     &__head {
       @include flex(row, center, flex-start, 0.5rem);
       padding: 0.45rem 0.6rem;
+    }
+
+    // Título y su "?" en la misma línea; en columnas de montos, alineados a la derecha.
+    &__head &__cell {
+      @include flex(row, center, flex-start, 0.3rem);
+
+      &.is-num {
+        justify-content: flex-end;
+      }
     }
 
     &__row {
