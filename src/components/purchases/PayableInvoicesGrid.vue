@@ -2,6 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import MoneyInput from '@/components/ui/MoneyInput.vue'
+import FormField from '@/components/ui/FormField.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
@@ -77,13 +78,13 @@ const over = computed(() => invoices.value.filter((i) => (amounts[i._id] ?? 0) >
 const columns = computed<Column<PurchaseInvoice>[]>(() => [
   { key: 'supplierName', label: 'Proveedor' },
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
-  { key: 'dueDate', label: 'Vence', format: 'date', width: '7rem' },
-  { key: 'days', label: 'Días', format: 'int', value: daysLate, width: '4rem' },
+  { key: 'dueDate', label: 'Vencimiento', format: 'date', width: '7rem' },
+  { key: 'days', label: 'Días vencida', format: 'int', value: daysLate, width: '4rem', help: t.columns.days },
   { key: 'docNumber', label: 'Número', width: '10rem' },
-  { key: 'payable', label: 'Neto', format: 'money' },
-  { key: 'balance', label: 'Saldo', format: 'money', total: true },
-  { key: 'approved', label: 'Ya aprobado', format: 'money', total: true },
-  { key: 'free', label: 'Libre', format: 'money', value: free, total: true },
+  { key: 'payable', label: 'Neto a pagar', format: 'money', help: t.columns.payable },
+  { key: 'balance', label: 'Saldo', format: 'money', total: true, help: cxp.invoices.columns.balance },
+  { key: 'approved', label: 'Ya aprobado', format: 'money', total: true, help: t.columns.approved },
+  { key: 'free', label: 'Libre', format: 'money', value: free, total: true, help: t.columns.free },
   { key: 'amount', label: props.amountLabel, format: 'money', value: (i) => amounts[i._id] ?? 0, total: true, width: '9rem' },
 ])
 
@@ -93,9 +94,9 @@ defineExpose({ over, reload: load })
 <template>
   <div class="pg">
     <div class="pg__suppliers">
-      <div class="pg__picker">
+      <FormField v-bind="t.fields.suppliers" for="pg-supplier" class="pg__picker">
         <PartyPicker id="pg-supplier" v-model="picker" role="supplier" :placeholder="t.addSupplier" @pick="addSupplier" />
-      </div>
+      </FormField>
       <span v-if="!suppliers.length && allowAll" class="pg__all">{{ t.allSuppliers }}</span>
       <span v-for="s in suppliers" :key="s.id" class="pg__chip">
         {{ s.name }}
@@ -103,7 +104,7 @@ defineExpose({ over, reload: load })
       </span>
     </div>
 
-    <DataTable :columns="columns" :rows="invoices" :loading="loading" :error="error" :row-class="(r) => (over.includes(r._id) ? 'is-over' : undefined)" @retry="load">
+    <DataTable :columns="columns" :rows="invoices" :loading="loading" :error="error" :row-class="(r) => (over.includes(r._id) ? 'is-over' : undefined)" @retry="load" :empty-message="t.gridEmpty">
       <template #toolbar>
         <button type="button" class="btn btn--ghost btn--sm" :disabled="!invoices.length" @click="fillAll"><AppIcon name="check" /> {{ t.approveAll }}</button>
         <button type="button" class="btn btn--ghost btn--sm" :disabled="!lines.length" @click="clear">{{ t.clear }}</button>
@@ -125,7 +126,7 @@ defineExpose({ over, reload: load })
 }
 
 .pg__suppliers {
-  @include flex(row, center, flex-start, 0.5rem);
+  @include flex(row, flex-end, flex-start, 0.5rem);
   flex-wrap: wrap;
 }
 
