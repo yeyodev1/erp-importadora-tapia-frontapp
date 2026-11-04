@@ -82,7 +82,8 @@ export const cxc = {
     dueFrom: f('Fecha para depositar desde', 'Primer día de depósito que entra en la lista. Abre un año atrás para no dejar cheques olvidados. Ej.: 01/11/2025.'),
     dueTo: f('Fecha para depositar hasta', 'Último día de depósito que entra en la lista. Abre un año adelante para ver todos los cheques futuros. Ej.: 30/11/2027.'),
     cols: {
-      dueDate: f('Fecha para depositar', 'Fecha escrita en el cheque. En naranja: ya llegó y el cheque sigue en cartera, se puede depositar.'),
+      dueDate: f('Fecha para depositar', 'Fecha escrita en el cheque.'),
+      days: f('Para depositar', 'Solo cheques en cartera. "Al día": su fecha aún no llega. Con días: ya llegó y sigue sin depositar (fila roja); fila ámbar: llega en los próximos 7 días.'),
       bank: f('Banco del cheque', 'Banco del cliente que emitió el cheque.'),
       number: f('Cobro', 'Cobro con el que se registró el cheque.'),
     },
@@ -181,6 +182,7 @@ export const cxc = {
     statementEmpty: 'Este cliente no tiene movimientos en esas fechas. Amplía el rango y pulsa Consultar.',
     cols: {
       dueDate: f('Vence', 'Fecha en que la factura debía pagarse según el plazo de crédito.'),
+      dueOpen: 'Días vencidos de la factura, solo si todavía tiene saldo por cobrar.',
       movement: f('Abono', 'Valor que bajó el saldo: cobro, retención o nota de crédito.'),
       paid: f('Abonos', 'Suma de cobros, retenciones y notas de crédito aplicadas hasta el corte.'),
       balance: f('Saldo', 'Lo que el cliente todavía debe de esa factura al corte.'),
@@ -220,6 +222,13 @@ export const cxc = {
     ledgerTotal: 'Libro de cartera',
     checkHelp: 'Los auditores piden que la resumida (por cliente), la detallada (por factura) y el libro de cartera, que es el mismo que alimenta el mayor de Clientes, den el mismo total al corte.',
     chart: 'Saldo por tramo',
+    dueLabel: 'Vencida',
+    due: { all: 'Toda', d30: '31-90 días', d90: '+90 días' },
+    dueHelp: {
+      all: 'Toda la cartera con saldo al corte.',
+      d30: 'Solo lo vencido entre 31 y 90 días: gestionar el cobro.',
+      d90: 'Solo lo vencido hace más de 90 días: cartera de difícil cobro.',
+    },
     days: 'Días vencidos',
     daysHelp: 'Días desde el vencimiento hasta la fecha de corte. En cero o negativo: aún no vence.',
     totalHelp: 'Saldo total que debe el cliente (o la factura) al corte, sumando todos los tramos.',
