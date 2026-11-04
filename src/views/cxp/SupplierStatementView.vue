@@ -22,12 +22,12 @@ const data = computed(() => report.data as { supplier: { name: string; identific
 
 const columns: Column[] = [
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
-  { key: 'kind', label: 'Movimiento', value: (r) => cxp.kinds[r.kind] ?? r.kind },
+  { key: 'kind', label: 'Movimiento', value: (r) => cxp.kinds[r.kind] ?? r.kind, help: t.columns.kind },
   { key: 'docNumber', label: 'Factura', width: '11rem' },
-  { key: 'dueDate', label: 'Vence', format: 'date', width: '7rem' },
-  { key: 'charge', label: 'Facturado', format: 'money', total: true },
-  { key: 'credit', label: 'Abonado', format: 'money', total: true },
-  { key: 'balance', label: 'Saldo', format: 'money' },
+  { key: 'dueDate', label: 'Vencimiento', format: 'date', width: '7rem' },
+  { key: 'charge', label: 'Facturado', format: 'money', total: true, help: t.columns.charge },
+  { key: 'credit', label: 'Abonado', format: 'money', total: true, help: t.columns.credit },
+  { key: 'balance', label: 'Saldo', format: 'money', help: t.columns.runningBalance },
 ]
 
 function run(summary: string[]) {
@@ -38,7 +38,7 @@ onMounted(() => filters.value.partyId && run([]))
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="cxp.pages.statement" />
     <ReportFilters v-model="filters" :fields="['range', 'party']" party-role="supplier" :loading="report.loading" @apply="run" />
     <EmptyState v-if="!filters.partyId" :message="t.pickSupplier" />
     <template v-else-if="report.ran">
@@ -52,6 +52,7 @@ onMounted(() => filters.value.partyId && run([]))
         row-key="_rk"
         :loading="report.loading"
         :error="report.error"
+        :empty-message="t.emptyStatement"
         :filters-text="[...report.summary, `${t.opening}: ${formatMoney(data?.opening)}`]"
         @retry="run(report.summary)"
       >
