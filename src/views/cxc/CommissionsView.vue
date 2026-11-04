@@ -29,21 +29,21 @@ onMounted(() => run([]))
 
 const columns: Column<CommissionsReport['items'][number]>[] = [
   { key: 'sellerName', label: 'Vendedor' },
-  { key: 'collected', label: 'Cobrado', format: 'money', total: true },
+  { key: 'collected', ...t.cols.collected, format: 'money', total: true },
   {
     key: 'rate',
-    label: '%',
+    ...t.cols.rate,
     value: (i) => `${String(i.rate).replace('.', ',')} %`,
     align: 'right',
     width: '5rem',
   },
-  { key: 'commission', label: 'Comisión', format: 'money', total: true },
+  { key: 'commission', ...t.cols.commission, format: 'money', total: true },
 ]
 </script>
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="t.subtitle" />
     <p class="note panel panel--pad"><AppIcon name="info" /> {{ t.note }}</p>
     <ReportFilters v-model="filters" :loading="report.loading.value" @apply="run">
       <FormField v-bind="t.rate" for="com-rate" class="narrow">
@@ -51,6 +51,7 @@ const columns: Column<CommissionsReport['items'][number]>[] = [
           id="com-rate"
           v-model="rateText"
           inputmode="decimal"
+          :placeholder="t.ratePlaceholder"
           class="num"
           :aria-invalid="!(rate() >= 0 && rate() <= 100)"
         />
@@ -63,6 +64,7 @@ const columns: Column<CommissionsReport['items'][number]>[] = [
       :loading="report.loading.value"
       :error="report.error.value"
       :filters-text="report.summary.value"
+      :empty-message="t.empty"
       @retry="run()"
     />
   </section>
