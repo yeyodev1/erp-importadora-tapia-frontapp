@@ -8,6 +8,7 @@ import ReportFilters from '@/components/report/ReportFilters.vue'
 import { defaultFilters, filterParams } from '@/components/report/filters'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { overdueDays, overdueRow } from '@/components/table/indicators'
 import { useReport } from '@/composables/receivables/useReport'
 import { receivablesService } from '@/services/receivables.service'
 import CustomerFilters from '@/components/receivables/CustomerFilters.vue'
@@ -100,6 +101,9 @@ function splitParts(n: string) {
   return { series, number: seq }
 }
 
+// Días vencidos al corte, solo de facturas con saldo (una pagada no está vencida).
+const daysOf = (row: Row) => (row.kind === 'invoice' && row.balance ? overdueDays(row.dueDate, cutoff.value) : null)
+
 const columns = computed<Column<Row>[]>(() => [
   { key: 'customer', label: 'Cliente' },
   { key: 'date', label: 'Fecha', format: 'date', width: '6.5rem' },
@@ -107,6 +111,7 @@ const columns = computed<Column<Row>[]>(() => [
   { key: 'series', label: 'Serie', width: '5.5rem' },
   { key: 'number', label: 'Número', width: '7rem' },
   { key: 'dueDate', ...r.cols.dueDate, format: 'date', width: '6.5rem' },
+  { key: 'days', label: cxc.aging.days, help: cxc.aging.daysHelp, format: 'days-overdue', width: '7rem', value: daysOf },
   ...(detailed.value
     ? [
         { key: 'detail', label: 'Detalle del abono' },
@@ -148,7 +153,7 @@ const totals = computed(() => {
       :error="report.error.value"
       :filters-text="filtersText"
       :empty-message="r.invoicesEmpty"
-      :row-class="(row) => (row.kind === 'invoice' ? undefined : `is-${row.kind}`)"
+      :row-class="(row) => (row.kind === 'invoice' ? overdueRow(daysOf(row)) : `is-${row.kind}`)"
       landscape
       @retry="run()"
     >
