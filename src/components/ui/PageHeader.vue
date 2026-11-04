@@ -3,13 +3,16 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { site } from '@/config/site'
 import { useAccess } from '@/composables/useAccess'
+import { screenIcon } from '@/layout/screenIcons'
+import AppIcon from './AppIcon.vue'
 import BaseBadge from './BaseBadge.vue'
+import type { IconName } from './icons'
 
 /**
- * Encabezado de pantalla: ruta de migas (módulo · submenú), título (por
- * defecto el de la ruta) y acciones a la derecha.
+ * Encabezado de pantalla: icono de la pantalla (el mismo del menú, sale de
+ * la ruta), migas (módulo · submenú), título (por defecto el de la ruta) y acciones.
  */
-const props = defineProps<{ title?: string; subtitle?: string }>()
+const props = defineProps<{ title?: string; subtitle?: string; icon?: IconName }>()
 
 const route = useRoute()
 const { readOnly } = useAccess()
@@ -20,10 +23,12 @@ const crumbs = computed(() => {
   return [mod.label, route.meta.section ? site.sections[route.meta.section] : ''].filter(Boolean).join(' · ')
 })
 const heading = computed(() => props.title ?? route.meta.title ?? '')
+const iconName = computed(() => props.icon ?? screenIcon(route.meta.module, route.path, route.meta.section))
 </script>
 
 <template>
   <header class="page-head">
+    <span class="page-head__icon"><AppIcon :name="iconName" /></span>
     <div class="page-head__text">
       <p v-if="crumbs" class="page-head__crumbs">{{ crumbs }}</p>
       <h1 class="page-head__title">
@@ -44,7 +49,20 @@ const heading = computed(() => props.title ?? route.meta.title ?? '')
   flex-wrap: wrap;
   margin-bottom: 1rem;
 
+  &__icon {
+    @include flex(row, center, center);
+    flex-shrink: 0;
+    align-self: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: $radius-md;
+    font-size: 1.1rem;
+    color: $accent;
+    background: $accent-soft;
+  }
+
   &__text {
+    flex: 1 1 auto;
     min-width: 0;
   }
 
