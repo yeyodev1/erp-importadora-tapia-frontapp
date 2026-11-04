@@ -68,6 +68,14 @@ export default defineModule('inventario', [
     component: () => import('@/views/inventario/BelowMinimumView.vue'),
   },
   {
+    // Del sistema anterior: aquí solo explica por qué no hace falta (el costo se calcula al grabar).
+    path: 'calcula-mayoriza',
+    name: 'InventoryRecalc',
+    title: 'Calcula y Mayoriza',
+    section: 'especiales',
+    component: () => import('@/views/inventario/RecalcView.vue'),
+  },
+  {
     path: 'productos',
     name: 'InventoryProducts',
     title: 'Productos',
