@@ -32,8 +32,8 @@ const groupName = computed(() => t.purchasesBy.find((b) => b.value === by.value)
 
 const columns = computed<Column[]>(() => {
   const amounts: Column[] = [
-    { key: 'base0', label: 'Base 0', format: 'money', total: true },
-    { key: 'baseVat', label: 'Base 15 %', format: 'money', total: true },
+    { key: 'base0', label: 'Base 0 %', format: 'money', total: true, help: t.columns.base0 },
+    { key: 'baseVat', label: 'Base 15 %', format: 'money', total: true, help: t.columns.baseVat },
     ...(by.value === 'by-account'
       ? []
       : ([
@@ -42,13 +42,13 @@ const columns = computed<Column[]>(() => {
         ] as Column[])),
   ]
   const group: Column = { key: 'group', label: groupName.value[0]!.toUpperCase() + groupName.value.slice(1) }
-  if (!detailed.value) return [group, { key: 'count', label: 'Registros', format: 'int', total: true }, ...amounts]
+  if (!detailed.value) return [group, { key: 'count', label: 'Documentos', format: 'int', total: true, help: t.columns.count }, ...amounts]
   return [
     group,
     { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
     { key: 'docNumber', label: 'Número', width: '11rem' },
     ...(by.value === 'by-supplier' ? [] : [{ key: 'supplierName', label: 'Proveedor' }]),
-    ...(by.value === 'by-account' ? [{ key: 'costCenter', label: 'Centro de costo' }] : [{ key: 'authorization', label: 'Autorización' }]),
+    ...(by.value === 'by-account' ? [{ key: 'costCenter', label: 'Centro de costo' }] : [{ key: 'authorization', label: 'Autorización', help: t.columns.authorization }]),
     ...amounts,
   ]
 })
@@ -61,10 +61,10 @@ watch(by, () => report.ran && run(report.summary.slice(1)))
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="cxp.pages.purchases" />
     <ReportFilters v-model="filters" :fields="['range', 'party']" party-role="supplier" :loading="report.loading" @apply="run">
-      <FormField label="Agrupar">
-        <BaseSegmented v-model="by" :options="t.purchasesBy" label="Agrupar" />
+      <FormField v-bind="t.groupField">
+        <BaseSegmented v-model="by" :options="t.purchasesBy" :label="t.groupField.label" />
       </FormField>
       <BaseSwitch v-model="detailed" :label="t.detailed" />
     </ReportFilters>
@@ -76,6 +76,7 @@ watch(by, () => report.ran && run(report.summary.slice(1)))
       :totals="detailed ? undefined : { ...report.totals, count: report.data?.total as number }"
       :filters-text="report.summary"
       landscape
+      :empty-message="report.ran ? t.emptyPurchases : t.prompt"
       @retry="run(report.summary.slice(1))"
     />
   </section>
