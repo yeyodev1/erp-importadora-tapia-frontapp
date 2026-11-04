@@ -30,7 +30,8 @@ const c = t.cols
 const columns: Column<CreditNote>[] = [
   { key: 'date', label: c.date, format: 'date', width: '7rem' },
   { key: 'number', label: c.number, width: '10rem' },
-  { key: 'invoiceNumber', label: c.invoice, width: '10rem' },
+  { key: 'partyName', label: c.customer },
+  { key: 'invoiceNumber', label: c.appliesTo, help: t.colHelp.appliesTo, width: '10rem' },
   { key: 'reason', label: c.reason },
   { key: 'returnsStock', label: c.kind, help: t.colHelp.kindNote, value: (r) => (r.returnsStock ? t.creditNotes.returns : t.creditNotes.valueOnly), width: '7rem' },
   { key: 'total', label: t.totals.total, format: 'money', total: true },
