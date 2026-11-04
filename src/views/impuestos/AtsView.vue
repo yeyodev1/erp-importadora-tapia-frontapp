@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseSegmented from '@/components/ui/BaseSegmented.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import PeriodBar from '@/components/accounting/PeriodBar.vue'
@@ -90,11 +91,9 @@ const filtersText = computed(() => (data.value ? [`${t.period.label}: ${monthLab
           <strong>{{ a.informant }}:</strong> {{ data.informante.razonSocial }} · RUC {{ data.informante.IdInformante }} · {{ monthLabel(data.period) }}
         </p>
         <div class="ats__actions">
-          <button type="button" class="btn btn--primary" :disabled="xml.busy.value" @click="xml.download"><AppIcon name="download" /> {{ a.download }}</button>
-          <button type="button" class="btn btn--ghost" :disabled="xml.busy.value" @click="xml.copy"><AppIcon name="check" /> {{ a.copy }}</button>
-          <button type="button" class="btn btn--ghost" :disabled="xml.busy.value" @click="xml.toggle">
-            <AppIcon :name="xml.busy.value ? 'spinner' : 'search'" :spin="xml.busy.value" /> {{ xml.visible.value ? a.hide : a.show }}
-          </button>
+          <BaseButton variant="primary" icon="download" :loading="xml.busy.value" @click="xml.download">{{ a.download }}</BaseButton>
+          <BaseButton icon="check" :disabled="xml.busy.value" @click="xml.copy">{{ a.copy }}</BaseButton>
+          <BaseButton icon="search" :disabled="xml.busy.value" @click="xml.toggle">{{ xml.visible.value ? a.hide : a.show }}</BaseButton>
         </div>
         <textarea v-if="xml.visible.value" class="ats__xml mono" readonly rows="12" :value="xml.xml.value" @focus="($event.target as HTMLTextAreaElement).select()" />
       </div>
