@@ -9,13 +9,12 @@ import type { Column } from '@/components/table/columns'
 import { useReport } from '@/composables/accounting/useReport'
 import { statementColumns, totalRow, treeRowClass, type StatementRow } from '@/composables/accounting/tree'
 import { accountingService, type IncomeStatement } from '@/services/accounting.service'
-import { todayISO } from '@/utils/format'
 import { formatMoney } from '@/utils/money'
 import { accounting as t } from '@/config/copy/accounting'
 
 /** Estado de resultados del rango (árbol de 4 y 5) y margen por grupo de producto. */
 const c = t.income
-const filters = ref(defaultFilters({ from: `${todayISO().slice(0, 4)}-01-01` }))
+const filters = ref(defaultFilters())
 const summary = ref<string[]>([])
 const report = useReport(() => accountingService.incomeStatement({ from: filters.value.from || undefined, to: filters.value.to || undefined }))
 const data = report.data
@@ -41,10 +40,11 @@ const rows = computed<StatementRow[]>(() => {
 type GroupRow = IncomeStatement['byProductGroup'][number]
 const groupColumns: Column<GroupRow>[] = [
   { key: 'group', label: c.group },
-  { key: 'sales', label: c.sales, format: 'money', total: true },
-  { key: 'cost', label: c.cost, format: 'money', total: true },
-  { key: 'grossMargin', label: c.margin, format: 'money', total: true },
+  { key: 'sales', label: c.sales, help: c.salesHelp, format: 'money', total: true },
+  { key: 'cost', label: c.cost, help: c.costHelp, format: 'money', total: true },
+  { key: 'grossMargin', label: c.margin, help: c.marginHelp, format: 'money', total: true },
 ]
+const columns = statementColumns(t.common.amount).map((col) => (col.key === 'amount' ? { ...col, help: c.amountHelp } : col))
 </script>
 
 <template>
@@ -54,12 +54,13 @@ const groupColumns: Column<GroupRow>[] = [
 
     <DataTable
       class="tree"
-      :columns="statementColumns(t.common.amount)"
+      :columns="columns"
       :rows="rows"
       :loading="report.loading.value"
       :error="report.error.value"
       :filters-text="summary"
       :row-class="treeRowClass"
+      :empty-message="c.empty"
       @retry="report.run"
     >
       <template #toolbar>
@@ -69,7 +70,7 @@ const groupColumns: Column<GroupRow>[] = [
     </DataTable>
 
     <h2 class="is__title">{{ c.byGroup }}</h2>
-    <DataTable :columns="groupColumns" :rows="data?.byProductGroup ?? []" row-key="group" :loading="report.loading.value" :title="`Estado de resultados ${c.byGroup.toLowerCase()}`" :filters-text="summary" />
+    <DataTable :columns="groupColumns" :rows="data?.byProductGroup ?? []" row-key="group" :loading="report.loading.value" :title="`Estado de resultados ${c.byGroup.toLowerCase()}`" :filters-text="summary" :empty-message="c.groupEmpty" />
   </section>
 </template>
 
