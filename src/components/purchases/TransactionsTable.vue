@@ -19,7 +19,7 @@ import type { PayableTransaction } from '@/types/purchases'
  * Movimientos de CxP de un tipo (pagos, anticipos, cruces, devoluciones)
  * con su anulación (motivo + doble confirmación). Slot `actions` por fila.
  */
-const props = defineProps<{ kind: PayableTransaction['kind']; canWrite: boolean; withOpen?: boolean }>()
+const props = defineProps<{ kind: PayableTransaction['kind']; canWrite: boolean; withOpen?: boolean; emptyMessage?: string }>()
 
 const catalog = useCatalogStore()
 const toast = useToastStore()
@@ -35,10 +35,10 @@ const columns = computed<Column<PayableTransaction>[]>(() => [
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
   { key: 'party', label: 'Beneficiario', value: (r) => r.partyId?.name },
   { key: 'bank', label: 'Banco', value: (r) => catalog.bankAccounts.find((b) => b._id === r.bankAccountId)?.name ?? '' },
-  { key: 'method', label: 'Medio', value: (r) => (r.checkNumber ? `${r.method} # ${r.checkNumber}` : r.method) },
+  { key: 'method', label: 'Medio de pago', value: (r) => (r.checkNumber ? `${r.method} # ${r.checkNumber}` : r.method) },
   { key: 'description', label: 'Descripción' },
   { key: 'amount', label: 'Valor', format: 'money', total: true },
-  ...(props.withOpen ? [{ key: 'open', label: cxp.advances.open, format: 'money' as const, total: true, value: (r: PayableTransaction) => r.amount - r.applied }] : []),
+  ...(props.withOpen ? [{ key: 'open', label: cxp.advances.open, format: 'money' as const, total: true, help: cxp.advances.openHelp, value: (r: PayableTransaction) => r.amount - r.applied }] : []),
   { key: 'actions', label: '', screenOnly: true },
 ])
 
@@ -75,6 +75,7 @@ defineExpose({ reload: list.reload })
     :total="list.total"
     :fetch-all="list.fetchAll"
     landscape
+    :empty-message="emptyMessage"
     :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)"
     @update:page="list.page = $event"
     @retry="list.reload"
