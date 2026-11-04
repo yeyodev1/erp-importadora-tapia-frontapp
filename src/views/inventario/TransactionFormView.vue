@@ -23,14 +23,15 @@ const f = t.fields
 const { canWrite } = useAccess()
 const { doc, columns, saving, error, isTransfer, showsCost, usesSupplier, filled, lineTotal, save } = useTransactionForm()
 
-const typeOptions = TRANSACTION_TYPES.map((value) => ({ value, label: copy.types[value] ?? value }))
+const typeOptions = TRANSACTION_TYPES.map((value) => ({ value, label: copy.types[value] ?? value, hint: copy.typeHelp[value] }))
+const ph = t.placeholders
 const total = computed(() => sumCents(filled.value, lineTotal))
 const setContainers = (e: Event) => (doc.containers = Math.max(0, Math.trunc(Number((e.target as HTMLInputElement).value) || 0)))
 </script>
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="copy.pages.form">
       <RouterLink :to="{ name: 'InventoryTransactions' }" class="btn btn--ghost"><AppIcon name="arrow-left" /> {{ t.back }}</RouterLink>
     </PageHeader>
 
@@ -38,7 +39,7 @@ const setContainers = (e: Event) => (doc.containers = Math.max(0, Math.trunc(Num
     <form v-else class="tx" @submit.prevent="save">
       <div class="panel panel--pad">
         <div class="form-grid">
-          <FormField v-bind="f.type" for="tx-type" required>
+          <FormField v-bind="f.type" for="tx-type" :hint="copy.typeHelp[doc.type]" required>
             <BaseCombobox id="tx-type" :model-value="doc.type" :options="typeOptions" @update:model-value="doc.type = $event as typeof doc.type" />
           </FormField>
           <FormField v-bind="f.warehouseId" for="tx-wh" required>
@@ -54,16 +55,16 @@ const setContainers = (e: Event) => (doc.containers = Math.max(0, Math.trunc(Num
             <PartyPicker id="tx-party" v-model="doc.partyId" role="supplier" clearable />
           </FormField>
           <FormField v-else v-bind="f.responsible" for="tx-resp">
-            <input id="tx-resp" v-model="doc.responsible" />
+            <input id="tx-resp" v-model="doc.responsible" :placeholder="ph.responsible" />
           </FormField>
           <FormField v-bind="f.costCenter" for="tx-cc">
-            <input id="tx-cc" v-model="doc.costCenter" />
+            <input id="tx-cc" v-model="doc.costCenter" :placeholder="ph.costCenter" />
           </FormField>
           <FormField v-if="doc.type === 'INGRESO_IMPORTACION'" v-bind="f.containers" for="tx-cont" class="narrow">
-            <input id="tx-cont" class="num" inputmode="numeric" :value="doc.containers" @change="setContainers" />
+            <input id="tx-cont" class="num" inputmode="numeric" :placeholder="ph.containers" :value="doc.containers" @change="setContainers" />
           </FormField>
           <FormField v-bind="f.description" for="tx-desc" full>
-            <input id="tx-desc" v-model="doc.description" />
+            <input id="tx-desc" v-model="doc.description" :placeholder="ph.description" />
           </FormField>
         </div>
       </div>
