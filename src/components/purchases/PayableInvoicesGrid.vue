@@ -75,13 +75,14 @@ const clear = () => invoices.value.forEach((i) => (amounts[i._id] = null))
 const total = computed(() => lines.value.reduce((a, l) => a + l.amount, 0))
 const over = computed(() => invoices.value.filter((i) => (amounts[i._id] ?? 0) > free(i)).map((i) => i._id))
 
+// Orden de "Aprueba pagos CXP" del sistema anterior: Proveedor, Fecha, Días, Vencimiento, Serie, Número, Total…
 const columns = computed<Column<PurchaseInvoice>[]>(() => [
   { key: 'supplierName', label: 'Proveedor' },
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
+  { key: 'days', label: 'Días', format: 'int', value: daysLate, width: '4rem', help: t.columns.days },
   { key: 'dueDate', label: 'Vencimiento', format: 'date', width: '7rem' },
-  { key: 'days', label: 'Días vencida', format: 'int', value: daysLate, width: '4rem', help: t.columns.days },
-  { key: 'docNumber', label: 'Número', width: '10rem' },
-  { key: 'payable', label: 'Neto a pagar', format: 'money', help: t.columns.payable },
+  { key: 'docNumber', label: 'Serie / Número', width: '10rem' },
+  { key: 'payable', label: 'Total', format: 'money', help: t.columns.payable },
   { key: 'balance', label: 'Saldo', format: 'money', total: true, help: cxp.invoices.columns.balance },
   { key: 'approved', label: 'Ya aprobado', format: 'money', total: true, help: t.columns.approved },
   { key: 'free', label: 'Libre', format: 'money', value: free, total: true, help: t.columns.free },
