@@ -13,6 +13,7 @@ import { accountingService } from '@/services/accounting.service'
 import type { ListParams } from '@/services/catalog.service'
 import { formatDay } from '@/utils/format'
 import { accounting as t } from '@/config/copy/accounting'
+import { accountingScreens } from '@/config/copy/accountingScreens'
 
 /** Libro diario: cada asiento del rango con sus líneas; el haber con sangría como en el libro impreso. */
 interface JournalRow {
@@ -32,6 +33,8 @@ interface JournalRow {
 }
 
 const router = useRouter()
+const h = accountingScreens.columns
+const ex = accountingScreens.vouchers.fields.excludeVoided
 const filters = ref(defaultFilters())
 const excludeVoided = ref(false)
 const applied = ref<ListParams>({ from: filters.value.from, to: filters.value.to })
@@ -72,12 +75,12 @@ const list = useList(fetchJournal, () => applied.value)
 const columns: Column<JournalRow>[] = [
   { key: 'date', label: t.common.date, format: 'date', width: '6.5rem' },
   { key: 'number', label: t.common.number, width: '8rem' },
-  { key: 'type', label: t.common.type },
+  { key: 'type', label: h.entryType, help: h.entryTypeHelp },
   { key: 'accountCode', label: t.common.code },
   { key: 'accountName', label: t.common.account },
   { key: 'description', label: t.common.description, value: (r) => r.description || r.entryDescription },
-  { key: 'debit', label: t.common.debit, format: 'money', total: true, value: (r) => r.debit || null },
-  { key: 'credit', label: t.common.credit, format: 'money', total: true, value: (r) => r.credit || null },
+  { key: 'debit', label: t.common.debit, help: h.debitHelp, format: 'money', total: true, value: (r) => r.debit || null },
+  { key: 'credit', label: t.common.credit, help: h.creditHelp, format: 'money', total: true, value: (r) => r.credit || null },
 ]
 </script>
 
@@ -85,8 +88,8 @@ const columns: Column<JournalRow>[] = [
   <section>
     <PageHeader :subtitle="t.journal.intro" />
     <ReportFilters v-model="filters" :loading="list.loading" @apply="apply">
-      <FormField :label="t.vouchers.fields.excludeVoided.label" :help="t.vouchers.fields.excludeVoided.help">
-        <BaseSwitch v-model="excludeVoided" :label="t.vouchers.fields.excludeVoided.label" />
+      <FormField :label="ex.label" :help="ex.help">
+        <BaseSwitch v-model="excludeVoided" :label="ex.label" />
       </FormField>
     </ReportFilters>
 
@@ -102,6 +105,7 @@ const columns: Column<JournalRow>[] = [
       :totals="totals"
       :fetch-all="list.fetchAll"
       :filters-text="summary"
+      :empty-message="t.journal.empty"
       :row-class="(r) => [r.first ? 'is-first' : '', r.status === 'anulado' ? 'is-void' : ''].join(' ')"
       clickable
       landscape
