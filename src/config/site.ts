@@ -69,7 +69,9 @@ export const site = {
     eyebrow: 'Sistema integrado',
     title: 'Ingresar',
     email: 'Correo',
+    emailPlaceholder: 'Ej.: contabilidad@importadoratapia.app',
     password: 'Contraseña',
+    passwordPlaceholder: 'Tu contraseña',
     submit: 'Ingresar',
     loading: 'Ingresando…',
     welcome: 'Hola,',
@@ -98,7 +100,7 @@ export const site = {
     prev: 'Anterior',
     next: 'Siguiente',
     emptyTitle: 'Sin resultados',
-    emptyMessage: 'No hay datos que coincidan con la búsqueda.',
+    emptyMessage: 'No hay datos con estos filtros. Cambia las fechas o la búsqueda y vuelve a consultar.',
     errorTitle: 'No se pudo cargar',
     retry: 'Reintentar',
     search: 'Buscar…',
@@ -115,12 +117,23 @@ export const site = {
     from: 'Desde',
     to: 'Hasta',
     warehouse: 'Bodega',
-    party: 'Tercero',
+    party: 'Cliente / proveedor',
+    partyBy: { customer: 'Cliente', supplier: 'Proveedor', employee: 'Empleado' },
     product: 'Producto',
-    account: 'Cuenta',
+    account: 'Cuenta contable',
     bankAccount: 'Banco / caja',
     apply: 'Consultar',
     all: 'Todas',
+    /** Ayuda (?) de cada filtro de reporte. */
+    help: {
+      from: 'Primer día que entra en el reporte. Abre en el primero del mes. Ej.: 01/11/2026.',
+      to: 'Último día que entra en el reporte (incluido). Abre en hoy.',
+      warehouse: 'Solo los movimientos de esa bodega. "Todas" suma Guayaquil, Quito y las demás.',
+      bankAccount: 'Solo la cuenta de banco o caja elegida. "Todas" las muestra juntas.',
+      party: 'Filtra por un cliente o proveedor. Escribe su nombre o RUC. Ej.: 0993014214001.',
+      product: 'Filtra por un producto. Escribe el código o el nombre. Ej.: 000010 Canela superior.',
+      account: 'Filtra por una cuenta contable de movimiento. Ej.: 1.1.01.01.02.001 Caja General por Facturación.',
+    },
   },
 
   pickers: {
@@ -175,6 +188,7 @@ export const site = {
     yes: 'Sí',
     no: 'No',
     help: 'Ayuda',
+    pickDate: 'Elegir fecha',
   },
 
   /**
