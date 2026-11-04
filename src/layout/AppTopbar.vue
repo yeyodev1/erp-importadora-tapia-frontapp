@@ -3,12 +3,15 @@ import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
+import NotificationBell from '@/components/notifications/NotificationBell.vue'
 import { useUserStore } from '@/stores/user'
 import { useCatalogStore } from '@/stores/catalog'
 import { useToastStore } from '@/stores/toast'
+import { useNotificationsStore } from '@/stores/notifications'
+import { moduleIcon } from './screenIcons'
 import { site } from '@/config/site'
 
-/** Barra superior: menú (teléfono), módulo actual, bodega, usuario y rol. */
+/** Barra superior: menú (teléfono), módulo actual, avisos, bodega, usuario y rol. */
 const emit = defineEmits<{ 'toggle-sidebar': [] }>()
 
 const route = useRoute()
@@ -16,6 +19,7 @@ const router = useRouter()
 const user = useUserStore()
 const catalog = useCatalogStore()
 const toast = useToastStore()
+const notifications = useNotificationsStore()
 
 onMounted(() => catalog.ensure('warehouses'))
 
@@ -25,6 +29,7 @@ const warehouse = computed(() => catalog.warehouseName(user.user?.warehouseId) |
 function logout() {
   user.clear()
   catalog.clear()
+  notifications.$reset()
   toast.info(site.topbar.loggedOut)
   router.replace({ name: 'Login' })
 }
@@ -35,8 +40,10 @@ function logout() {
     <button type="button" class="tb__menu btn btn--ghost btn--icon" :aria-label="site.topbar.menu" @click="emit('toggle-sidebar')">
       <AppIcon name="menu" />
     </button>
-    <span class="tb__module">{{ moduleLabel }}</span>
+    <span class="tb__module"><AppIcon v-if="moduleLabel" :name="moduleIcon(route.meta.module)" class="tb__module-icon" /> {{ moduleLabel }}</span>
     <span class="tb__spacer"></span>
+
+    <NotificationBell />
 
     <span class="tb__chip" :title="site.topbar.warehouse">
       <AppIcon name="warehouse" /> <span class="tb__hide-sm">{{ warehouse }}</span>
@@ -70,6 +77,10 @@ function logout() {
     @include from('lg') {
       display: none;
     }
+  }
+
+  &__module-icon {
+    color: $accent;
   }
 
   &__module {
