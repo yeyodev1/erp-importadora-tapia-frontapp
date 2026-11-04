@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseCombobox from '@/components/ui/BaseCombobox.vue'
 import StatementResults from './StatementResults.vue'
@@ -55,9 +56,7 @@ function onFile(e: Event) {
     <p v-if="m.error.value" class="sp__error" role="alert"><AppIcon name="alert-circle" /> {{ m.error.value }}</p>
     <div class="sp__actions">
       <span v-if="m.result.value" class="sp__hint">{{ t.read(m.result.value.totalLines) }}</span>
-      <button type="button" class="btn btn--primary" :disabled="m.running.value || !m.csv.value.trim()" @click="m.propose">
-        <AppIcon :name="m.running.value ? 'spinner' : 'search'" :spin="m.running.value" /> {{ t.run }}
-      </button>
+      <BaseButton variant="primary" icon="search" :loading="m.running.value" :disabled="!m.csv.value.trim()" @click="m.propose">{{ t.run }}</BaseButton>
     </div>
 
     <StatementResults
