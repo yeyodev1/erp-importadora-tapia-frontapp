@@ -13,10 +13,15 @@ import { useAtsXml } from '@/composables/accounting/useAtsXml'
 import { taxesService, type AtsPurchase, type AtsSale, type AtsSummary } from '@/services/taxes.service'
 import { shiftMonth } from '@/utils/format'
 import { taxes as t } from '@/config/copy/taxes'
+import { cxp } from '@/config/copy/cxp'
 
 /** ATS del mes: resumen previsualizable con advertencias, y el XML para descargar o copiar. */
 const a = t.ats
 const C = a.cols
+const H = a.colsHelp
+/** Código del SRI con su nombre: "01 · Factura". */
+const named = (code: string, names: Record<string, string>) => (names[code] ? `${code} · ${names[code]}` : code)
+const supports = Object.fromEntries(cxp.taxSupports.map((o) => [o.value, o.label.replace(/^\d+\s*/, '')]))
 const period = ref(shiftMonth(currentMonth(), -1))
 const report = useReport(() => taxesService.ats(period.value))
 const data = report.data
@@ -26,9 +31,9 @@ report.run()
 
 const tab = ref<'compras' | 'ventas' | 'anulados'>('compras')
 const tabs = computed(() => [
-  { value: 'compras' as const, label: a.purchases, count: data.value?.compras.length },
-  { value: 'ventas' as const, label: a.sales, count: data.value?.ventas.length },
-  { value: 'anulados' as const, label: a.voided, count: data.value?.anulados.length },
+  { value: 'compras' as const, label: a.purchases, count: data.value?.compras.length, help: a.tabsHelp.compras },
+  { value: 'ventas' as const, label: a.sales, count: data.value?.ventas.length, help: a.tabsHelp.ventas },
+  { value: 'anulados' as const, label: a.voided, count: data.value?.anulados.length, help: a.tabsHelp.anulados },
 ])
 
 const chips = computed(() => {
@@ -42,29 +47,29 @@ const docNumber = (r: { establecimiento: string; puntoEmision: string; secuencia
 const purchaseCols: Column<AtsPurchase>[] = [
   { key: 'fechaEmision', label: C.date, format: 'date' },
   { key: 'supplierName', label: C.supplier },
-  { key: 'idProv', label: C.id },
-  { key: 'codSustento', label: C.support },
-  { key: 'tipoComprobante', label: C.docType },
+  { key: 'idProv', label: C.id, help: H.id },
+  { key: 'codSustento', label: C.support, help: H.support, value: (r) => named(r.codSustento, supports) },
+  { key: 'tipoComprobante', label: C.docType, help: H.docType, value: (r) => named(r.tipoComprobante, t.docTypes) },
   { key: 'number', label: C.number, value: docNumber },
-  { key: 'baseImponible', label: C.base0, format: 'money', total: true },
-  { key: 'baseImpGrav', label: C.baseVat, format: 'money', total: true },
-  { key: 'montoIva', label: C.vat, format: 'money', total: true },
+  { key: 'baseImponible', label: C.base0, help: H.base0, format: 'money', total: true },
+  { key: 'baseImpGrav', label: C.baseVat, help: H.baseVat, format: 'money', total: true },
+  { key: 'montoIva', label: C.vat, help: H.vat, format: 'money', total: true },
 ]
 const saleCols: Column<AtsSale>[] = [
   { key: 'customerName', label: C.customer },
-  { key: 'idCliente', label: C.id },
-  { key: 'tipoComprobante', label: C.docType },
-  { key: 'numeroComprobantes', label: C.count, format: 'int', total: true },
-  { key: 'baseImponible', label: C.base0, format: 'money', total: true },
-  { key: 'baseImpGrav', label: C.baseVat, format: 'money', total: true },
-  { key: 'montoIva', label: C.vat, format: 'money', total: true },
-  { key: 'valorRetIva', label: C.retIva, format: 'money', total: true },
-  { key: 'valorRetRenta', label: C.retRenta, format: 'money', total: true },
+  { key: 'idCliente', label: C.id, help: H.id },
+  { key: 'tipoComprobante', label: C.docType, help: H.docType, value: (r) => named(r.tipoComprobante, t.docTypes) },
+  { key: 'numeroComprobantes', label: C.count, help: H.count, format: 'int', total: true },
+  { key: 'baseImponible', label: C.base0, help: H.base0, format: 'money', total: true },
+  { key: 'baseImpGrav', label: C.baseVat, help: H.baseVat, format: 'money', total: true },
+  { key: 'montoIva', label: C.vat, help: H.vat, format: 'money', total: true },
+  { key: 'valorRetIva', label: C.retIva, help: H.retIva, format: 'money', total: true },
+  { key: 'valorRetRenta', label: C.retRenta, help: H.retRenta, format: 'money', total: true },
 ]
 const voidCols: Column<AtsSummary['anulados'][number]>[] = [
-  { key: 'tipoComprobante', label: C.docType },
+  { key: 'tipoComprobante', label: C.docType, help: H.docType, value: (r) => named(r.tipoComprobante, t.docTypes) },
   { key: 'number', label: C.number, value: docNumber },
-  { key: 'autorizacion', label: C.auth },
+  { key: 'autorizacion', label: C.auth, help: H.auth },
 ]
 const filtersText = computed(() => (data.value ? [`${t.period.label}: ${monthLabel(data.value.period)}`] : []))
 </script>
@@ -98,9 +103,9 @@ const filtersText = computed(() => (data.value ? [`${t.period.label}: ${monthLab
       <WarningList :title="t.warnings" :items="data.warnings" />
 
       <BaseSegmented v-model="tab" :options="tabs" tabs class="ats__tabs" />
-      <DataTable v-if="tab === 'compras'" :columns="purchaseCols" :rows="data.compras" row-key="docId" :title="`ATS ${a.purchases}`" :filters-text="filtersText" landscape />
-      <DataTable v-else-if="tab === 'ventas'" :columns="saleCols" :rows="data.ventas" :title="`ATS ${a.sales}`" :filters-text="filtersText" landscape />
-      <DataTable v-else :columns="voidCols" :rows="data.anulados" :title="`ATS ${a.voided}`" :filters-text="filtersText" />
+      <DataTable v-if="tab === 'compras'" :columns="purchaseCols" :rows="data.compras" row-key="docId" :title="`ATS ${a.purchases}`" :filters-text="filtersText" :empty-message="a.empty.compras" landscape />
+      <DataTable v-else-if="tab === 'ventas'" :columns="saleCols" :rows="data.ventas" :title="`ATS ${a.sales}`" :filters-text="filtersText" :empty-message="a.empty.ventas" landscape />
+      <DataTable v-else :columns="voidCols" :rows="data.anulados" :title="`ATS ${a.voided}`" :filters-text="filtersText" :empty-message="a.empty.anulados" />
     </template>
   </section>
 </template>
