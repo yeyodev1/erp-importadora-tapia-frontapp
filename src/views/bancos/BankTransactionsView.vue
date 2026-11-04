@@ -27,7 +27,7 @@ const draftType = ref('')
 // Se consulta al apretar "Consultar", no a cada tecla.
 const applied = ref({ ...filterParams(draft.value), type: '' })
 const summary = ref<string[]>([])
-const typeOptions = BANK_TX_TYPES.map((v) => ({ value: v, label: bancos.types[v].label }))
+const typeOptions = BANK_TX_TYPES.map((v) => ({ value: v, label: bancos.types[v].label, hint: bancos.types[v].help }))
 
 const list = useList(
   (p) => banksService.listTransactions(p),
@@ -36,30 +36,30 @@ const list = useList(
 
 function apply(lines: string[]) {
   applied.value = { ...filterParams(draft.value), type: draftType.value }
-  summary.value = draftType.value ? [...lines, `${t.filterType}: ${bancos.types[draftType.value as keyof typeof bancos.types].label}`] : lines
+  summary.value = draftType.value ? [...lines, `${t.filterType.label}: ${bancos.types[draftType.value as keyof typeof bancos.types].label}`] : lines
 }
 
 const bankName = (id: string | null) => catalog.bankAccounts.find((b) => b._id === id)?.name ?? ''
 const columns: Column<BankTransaction>[] = [
-  { key: 'number', label: t.cols.number, width: '6rem' },
+  { key: 'number', label: t.cols.number, help: t.colHelp.number, width: '6rem' },
   { key: 'date', label: t.cols.date, format: 'date', width: '7rem' },
   { key: 'type', label: t.cols.type, value: (r) => bancos.types[r.type].label },
   { key: 'bank', label: t.cols.bank, value: (r) => bankName(r.bankAccountId) },
-  { key: 'checkNumber', label: t.cols.check, width: '5rem' },
+  { key: 'checkNumber', label: t.cols.check, help: t.colHelp.check, width: '5rem' },
   { key: 'description', label: t.cols.description },
   { key: 'amount', label: t.cols.amount, format: 'money', total: true },
-  { key: 'status', label: t.cols.status, width: '6rem' },
+  { key: 'status', label: t.cols.status, help: t.colHelp.status, width: '6rem' },
 ]
 </script>
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.listSubtitle">
       <RouterLink v-if="canWrite" :to="{ name: 'BankTransactionNew' }" class="btn btn--primary"><AppIcon name="plus" /> {{ t.add }}</RouterLink>
     </PageHeader>
 
     <ReportFilters v-model="draft" :fields="['range', 'bankAccount']" :loading="list.loading" @apply="apply">
-      <FormField :label="t.filterType" for="tx-ftype">
+      <FormField v-bind="t.filterType" for="tx-ftype">
         <BaseCombobox id="tx-ftype" v-model="draftType" :options="typeOptions" :empty-label="t.allTypes" />
       </FormField>
     </ReportFilters>
@@ -74,6 +74,7 @@ const columns: Column<BankTransaction>[] = [
       :total="list.total"
       :fetch-all="list.fetchAll"
       :filters-text="summary"
+      :empty-message="t.empty"
       :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)"
       clickable
       landscape
