@@ -10,11 +10,14 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import BankAccountPicker from '@/components/pickers/BankAccountPicker.vue'
 import EntryPreview from '@/components/documents/EntryPreview.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
+import TableCell from '@/components/table/TableCell.vue'
+import type { Column } from '@/components/table/columns'
 import { useReceiptForm } from '@/composables/receivables/useReceiptForm'
 import { cxc } from '@/config/copy/cxc'
 import { formatMoney } from '@/utils/money'
-import { formatDay, todayISO } from '@/utils/format'
-import type { ReceiptMethod } from '@/services/receivables.service'
+import { formatDay } from '@/utils/format'
+import type { OpenInvoice, ReceiptMethod } from '@/services/receivables.service'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: []; saved: [] }>()
@@ -26,7 +29,8 @@ const methods = Object.entries(cxc.methods).map(([value, label]) => ({
   label,
   help: cxc.methodHelp[value],
 }))
-const today = todayISO()
+// El mismo chip de atraso de las tablas ("Al día" / "40 días" / "+90").
+const dueCol: Column<OpenInvoice> = { key: 'dueDate', label: '', format: 'days-overdue' }
 
 watch(
   () => props.open,
@@ -44,6 +48,7 @@ watch(
     @submit="r.submit"
     @close="emit('close')"
   >
+    <LockedDateBanner :date="r.form.date" />
     <div class="form-grid">
       <FormField v-bind="t.fields.party" for="rc-party" required>
         <PartyPicker id="rc-party" v-model="r.form.partyId" role="customer" />
@@ -117,7 +122,7 @@ watch(
             <strong class="mono">{{ inv.number }}</strong>
             <span class="app__meta">
               {{ formatDay(inv.date) }} · vence {{ formatDay(inv.dueDate) }}
-              <span v-if="inv.dueDate.slice(0, 10) < today" class="app__late">vencida</span>
+              <TableCell :col="dueCol" :row="inv" />
             </span>
           </div>
           <span class="app__num num">{{ formatMoney(inv.total) }}</span>
@@ -210,11 +215,6 @@ watch(
   &__meta {
     color: $ink-soft;
     font-size: 0.85rem;
-  }
-
-  &__late {
-    color: $danger;
-    margin-left: 0.35rem;
   }
 
   &__num {
