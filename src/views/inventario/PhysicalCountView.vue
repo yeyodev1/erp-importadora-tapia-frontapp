@@ -15,6 +15,7 @@ import { useAccess } from '@/composables/useAccess'
 import { inventario as copy } from '@/config/copy/inventario'
 import type { CountRow } from '@/services/inventory.service'
 import { formatQty } from '@/utils/money'
+import { formatDay, todayISO } from '@/utils/format'
 
 /** Toma física en las dos unidades, con columna de conteo, captura y ajuste directo de diferencias. */
 const c = copy.common
@@ -31,15 +32,17 @@ const columns = computed<Column<CountRow>[]>(() => [
   { key: 'subgroup', label: c.subgroup },
   { key: 'code', label: c.code, width: '6rem', help: c.codeHelp },
   { key: 'name', label: c.product },
-  { key: 'purchaseUnit', label: c.purchaseUnit },
-  { key: 'purchaseQty', label: t.stockPurchase, format: 'qty', help: t.stockPurchaseHelp },
-  { key: 'unit', label: c.unit },
-  { key: 'qty', label: t.stockUnit, format: 'qty', help: t.stockUnitHelp },
+  // Mismos encabezados que la hoja de hoy (Unidad | Cantidad | Unidad | Cantidad): la (?) dice cuál es cuál.
+  { key: 'purchaseUnit', label: c.unit, help: t.purchaseUnitHelp },
+  { key: 'purchaseQty', label: c.qty, format: 'qty', help: t.stockPurchaseHelp },
+  { key: 'unit', label: c.unit, help: t.unitHelp },
+  { key: 'qty', label: c.qty, format: 'qty', help: t.stockUnitHelp },
   // En la hoja el conteo sale en blanco para anotarlo a mano en bodega.
   { key: 'count', label: t.count, format: 'qty', help: t.countHelp, width: mode.value === 'capture' ? '9rem' : '7rem', value: (r) => (mode.value === 'capture' ? r.count : '') },
   ...(mode.value === 'capture' ? ([{ key: 'diff', label: t.diff, format: 'qty', value: diffOf, help: t.diffHelp }] as Column<CountRow>[]) : []),
 ])
-const title = computed(() => (report.data ? `Toma de inventario · ${report.data.warehouse.name}` : undefined))
+// Como la hoja impresa de hoy: "Saldos al 30/10/2026, Bodega Guayaquil".
+const title = computed(() => (report.data ? `${t.title} · ${t.balancesAt} ${formatDay(todayISO())}, ${report.data.warehouse.name}` : undefined))
 const signed = (v: number | null) => (v == null ? '' : `${v > 0 ? '+' : ''}${formatQty(v)}`)
 const diffClass = (r: CountRow) => {
   const d = diffOf(r)
