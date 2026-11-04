@@ -41,7 +41,7 @@ export default defineModule('contabilidad', [
   {
     path: 'balance-comprobacion',
     name: 'TrialBalance',
-    title: 'Balance de comprobación',
+    title: 'Reporte de saldos',
     section: 'reportes',
     component: () => import('@/views/contabilidad/TrialBalanceView.vue'),
   },
