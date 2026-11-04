@@ -28,14 +28,14 @@ run()
 
 const columns: Column<ReconciliationItem>[] = [
   { key: 'label', label: c.concept },
-  { key: 'valorDocumentos', label: c.documents, format: 'money' },
-  { key: 'valorContable', label: c.books, format: 'money' },
-  { key: 'diferencia', label: c.difference, format: 'money' },
-  { key: 'cuadra', label: c.status, align: 'center', value: (r) => (r.cuadra ? c.ok : c.bad) },
+  { key: 'valorDocumentos', label: c.documents, help: c.colsHelp.documents, format: 'money' },
+  { key: 'valorContable', label: c.books, help: c.colsHelp.books, format: 'money' },
+  { key: 'diferencia', label: c.difference, help: c.colsHelp.difference, format: 'money' },
+  { key: 'cuadra', label: c.status, help: c.colsHelp.status, align: 'center', value: (r) => (r.cuadra ? c.ok : c.bad) },
 ]
 type Box = Reconciliation['form104']['casilleros'][number]
 const boxColumns: Column<Box>[] = [
-  { key: 'casillero', label: c.box, width: '6rem' },
+  { key: 'casillero', label: c.box, help: c.colsHelp.box, width: '7rem' },
   { key: 'label', label: c.concept },
   { key: 'valor', label: c.value, format: 'money' },
 ]
@@ -62,6 +62,7 @@ const filtersText = computed(() => (data.value ? [`${t.period.label}: ${monthLab
       :loading="report.loading.value"
       :error="report.error.value"
       :filters-text="filtersText"
+      :empty-message="c.empty"
       :row-class="(r) => (r.concepto === selected ? 'is-selected' : undefined)"
       clickable
       @row-click="(r) => (selected = selected === r.concepto ? '' : r.concepto)"
@@ -98,7 +99,7 @@ const filtersText = computed(() => (data.value ? [`${t.period.label}: ${monthLab
     <template v-if="data">
       <h2 class="mc__title">{{ c.form104 }} <BaseBadge tone="warning">{{ c.referencial }}</BaseBadge></h2>
       <p class="mc__muted">{{ data.form104.nota }}</p>
-      <DataTable :columns="boxColumns" :rows="data.form104.casilleros" row-key="casillero" :title="`${c.form104} (${c.referencial})`" :filters-text="filtersText" />
+      <DataTable :columns="boxColumns" :rows="data.form104.casilleros" row-key="casillero" :title="`${c.form104} (${c.referencial})`" :filters-text="filtersText" :empty-message="c.empty" />
     </template>
   </section>
 </template>
