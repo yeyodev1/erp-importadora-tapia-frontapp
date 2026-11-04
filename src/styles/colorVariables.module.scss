@@ -36,6 +36,14 @@ $success-bg: #e8f5ec;
 $warning-bg: #fdf3e4;
 $info-bg: #e9effc;
 $danger-bg: #fbeaea;
+// Bordes de banners y chips: el tono del estado, suavizado (texto sobre *-bg cumple AA).
+$success-line: color.mix($success, #ffffff, 35%);
+$warning-line: color.mix($warning, #ffffff, 35%);
+$info-line: color.mix($info, #ffffff, 30%);
+$danger-line: color.mix($danger, #ffffff, 30%);
+// Neutro: documentos anulados, inactivos, "sin dato".
+$neutral: $ink-muted;
+$neutral-bg: $sand;
 
 // Sombras discretas
 $shadow-sm: 0 1px 2px rgba($ink, 0.05);
