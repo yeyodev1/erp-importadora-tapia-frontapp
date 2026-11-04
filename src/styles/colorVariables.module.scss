@@ -1,0 +1,43 @@
+// Paleta del ERP Tapia. Sobria a propósito: blanco, negro, grises y azules
+// para 8 horas de pantalla; el color queda para los estados (autorizado,
+// anulado, pendiente). Los componentes hablan de tinta, papel y acento.
+@use 'sass:color';
+
+// Acento: azul institucional
+$accent: #1f4f8f;
+$accent-deep: #163a6b;
+$accent-soft: color.mix($accent, #ffffff, 10%);
+
+// Superficies
+$paper: #f4f5f7; // fondo de la app
+$surface: #ffffff; // tarjetas, tablas, modales
+$sand: #eceef2; // hover, bloques suaves
+$line: #dde1e7; // bordes
+$line-strong: #c3c9d2;
+
+// Barra lateral
+$nav-bg: #0f1b2d;
+$nav-ink: #c9d2e0;
+$nav-active: #22365a;
+
+// Texto
+$ink: #111827;
+$ink-soft: #414b5a;
+$ink-muted: #667085;
+
+$overlay: rgba(#0b1220, 0.5);
+
+// Estados
+$success: #15803d;
+$warning: #b45309;
+$info: #1d4ed8;
+$danger: #b91c1c;
+$success-bg: #e8f5ec;
+$warning-bg: #fdf3e4;
+$info-bg: #e9effc;
+$danger-bg: #fbeaea;
+
+// Sombras discretas
+$shadow-sm: 0 1px 2px rgba($ink, 0.05);
+$shadow-md: 0 2px 8px rgba($ink, 0.08);
+$shadow-lg: 0 18px 48px rgba($ink, 0.18);
