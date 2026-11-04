@@ -20,7 +20,7 @@ const form = useSaleForm(async (body) => {
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="t.pages.invoiceNew.subtitle" />
     <SaleDocForm :form="form" :submit-label="t.actions.save" id-prefix="inv" @cancel="router.push({ name: 'Invoices' })" />
   </section>
 </template>
