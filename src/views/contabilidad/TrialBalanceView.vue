@@ -39,10 +39,10 @@ const filtersText = computed(() => {
 const columns: Column<TrialRow>[] = [
   { key: 'code', label: t.common.code, width: '10rem' },
   { key: 'name', label: t.common.name, value: indentName },
-  { key: 'previous', label: t.common.previous, help: tb.previousHelp, format: 'money', total: true },
+  { key: 'previous', label: t.common.previous, help: tb.previousHelp, format: 'amount-signed', total: true },
   { key: 'debit', label: t.common.debit, help: h.debitHelp, format: 'money', total: true },
   { key: 'credit', label: t.common.credit, help: h.creditHelp, format: 'money', total: true },
-  { key: 'balance', label: t.common.balance, help: h.balanceHelp, format: 'money', total: true },
+  { key: 'balance', label: t.common.balance, help: h.balanceHelp, format: 'amount-signed', total: true },
 ]
 
 function openLedger(row: TrialRow) {
