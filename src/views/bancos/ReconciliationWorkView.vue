@@ -35,7 +35,7 @@ const bank = computed(() => catalog.bankAccounts.find((b) => b._id === rec.value
 const columns: Column<BankMovement>[] = [
   { key: 'cleared', label: t.cols.cleared, help: t.clearedHelp, value: (m) => (m.cleared ? t.cleared : ''), width: '6rem' },
   { key: 'type', label: t.cols.type, value: (m) => bancos.movType(m.type) },
-  { key: 'checkNumber', label: t.cols.check, help: bancos.tx.colHelp.check, width: '5rem' },
+  { key: 'checkNumber', label: t.cols.check, help: t.checkHelp, width: '5rem' },
   { key: 'doc', label: t.cols.doc, value: (m) => m.source?.docNumber ?? '' },
   { key: 'amount', label: t.cols.amount, help: t.amountHelp, format: 'money', value: (m) => (m.direction === 'out' ? -m.amount : m.amount) },
   { key: 'date', label: t.cols.date, format: 'date', width: '7rem' },
@@ -63,7 +63,12 @@ const dialogCopy = computed(() =>
     <PageHeader :title="rec?.description" :subtitle="rec && !isOpen ? t.closedNote : t.workSubtitle">
       <RouterLink :to="{ name: 'BankReconciliation' }" class="btn btn--ghost"><AppIcon name="arrow-left" /> {{ t.back }}</RouterLink>
       <template v-if="rec">
-        <button type="button" class="btn btn--ghost" @click="r.print"><AppIcon name="print" /> {{ t.print }}</button>
+        <span class="rw__reports" role="group" :aria-label="t.reports.label">
+          <span class="rw__label">{{ t.reports.label }} <HelpTip :text="t.reports.help" :label="t.reports.label" /></span>
+          <button type="button" class="btn btn--ghost" @click="r.print('anexos')"><AppIcon name="print" /> {{ t.reports.anexos }}</button>
+          <button type="button" class="btn btn--ghost" @click="r.print('detalle')">{{ t.reports.detalle }}</button>
+          <button type="button" class="btn btn--ghost" @click="r.print('resumen')">{{ t.reports.resumen }}</button>
+        </span>
         <template v-if="canWrite">
           <button v-if="isOpen" type="button" class="btn btn--ghost" :disabled="busy" @click="r.load"><AppIcon name="refresh" /> {{ t.load }}</button>
           <button v-if="isOpen" type="button" class="btn btn--primary" :disabled="busy" @click="askClose"><AppIcon name="lock" /> {{ t.close }}</button>
@@ -86,8 +91,6 @@ const dialogCopy = computed(() =>
 
       <ReconciliationSummary :summary="summary" />
 
-      <StatementPanel v-if="editable" :rec-id="id" @saved="r.replace" />
-
       <DataTable :columns="columns" :rows="rec.movements" :title="`${t.movements} · ${rec.description}`" :empty-message="t.emptyMovements" landscape>
         <template #toolbar>
           <strong>{{ t.movements }}</strong>
@@ -103,6 +106,8 @@ const dialogCopy = computed(() =>
         </template>
         <template #cell-checkNumber="{ row }"><span class="mono">{{ row.checkNumber }}</span></template>
       </DataTable>
+
+      <StatementPanel v-if="editable" :rec-id="id" @saved="r.replace" />
     </div>
 
     <ReasonConfirm
@@ -137,6 +142,17 @@ const dialogCopy = computed(() =>
   &__bal {
     flex: 1 1 220px;
     max-width: 280px;
+  }
+
+  &__label {
+    @include flex(row, center, flex-start, 0.25rem);
+    font-size: 0.85rem;
+    color: $ink-soft;
+  }
+
+  &__reports {
+    @include flex(row, center, flex-start, 0.25rem);
+    flex-wrap: wrap;
   }
 
   &__switch :deep(.switch__text) {
