@@ -7,7 +7,8 @@ import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import BaseSwitch from '@/components/ui/BaseSwitch.vue'
 import QtyInput from '@/components/ui/QtyInput.vue'
 import MoneyInput from '@/components/ui/MoneyInput.vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import DocumentLines from '@/components/documents/DocumentLines.vue'
 import type { LineColumn } from '@/components/documents/lines'
@@ -52,6 +53,7 @@ function onParty() {
 
 <template>
   <form class="ncf" @submit.prevent="save">
+    <LockedDateBanner :date="form.date" />
     <div class="panel panel--pad form-grid">
       <FormField v-bind="f.party" for="nc-party" required>
         <PartyPicker id="nc-party" v-model="form.partyId" role="customer" @pick="onParty" />
@@ -107,9 +109,7 @@ function onParty() {
       <p v-if="error" class="ncf__error" role="alert">{{ error }}</p>
       <div class="ncf__actions">
         <button type="button" class="btn btn--ghost" :disabled="saving" @click="emit('cancel')">{{ t.actions.cancel }}</button>
-        <button type="submit" class="btn btn--primary" :disabled="saving || !invoice">
-          <AppIcon :name="saving ? 'spinner' : 'check'" :spin="saving" /> {{ saving ? t.actions.saving : t.actions.save }}
-        </button>
+        <BaseButton type="submit" variant="primary" icon="check" :loading="saving" :disabled="!invoice">{{ t.actions.save }}</BaseButton>
       </div>
     </div>
   </form>
