@@ -38,7 +38,7 @@ const remove = (index: number) => form.value.withholdings.splice(index, 1)
     <header class="wl__head">
       <h3 class="wl__title">{{ t.withholdings }}</h3>
       <FormField v-bind="t.fields.withholdingSeries" for="wh-series" class="wl__series">
-        <input id="wh-series" v-model="form.withholdingSeries" class="mono" maxlength="7" />
+        <input id="wh-series" v-model="form.withholdingSeries" class="mono" maxlength="7" :placeholder="t.placeholders.series" />
       </FormField>
     </header>
 
@@ -51,7 +51,7 @@ const remove = (index: number) => form.value.withholdings.splice(index, 1)
         <MoneyInput :id="`wh-base-${i}`" v-model="w.base" />
       </FormField>
       <FormField v-bind="t.fields.rate" :for="`wh-rate-${i}`" class="wl__rate">
-        <input :id="`wh-rate-${i}`" :value="w.rate ?? ''" class="num" inputmode="decimal" @input="setRate(i, ($event.target as HTMLInputElement).value)" />
+        <input :id="`wh-rate-${i}`" :value="w.rate ?? ''" class="num" inputmode="decimal" :placeholder="t.placeholders.rate" @input="setRate(i, ($event.target as HTMLInputElement).value)" />
       </FormField>
       <span class="wl__amount num">{{ formatMoney(percentOf(w.base ?? 0, w.rate ?? 0)) }}</span>
       <button type="button" class="btn btn--ghost btn--sm btn--icon" aria-label="Quitar retención" @click="remove(i)"><AppIcon name="trash" /></button>
