@@ -7,6 +7,9 @@ import DataTable from '@/components/table/DataTable.vue'
 import PeriodBar from '@/components/accounting/PeriodBar.vue'
 import KpiCard from '@/components/dashboard/KpiCard.vue'
 import SalesChart from '@/components/dashboard/SalesChart.vue'
+import NotificationItem from '@/components/notifications/NotificationItem.vue'
+import AppIcon from '@/components/ui/AppIcon.vue'
+import { useNotificationsStore } from '@/stores/notifications'
 import { useDashboardCards } from '@/components/dashboard/useDashboardCards'
 import type { Column } from '@/components/table/columns'
 import { currentMonth, monthLabel, useReport } from '@/composables/accounting/useReport'
@@ -25,6 +28,9 @@ const data = report.data
 report.run()
 
 const cards = useDashboardCards(data)
+// Lo urgente primero: los avisos rojos y ámbar de la campana, arriba de las cifras.
+const notices = useNotificationsStore()
+const attention = computed(() => notices.items.filter((n) => n.level === 'danger' || n.level === 'warning').slice(0, 4))
 /** Una tarjeta enlaza solo si el rol puede abrir esa pantalla. */
 const linkFor = (to: RouteLocationRaw) => (canView(user.role, router.resolve(to).meta) ? to : undefined)
 
@@ -74,6 +80,14 @@ const isEmpty = computed(() => data.value && !cards.value.length && !data.value.
     <EmptyState v-else-if="isEmpty" :message="t.empty" />
 
     <template v-else-if="data">
+      <section v-if="attention.length" class="db__block db__attention panel">
+        <header class="db__attention-head">
+          <h2 class="db__h"><AppIcon name="bell" /> {{ t.attention }}</h2>
+          <RouterLink :to="{ name: 'Notifications' }" class="btn btn--ghost btn--sm">{{ t.attentionAll }} <AppIcon name="chevron-right" /></RouterLink>
+        </header>
+        <NotificationItem v-for="n in attention" :key="n.id" :notice="n" compact />
+      </section>
+
       <div v-if="cards.length" class="db__cards">
         <KpiCard v-for="{ key, ...c } in cards" :key="key" v-bind="c" :to="linkFor(c.to)" :delta-label="t.cards.vsPrev" />
       </div>
@@ -118,8 +132,25 @@ const isEmpty = computed(() => data.value && !cards.value.length && !data.value.
   }
 
   &__h {
+    @include flex(row, center, flex-start, 0.4rem);
     font-size: $text-sm;
     font-weight: 600;
+  }
+
+  &__attention {
+    overflow: hidden;
+
+    :deep(.ntf + .ntf) {
+      border-top: 1px solid $line;
+    }
+  }
+
+  &__attention-head {
+    @include flex(row, center, space-between, 0.5rem);
+    flex-wrap: wrap;
+    padding: 0.5rem 0.85rem;
+    border-bottom: 1px solid $line;
+    background: $paper;
   }
 }
 </style>
