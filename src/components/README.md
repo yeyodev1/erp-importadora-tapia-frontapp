@@ -31,6 +31,41 @@ Piezas para construir las pantallas de los módulos. **Montos siempre en CENTAVO
   :loading="saving" @confirm="voidDoc" @cancel="voiding = false" />
 ```
 
+## Carga y movimiento
+
+Que nada aparezca en blanco ni de golpe. Ya resuelto en las piezas compartidas (no lo repitas en la vista):
+barra superior al navegar y con cualquier petición al API que tarde más de 200 ms (`TheProgressBar` +
+`httpBase`), cambio de pantalla con fundido, modales/diálogos/popovers/toasts con entrada y salida,
+y el código de una pantalla se precarga al pasar el mouse por su enlace del menú. Todo se vuelve
+instantáneo con `prefers-reduced-motion` (`styles/motion.scss`).
+
+| Pieza | Para qué | Props clave |
+|---|---|---|
+| `BaseButton` | Botón de acción async: spinner, mismo ancho y deshabilitado mientras corre (sin doble envío). Ya lo usan `FormDialog`, `ConfirmModal` y `EditorDialog`. | `variant?: 'primary'\|'dark'\|'ghost'\|'danger'` (ghost), `size?: 'sm'`, `icon?`, `type?`, `loading?`, `disabled?`, `action?: () => Promise` |
+| `SkeletonBlock` | Espacio reservado con brillo mientras llegan datos (detalle, paneles, gráficos). Pon `aria-busy` en el contenedor. | `width?`, `height?`, `lines?` (párrafo), `radius?` |
+| `KpiCard` / `SalesChart` | Con `loading` se dibujan como skeleton. | `loading?` |
+| `DataTable` | Primera carga: filas skeleton con la forma de las columnas. Recarga con filas: las deja visibles, atenuadas, con una línea arriba (no vuelve a blanco). | `loading` |
+
+Transiciones globales para `<Transition name="…">`: `fade`, `rise`, `pop` (paneles), `modal` (fondo +
+primer hijo), y `<TransitionGroup name="list">` para listas cortas (no para tablas ni `DocumentLines`).
+
+```vue
+<!-- Botón que llama al API: con `action` el botón lleva su propio estado -->
+<BaseButton variant="primary" icon="check" :action="save">Guardar</BaseButton>
+<!-- o con el estado de la vista (useEditor, un form) -->
+<BaseButton type="submit" variant="primary" :loading="saving">Guardar</BaseButton>
+
+<!-- Detalle: skeleton en la primera carga; si ya hay datos, se muestran mientras se refresca -->
+<section class="panel panel--pad" :aria-busy="loading">
+  <SkeletonBlock v-if="loading && !doc" :lines="4" />
+  <DocDetail v-else-if="doc" :doc="doc" />
+</section>
+
+<!-- Tablero mientras llega el primer dato -->
+<div v-if="!data && loading" class="db__cards"><KpiCard v-for="n in 4" :key="n" loading /></div>
+<SalesChart :series="data?.sales?.series ?? []" :loading="loading" :title="t.chart.title" :empty="t.chart.empty" />
+```
+
 ## table/
 
 **`DataTable`** — listados y reportes. Columnas `Column<T>` (`columns.ts`):
