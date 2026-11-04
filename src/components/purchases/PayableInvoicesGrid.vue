@@ -6,9 +6,9 @@ import FormField from '@/components/ui/FormField.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { overdueRow } from '@/components/table/indicators'
 import { purchasesService } from '@/services/purchases.service'
 import { formatMoney } from '@/utils/money'
-import { todayISO } from '@/utils/format'
 import { cxp } from '@/config/copy/cxp'
 import type { ApiError, Party } from '@/types'
 import type { InvoiceAmountLine, PurchaseInvoice } from '@/types/purchases'
@@ -35,7 +35,6 @@ const error = ref('')
 
 const free = (i: PurchaseInvoice) => i.balance - i.approved
 const supplierOf = (i: PurchaseInvoice) => (typeof i.supplierId === 'string' ? i.supplierId : i.supplierId._id)
-const daysLate = (i: PurchaseInvoice) => Math.round((Date.parse(todayISO()) - Date.parse(i.dueDate.slice(0, 10))) / 86400000)
 
 async function load() {
   for (const k of Object.keys(amounts)) delete amounts[k]
@@ -79,7 +78,7 @@ const over = computed(() => invoices.value.filter((i) => (amounts[i._id] ?? 0) >
 const columns = computed<Column<PurchaseInvoice>[]>(() => [
   { key: 'supplierName', label: 'Proveedor' },
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
-  { key: 'days', label: 'Días', format: 'int', value: daysLate, width: '4rem', help: t.columns.days },
+  { key: 'days', label: 'Días', format: 'days-overdue', value: (i) => i.dueDate, width: '8rem', help: t.columns.days },
   { key: 'dueDate', label: 'Vencimiento', format: 'date', width: '7rem' },
   { key: 'docNumber', label: 'Serie / Número', width: '10rem' },
   { key: 'payable', label: 'Total', format: 'money', help: t.columns.payable },
@@ -105,7 +104,7 @@ defineExpose({ over, reload: load })
       </span>
     </div>
 
-    <DataTable :columns="columns" :rows="invoices" :loading="loading" :error="error" :row-class="(r) => (over.includes(r._id) ? 'is-over' : undefined)" @retry="load" :empty-message="t.gridEmpty">
+    <DataTable :columns="columns" :rows="invoices" :loading="loading" :error="error" :row-class="(r) => (over.includes(r._id) ? 'is-over' : overdueRow(r.dueDate))" @retry="load" :empty-message="t.gridEmpty">
       <template #toolbar>
         <button type="button" class="btn btn--ghost btn--sm" :disabled="!invoices.length" @click="fillAll"><AppIcon name="check" /> {{ t.approveAll }}</button>
         <button type="button" class="btn btn--ghost btn--sm" :disabled="!lines.length" @click="clear">{{ t.clear }}</button>
@@ -113,7 +112,6 @@ defineExpose({ over, reload: load })
         <span class="pg__total">{{ amountLabel }}: <strong class="num">{{ formatMoney(total) }}</strong></span>
       </template>
       <template #cell-docNumber="{ row }"><span class="mono">{{ row.docNumber }}</span></template>
-      <template #cell-days="{ row }"><span :class="{ 'pg__late': daysLate(row) > 0 }">{{ daysLate(row) }}</span></template>
       <template #cell-amount="{ row }">
         <MoneyInput :id="`pg-amount-${row._id}`" v-model="amounts[row._id]" :invalid="over.includes(row._id)" />
       </template>
@@ -156,11 +154,6 @@ defineExpose({ over, reload: load })
   color: inherit;
   cursor: pointer;
   padding: 0.1rem 0.3rem;
-}
-
-.pg__late {
-  color: $danger;
-  font-weight: 600;
 }
 
 .pg__total strong {
