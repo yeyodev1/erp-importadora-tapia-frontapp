@@ -8,6 +8,7 @@ import ReportFilters from '@/components/report/ReportFilters.vue'
 import { defaultFilters } from '@/components/report/filters'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { stockRow } from '@/components/table/indicators'
 import { useReport } from '@/composables/inventory/useReport'
 import { inventoryService, type KardexSide } from '@/services/inventory.service'
 import { inventario as copy } from '@/config/copy/inventario'
@@ -57,10 +58,11 @@ const rows = computed<Row[]>(() => {
 
 // Valor unitario en dólares con 4 decimales (el API lo guarda con 6): no es un monto en centavos.
 const h = t.help
+// El saldo es indicador: cantidad y valor negativos salen en rojo.
 const side = (key: 'in' | 'out' | 'bal', label: [string, string, string], total: boolean): Column<Row>[] => [
-  { key: `${key}Qty`, label: label[0], format: 'qty', value: (r) => r[key]?.qty, total, help: h[`${key}Qty`] },
+  { key: `${key}Qty`, label: label[0], format: key === 'bal' ? 'qty-stock' : 'qty', value: (r) => r[key]?.qty, total, help: h[`${key}Qty`] },
   { key: `${key}Cost`, label: label[1], format: 'qty', value: (r) => r[key]?.unitCost, help: h[`${key}Cost`] },
-  { key: `${key}Total`, label: label[2], format: 'money', value: (r) => r[key]?.total, total, help: h[`${key}Total`] },
+  { key: `${key}Total`, label: label[2], format: key === 'bal' ? 'amount-signed' : 'money', value: (r) => r[key]?.total, total, help: h[`${key}Total`] },
 ]
 // Como el impreso de hoy, quién movió el stock va debajo del comprobante (en Excel, en la misma celda).
 const columns: Column<Row>[] = [
@@ -95,7 +97,7 @@ const closing = computed(() => report.data?.closing)
       :error="report.error"
       :title="title"
       :filters-text="filtersText"
-      :row-class="(r) => (r._id === 'opening' ? 'is-opening' : undefined)"
+      :row-class="(r) => (r._id === 'opening' ? 'is-opening' : stockRow(r.bal.qty))"
       landscape
       @retry="report.run()"
     >
