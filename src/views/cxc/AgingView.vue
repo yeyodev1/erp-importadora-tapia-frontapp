@@ -12,6 +12,9 @@ import { defaultFilters, filterParams } from '@/components/report/filters'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
 import AgingChart from '@/components/receivables/AgingChart.vue'
+import CustomerFilters from '@/components/receivables/CustomerFilters.vue'
+import { blankCustomerFilters, customerParams, customerSummary } from '@/components/receivables/customerFilters'
+import { splitNumber } from '@/composables/sales/docNumber'
 import { useReport } from '@/composables/receivables/useReport'
 import { AGING_BUCKETS, receivablesService, type AgingReport } from '@/services/receivables.service'
 import { cxc } from '@/config/copy/cxc'
@@ -26,6 +29,7 @@ const t = cxc.aging
 const r = cxc.reports
 const filters = ref(defaultFilters({ from: '', to: '' }))
 const cutoff = ref(todayISO())
+const customer = ref(blankCustomerFilters())
 const mode = ref<'summary' | 'detailed'>('summary')
 const detailed = computed(() => mode.value === 'detailed')
 const modes = [
@@ -37,6 +41,7 @@ const report = useReport(() =>
   receivablesService.aging({
     partyId: filters.value.partyId || undefined,
     warehouseId: filterParams(filters.value).warehouseId,
+    ...customerParams(customer.value),
     cutoff: cutoff.value,
     detailed: String(detailed.value),
   }),
@@ -46,7 +51,11 @@ const filtersText = computed(() => [
   `${r.cutoff.label}: ${formatDay(cutoff.value)}`,
   detailed.value ? r.detailed : r.summary,
   ...report.summary.value,
+  ...customerSummary(customer.value),
+  `${t.records}: ${rows.value.length}`,
 ])
+// Título de la hoja como el impreso de hoy: "Cartera por edades resumida · Corte 30/10/2026".
+const title = computed(() => `${detailed.value ? t.titleDetailed : t.titleSummary} · ${t.cut} ${formatDay(cutoff.value)}`)
 onMounted(() => run())
 watch(mode, () => run())
 
@@ -61,14 +70,14 @@ const bucketCols = AGING_BUCKETS.map((b) => ({
 }))
 const summaryCols: Column<Summary>[] = [
   { key: 'name', label: 'Cliente' },
-  { key: 'identification', label: 'RUC / cédula', width: '9rem' },
   ...bucketCols,
   { key: 'total', label: 'Total', help: t.totalHelp, format: 'money', total: true },
 ]
 const detailCols: Column<Detail>[] = [
   { key: 'customer', label: 'Cliente' },
-  { key: 'number', label: 'Factura', width: '10rem' },
   { key: 'date', label: 'Fecha', format: 'date', width: '6.5rem' },
+  { key: 'series', label: 'Serie', width: '5.5rem', value: (d) => splitNumber(d.number).series },
+  { key: 'number', label: 'Número', width: '6.5rem', value: (d) => splitNumber(d.number).seq },
   { key: 'dueDate', ...r.cols.dueDate, format: 'date', width: '6.5rem' },
   { key: 'daysOverdue', label: t.days, help: t.daysHelp, format: 'int', width: '4rem' },
   ...bucketCols.map((c) => ({
@@ -108,6 +117,7 @@ const checks = computed(() =>
       <FormField v-bind="r.cutoff" for="ag-cutoff">
         <BaseDatePicker id="ag-cutoff" v-model="cutoff" />
       </FormField>
+      <CustomerFilters v-model="customer" id-prefix="ag" />
     </ReportFilters>
 
     <div v-if="data" class="check panel panel--pad" :class="{ 'is-off': !data.cuadra }">
@@ -121,14 +131,13 @@ const checks = computed(() =>
       <HelpTip :text="t.checkHelp" />
     </div>
 
-    <AgingChart v-if="data" :totals="data.totals" />
-
     <DataTable
       :columns="columns"
       :rows="rows"
       :row-key="detailed ? 'invoiceId' : 'partyId'"
       :loading="report.loading.value"
       :error="report.error.value"
+      :title="title"
       :filters-text="filtersText"
       :empty-message="t.empty"
       landscape
@@ -138,10 +147,17 @@ const checks = computed(() =>
         <BaseSegmented v-model="mode" :options="modes" :label="r.modeLabel" />
       </template>
     </DataTable>
+
+    <!-- Como el impreso de hoy: el gráfico por tramo va al final, debajo de la cartera. -->
+    <AgingChart v-if="data" class="aging-chart" :totals="data.totals" />
   </section>
 </template>
 
 <style scoped lang="scss">
+.aging-chart {
+  margin-top: 0.75rem;
+}
+
 .check {
   @include flex(row, center, flex-start, 0.5rem 1.25rem);
   flex-wrap: wrap;
