@@ -1,0 +1,7 @@
+// Solo variables. Las fuentes se cargan con <link> en index.html: este archivo
+// se inyecta en cada SFC vía vite.config.ts, así que no debe emitir CSS.
+
+$font-principal: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+$font-display: $font-principal;
+$font-body: $font-principal;
+$font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
