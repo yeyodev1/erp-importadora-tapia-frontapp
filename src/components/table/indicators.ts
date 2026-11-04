@@ -41,3 +41,22 @@ export function stockLevel(qty: unknown, min?: number | null): Level | null {
 
 /** Monto con signo: los negativos se pintan en rojo. */
 export const signedLevel = (value: unknown): Level | null => (Number(value) < 0 ? 'danger' : null)
+
+/** Fila de DataTable por atraso: +90 días rojo, +30 ámbar (lo mismo que avisa la campana). */
+export function overdueRow(value: unknown): 'is-danger' | 'is-warning' | undefined {
+  const days = overdueDays(value)
+  if (days == null) return undefined
+  return days > 90 ? 'is-danger' : days > 30 ? 'is-warning' : undefined
+}
+
+/** Fila de DataTable por existencia: negativa rojo, bajo el mínimo ámbar. */
+export function stockRow(qty: unknown, min?: number | null): 'is-danger' | 'is-warning' | undefined {
+  const level = stockLevel(qty, min)
+  return level === 'danger' ? 'is-danger' : level === 'warning' ? 'is-warning' : undefined
+}
+
+/** Fila de un comprobante electrónico: devuelto/no autorizado/error rojo, sin firma ámbar. */
+export function sriRow(status: unknown): 'is-danger' | 'is-warning' | undefined {
+  if (status === 'sin_firma') return 'is-warning'
+  return status === 'devuelto' || status === 'no_autorizado' || status === 'error' ? 'is-danger' : undefined
+}
