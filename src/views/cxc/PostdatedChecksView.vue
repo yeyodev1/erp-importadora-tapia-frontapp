@@ -3,6 +3,8 @@ import { computed, onMounted, ref, watch } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BaseSegmented from '@/components/ui/BaseSegmented.vue'
+import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
+import FormField from '@/components/ui/FormField.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import ReportFilters from '@/components/report/ReportFilters.vue'
 import { defaultFilters, filterParams } from '@/components/report/filters'
@@ -15,7 +17,7 @@ import { receivablesService, type Receipt } from '@/services/receivables.service
 import { cxc } from '@/config/copy/cxc'
 import { site } from '@/config/site'
 import { formatMoney } from '@/utils/money'
-import { formatDay, todayISO } from '@/utils/format'
+import { formatDay, monthStart, todayISO } from '@/utils/format'
 import type { ApiError } from '@/types'
 
 /** Cheques posfechados recibidos, por fecha de cobro y estado: depositar, acreditar o devolver. */
@@ -23,14 +25,22 @@ type Action = 'deposit' | 'confirm' | 'return'
 const t = cxc.checks
 const { canWrite } = useAccess()
 const today = todayISO()
-const filters = ref(defaultFilters({ from: '', to: '' }))
+// Un año atrás y uno adelante: los posfechados tienen fecha futura y ninguno debe quedar fuera.
+const [y = 0, m = 1] = today.split('-').map(Number)
+const filters = ref(
+  defaultFilters({
+    from: monthStart(`${y - 1}-${today.slice(5)}`),
+    to: new Date(Date.UTC(y + 1, m, 0)).toISOString().slice(0, 10),
+  }),
+)
 const summary = ref<string[]>([])
 const status = ref('')
 const statusTabs = [
-  { value: '', label: t.active },
+  { value: '', label: t.active, help: t.statusHelp[''] },
   ...['en_cartera', 'depositado', 'acreditado', 'devuelto'].map((s) => ({
     value: s,
     label: site.status[s]!.label,
+    help: t.statusHelp[s],
   })),
 ]
 const rows = ref<Receipt[]>([])
@@ -55,19 +65,23 @@ async function load(s: string[] = summary.value) {
 onMounted(() => load())
 watch(status, () => load())
 
+const filtersText = computed(() => [
+  `${t.cols.dueDate.label}: ${formatDay(filters.value.from)} – ${formatDay(filters.value.to)}`,
+  ...summary.value,
+])
 const name = (r: Receipt) => (typeof r.partyId === 'object' ? r.partyId.name : '')
 const columns: Column<Receipt>[] = [
   {
     key: 'dueDate',
-    label: 'Fecha cobro',
+    ...t.cols.dueDate,
     format: 'date',
     width: '7rem',
     value: (r) => r.check?.dueDate,
   },
   { key: 'customer', label: 'Cliente', value: name },
   { key: 'check.number', label: 'Cheque', width: '7rem' },
-  { key: 'check.bank', label: 'Banco' },
-  { key: 'number', label: 'Cobro', width: '10rem' },
+  { key: 'check.bank', ...t.cols.bank },
+  { key: 'number', ...t.cols.number, width: '10rem' },
   { key: 'amount', label: 'Valor', format: 'money', total: true },
   {
     key: 'checkStatus',
@@ -116,22 +130,31 @@ const dialog = computed(() => {
     <PageHeader :subtitle="t.intro" />
     <ReportFilters
       v-model="filters"
-      :fields="['range', 'party']"
+      :fields="['party']"
       party-role="customer"
       :loading="loading"
       @apply="load"
-    />
+    >
+      <FormField v-bind="t.dueFrom" for="pc-from" class="narrow">
+        <BaseDatePicker id="pc-from" v-model="filters.from" :range-end="filters.to" />
+      </FormField>
+      <FormField v-bind="t.dueTo" for="pc-to" class="narrow">
+        <BaseDatePicker id="pc-to" v-model="filters.to" :range-start="filters.from" />
+      </FormField>
+    </ReportFilters>
 
     <DataTable
       :columns="columns"
       :rows="rows"
       :loading="loading"
       :error="error"
-      :filters-text="summary"
+      :filters-text="filtersText"
+      :empty-title="t.emptyTitle"
+      :empty-message="t.empty"
       @retry="load()"
     >
       <template #toolbar>
-        <BaseSegmented v-model="status" :options="statusTabs" label="Estado" />
+        <BaseSegmented v-model="status" :options="statusTabs" :label="t.statusLabel" />
       </template>
       <template #cell-dueDate="{ row, value }">
         <span
