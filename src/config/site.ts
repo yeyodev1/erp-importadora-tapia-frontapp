@@ -196,28 +196,37 @@ export const site = {
    * como las guarda el API (SriStatus, estado del documento, del cheque).
    */
   status: {
-    autorizado: { label: 'Autorizado SRI', tone: 'success' },
-    sin_firma: { label: 'Sin firma', tone: 'warning' },
-    firmado: { label: 'Firmado', tone: 'info' },
-    recibido: { label: 'Recibido SRI', tone: 'info' },
-    devuelto: { label: 'Devuelto', tone: 'danger' },
-    no_autorizado: { label: 'No autorizado', tone: 'danger' },
-    error: { label: 'Error SRI', tone: 'danger' },
-    vigente: { label: 'Vigente', tone: 'neutral' },
-    contabilizado: { label: 'Contabilizado', tone: 'info' },
-    anulado: { label: 'Anulado', tone: 'danger' },
-    anulada: { label: 'Anulada', tone: 'danger' },
-    pendiente: { label: 'Pendiente', tone: 'warning' },
-    pagada: { label: 'Pagada', tone: 'success' },
-    abierta: { label: 'Abierta', tone: 'warning' },
-    cerrada: { label: 'Cerrada', tone: 'neutral' },
-    facturada: { label: 'Facturada', tone: 'success' },
-    en_cartera: { label: 'En cartera', tone: 'warning' },
-    depositado: { label: 'Depositado', tone: 'info' },
-    acreditado: { label: 'Acreditado', tone: 'success' },
-    activo: { label: 'Activo', tone: 'success' },
-    inactivo: { label: 'Inactivo', tone: 'neutral' },
-  } as Record<string, { label: string; tone: BadgeTone }>,
+    // SRI
+    autorizado: { label: 'Autorizado SRI', tone: 'success', icon: 'check-circle' },
+    sin_firma: { label: 'Sin firma', tone: 'warning', icon: 'key' },
+    firmado: { label: 'Firmado', tone: 'info', icon: 'pen' },
+    recibido: { label: 'Recibido SRI', tone: 'info', icon: 'clock' },
+    devuelto: { label: 'Devuelto', tone: 'danger', icon: 'alert-circle' },
+    no_autorizado: { label: 'No autorizado', tone: 'danger', icon: 'void' },
+    error: { label: 'Error SRI', tone: 'danger', icon: 'alert' },
+    // Documento (anulado: gris y tachado, como la fila)
+    vigente: { label: 'Vigente', tone: 'success', icon: 'check' },
+    contabilizado: { label: 'Contabilizado', tone: 'info', icon: 'ledger' },
+    anulado: { label: 'Anulado', tone: 'neutral', icon: 'void' },
+    anulada: { label: 'Anulada', tone: 'neutral', icon: 'void' },
+    // Pagos, aprobaciones, proformas
+    pendiente: { label: 'Pendiente', tone: 'warning', icon: 'clock' },
+    aprobado: { label: 'Aprobado', tone: 'info', icon: 'check' },
+    aprobada: { label: 'Aprobada', tone: 'info', icon: 'check' },
+    pagado: { label: 'Pagado', tone: 'success', icon: 'check-circle' },
+    pagada: { label: 'Pagada', tone: 'success', icon: 'check-circle' },
+    facturada: { label: 'Facturada', tone: 'success', icon: 'invoice' },
+    // Conciliación / períodos
+    abierta: { label: 'Abierta', tone: 'warning', icon: 'unlock' },
+    cerrada: { label: 'Cerrada', tone: 'neutral', icon: 'lock' },
+    // Cheques
+    en_cartera: { label: 'En cartera', tone: 'warning', icon: 'wallet' },
+    depositado: { label: 'Depositado', tone: 'info', icon: 'bank' },
+    acreditado: { label: 'Acreditado', tone: 'success', icon: 'check-circle' },
+    // Catálogos
+    activo: { label: 'Activo', tone: 'success', icon: 'dot' },
+    inactivo: { label: 'Inactivo', tone: 'neutral', icon: 'dot' },
+  } as Record<string, { label: string; tone: BadgeTone; icon?: IconName }>,
 
   underConstruction: {
     title: 'En construcción',
