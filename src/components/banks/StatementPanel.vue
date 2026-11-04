@@ -34,7 +34,7 @@ function onFile(e: Event) {
         <input type="file" accept=".csv,.txt,text/csv,text/plain" class="visually-hidden" @change="onFile" />
       </label>
       <FormField v-bind="t.paste" for="sp-csv" full>
-        <textarea id="sp-csv" v-model="m.csv.value" rows="5" class="mono" spellcheck="false" />
+        <textarea id="sp-csv" v-model="m.csv.value" rows="5" class="mono" spellcheck="false" :placeholder="t.pastePlaceholder" />
       </FormField>
     </div>
 
@@ -45,7 +45,7 @@ function onFile(e: Event) {
       <template v-if="m.showMapping.value">
         <p class="sp__hint">{{ t.mappingHelp }}</p>
         <div class="form-grid">
-          <FormField v-for="k in COLUMN_KEYS" :key="k" :label="t.keys[k]" :for="`sp-map-${k}`">
+          <FormField v-for="k in COLUMN_KEYS" :key="k" :label="t.keys[k]" :help="t.keysHelp[k]" :for="`sp-map-${k}`">
             <BaseCombobox :id="`sp-map-${k}`" v-model="m.mapping[k]" :options="headerOptions" :empty-label="t.auto" />
           </FormField>
         </div>
