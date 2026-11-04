@@ -9,6 +9,8 @@ import HelpTip from '@/components/ui/HelpTip.vue'
 import BaseSwitch from '@/components/ui/BaseSwitch.vue'
 import MoneyInput from '@/components/ui/MoneyInput.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
 import ReasonConfirm from '@/components/banks/ReasonConfirm.vue'
@@ -70,7 +72,7 @@ const dialogCopy = computed(() =>
           <button type="button" class="btn btn--ghost" @click="r.print('resumen')">{{ t.reports.resumen }}</button>
         </span>
         <template v-if="canWrite">
-          <button v-if="isOpen" type="button" class="btn btn--ghost" :disabled="busy" @click="r.load"><AppIcon name="refresh" /> {{ t.load }}</button>
+          <BaseButton v-if="isOpen" icon="refresh" :loading="busy" @click="r.load">{{ t.load }}</BaseButton>
           <button v-if="isOpen" type="button" class="btn btn--primary" :disabled="busy" @click="askClose"><AppIcon name="lock" /> {{ t.close }}</button>
           <button v-else type="button" class="btn btn--ghost" :disabled="busy" @click="dialog = 'reopen'"><AppIcon name="unlock" /> {{ t.reopen }}</button>
         </template>
@@ -79,6 +81,7 @@ const dialogCopy = computed(() =>
 
     <EmptyState v-if="r.loadError.value" tone="error" :message="r.loadError.value" @retry="r.fetch" />
     <div v-else-if="rec && summary" class="rw">
+      <LockedDateBanner v-if="isOpen" :date="rec.to" />
       <div class="panel panel--pad rw__head">
         <div class="rw__fact"><span>{{ t.fields.bank.label }}</span><strong>{{ bank?.name }} {{ bank?.number }}</strong></div>
         <div class="rw__fact"><span>{{ t.fields.from.label }}</span><strong>{{ formatDay(rec.from) }}</strong></div>
