@@ -49,7 +49,9 @@ function run(summary: string[]) {
 
 <template>
   <section>
-    <PageHeader :subtitle="cxp.pages.balances" />
+    <PageHeader :subtitle="cxp.pages.balances">
+      <RouterLink v-for="o in t.balanceOptions" :key="o.route" :to="{ name: o.route }" class="btn btn--ghost">{{ o.label }}</RouterLink>
+    </PageHeader>
     <ReportFilters v-model="filters" :fields="['party']" party-role="supplier" :loading="report.loading" @apply="run">
       <FormField v-bind="t.cutoff" for="sb-cutoff" class="narrow">
         <BaseDatePicker id="sb-cutoff" v-model="cutoff" />
