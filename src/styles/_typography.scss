@@ -1,0 +1,51 @@
+@use 'colorVariables.module.scss' as *;
+@use 'fonts.module.scss' as *;
+
+// Escala fija y compacta: es una herramienta de trabajo, no una landing.
+$text-xs: 0.72rem;
+$text-sm: 0.8125rem;
+$text-base: 0.875rem;
+$text-lg: 1rem;
+$text-xl: 1.2rem;
+$display-sm: 1.45rem;
+$display-md: 1.8rem;
+
+// Espaciado
+$space-xs: 0.5rem;
+$space-sm: 0.75rem;
+$space-md: 1.25rem;
+$space-lg: 2rem;
+$space-xl: 3rem;
+
+// Radios y curvas
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 14px;
+$radius-pill: 999px;
+$ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+// Etiqueta chica en mayúsculas (encabezados de sección, de tabla)
+@mixin eyebrow {
+  font-family: $font-principal;
+  font-size: $text-xs;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $ink-muted;
+}
+
+@mixin display($size: $display-sm, $weight: 600) {
+  font-family: $font-display;
+  font-size: $size;
+  font-weight: $weight;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+// Números de contabilidad: columnas alineadas y a la derecha
+@mixin numeric {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
