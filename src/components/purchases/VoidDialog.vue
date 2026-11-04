@@ -44,7 +44,7 @@ function next() {
   <FormDialog :open="open && !confirming" :title="title" :submit-label="title" @submit="next" @close="emit('cancel')">
     <p class="vd__subject">{{ subject }}</p>
     <FormField v-bind="cxp.invoices.fields.reason" for="void-reason" required :error="missing ? 'Indica el motivo' : ''" full>
-      <input id="void-reason" v-model="reason" maxlength="200" />
+      <input id="void-reason" v-model="reason" maxlength="200" :placeholder="cxp.invoices.placeholders.reason" />
     </FormField>
   </FormDialog>
   <ConfirmModal
