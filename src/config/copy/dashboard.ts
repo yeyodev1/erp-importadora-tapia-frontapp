@@ -31,6 +31,10 @@ export const dashboard = {
       withholdings: 'Retenciones',
     } as Record<string, string>,
   },
+  /** Semáforo de las tarjetas. */
+  levels: { danger: 'Atender hoy', warning: 'Revisar', ok: 'Al día' },
+  attention: 'Requiere atención',
+  attentionAll: 'Ver todas las notificaciones',
   chart: { title: 'Ventas de los últimos 12 meses', empty: 'Aún no hay ventas en estos meses. Las facturas vigentes aparecen aquí.' },
   byWarehouse: 'Ventas del mes por bodega',
   bySeller: 'Ventas del mes por vendedor',
