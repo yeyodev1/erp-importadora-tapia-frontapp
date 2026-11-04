@@ -14,7 +14,7 @@ const props = withDefaults(
     title: string
     message: string
     secondMessage: string
-    reason: { label: string; help: string }
+    reason: { label: string; help: string; placeholder?: string }
     subject?: string
     loading?: boolean
     error?: string
@@ -46,8 +46,8 @@ function next() {
 <template>
   <FormDialog :open="open && step === 'reason'" :title="title" :submit-label="title" @submit="next" @close="emit('cancel')">
     <p class="rc__msg">{{ message }}</p>
-    <FormField v-bind="reason" for="acc-reason" required :error="missing ? `${reason.label}: obligatorio` : ''">
-      <textarea id="acc-reason" v-model="text" rows="3" maxlength="300" />
+    <FormField :label="reason.label" :help="reason.help" for="acc-reason" required :error="missing ? `${reason.label}: obligatorio` : ''">
+      <textarea id="acc-reason" v-model="text" rows="3" maxlength="300" :placeholder="reason.placeholder" />
     </FormField>
   </FormDialog>
   <ConfirmModal
