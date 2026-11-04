@@ -23,9 +23,9 @@ const tab = ref<'pending' | 'registered' | 'errors'>('pending')
 const input = ref<HTMLInputElement | null>(null)
 
 const tabs = computed(() => [
-  { value: 'pending' as const, label: t.pending, count: b.batch.value?.pending.length ?? 0 },
-  { value: 'registered' as const, label: t.registered, count: b.batch.value?.registered.length ?? 0 },
-  { value: 'errors' as const, label: t.errors, count: b.batch.value?.errors.length ?? 0 },
+  { value: 'pending' as const, label: t.pending, help: t.tabs.pending, count: b.batch.value?.pending.length ?? 0 },
+  { value: 'registered' as const, label: t.registered, help: t.tabs.registered, count: b.batch.value?.registered.length ?? 0 },
+  { value: 'errors' as const, label: t.errors, help: t.tabs.errors, count: b.batch.value?.errors.length ?? 0 },
 ])
 
 const pendingColumns: Column<Row>[] = [
@@ -35,13 +35,13 @@ const pendingColumns: Column<Row>[] = [
   { key: 'supplier', label: 'Proveedor', value: (r) => r.supplier.name },
   { key: 'ruc', label: 'RUC', value: (r) => r.supplier.ruc },
   { key: 'total', label: 'Total', format: 'money', total: true, value: (r) => r.invoice.total },
-  { key: 'notes', label: 'Avisos', screenOnly: true },
+  { key: 'notes', label: 'Avisos', screenOnly: true, help: t.notesHelp },
   { key: 'open', label: '', screenOnly: true },
 ]
 const registeredColumns: Column<Row>[] = [
   { key: 'file', label: 'Archivo', value: (r) => b.nameOf(r.index) },
   { key: 'docNumber', label: 'Número' },
-  { key: 'accessKey', label: 'Clave de acceso' },
+  { key: 'accessKey', label: 'Clave de acceso', help: t.accessKeyHelp },
   { key: 'open', label: '', screenOnly: true },
 ]
 const errorColumns: Column<{ index: number; message: string }>[] = [
@@ -62,7 +62,7 @@ function open(row: Row) {
 
 <template>
   <section class="ix">
-    <PageHeader>
+    <PageHeader :subtitle="cxp.pages.xml">
       <button v-if="b.count.value" type="button" class="btn btn--ghost" :disabled="b.loading.value" @click="b.check"><AppIcon name="refresh" :spin="b.loading.value" /> Revisar de nuevo</button>
       <button v-if="b.count.value" type="button" class="btn btn--ghost" @click="b.clear"><AppIcon name="trash" /> Limpiar</button>
     </PageHeader>
@@ -77,8 +77,8 @@ function open(row: Row) {
     </section>
 
     <template v-if="b.batch.value">
-      <BaseSegmented v-model="tab" tabs :options="tabs" />
-      <DataTable v-if="tab === 'pending'" :columns="pendingColumns" :rows="b.batch.value.pending" row-key="index" :loading="b.loading.value">
+      <BaseSegmented v-model="tab" tabs :options="tabs" :label="$route.meta.title" />
+      <DataTable v-if="tab === 'pending'" :columns="pendingColumns" :rows="b.batch.value.pending" row-key="index" :loading="b.loading.value" :empty-message="t.emptyPending">
         <template #cell-docNumber="{ row }"><span class="mono">{{ row.invoice.docNumber }}</span></template>
         <template #cell-notes="{ row }">
           <BaseBadge v-if="!row.supplier.existingId" tone="info">Proveedor nuevo</BaseBadge>
@@ -88,13 +88,13 @@ function open(row: Row) {
           <button v-if="canWrite" type="button" class="btn btn--sm btn--primary" @click="open(row)">{{ t.open }}</button>
         </template>
       </DataTable>
-      <DataTable v-else-if="tab === 'registered'" :columns="registeredColumns" :rows="b.batch.value.registered" row-key="index">
+      <DataTable v-else-if="tab === 'registered'" :columns="registeredColumns" :rows="b.batch.value.registered" row-key="index" :empty-message="t.emptyRegistered">
         <template #cell-accessKey="{ row }"><span class="mono ix__key">{{ row.accessKey }}</span></template>
         <template #cell-open="{ row }">
           <RouterLink :to="{ name: 'SupplierInvoiceDetail', params: { id: row.existingId } }" class="btn btn--sm btn--ghost">{{ t.view }}</RouterLink>
         </template>
       </DataTable>
-      <DataTable v-else :columns="errorColumns" :rows="b.batch.value.errors" row-key="index" />
+      <DataTable v-else :columns="errorColumns" :rows="b.batch.value.errors" row-key="index" :empty-message="t.emptyErrors" />
     </template>
   </section>
 </template>
