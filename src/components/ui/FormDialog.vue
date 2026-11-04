@@ -3,6 +3,7 @@ import { toRef } from 'vue'
 import { useBodyScroll } from '@/composables/useBodyScroll'
 import { site } from '@/config/site'
 import AppIcon from './AppIcon.vue'
+import BaseButton from './BaseButton.vue'
 
 const props = defineProps<{
   open: boolean
@@ -23,7 +24,7 @@ useBodyScroll(toRef(props, 'open'))
 
 <template>
   <Teleport to="body">
-    <Transition name="dialog">
+    <Transition name="modal">
       <div v-if="open" class="dialog" @click.self="emit('close')" @keydown.esc="emit('close')">
         <form
           class="dialog__box"
@@ -53,10 +54,9 @@ useBodyScroll(toRef(props, 'open'))
           <footer class="dialog__actions">
             <slot name="extra" />
             <button type="button" class="btn btn--ghost" @click="emit('close')">{{ readonly ? 'Cerrar' : site.common.cancel }}</button>
-            <button v-if="!readonly" type="submit" class="btn btn--primary" :disabled="loading">
-              <AppIcon v-if="loading" name="spinner" spin />
+            <BaseButton v-if="!readonly" type="submit" variant="primary" :loading="loading">
               {{ submitLabel || site.common.save }}
-            </button>
+            </BaseButton>
           </footer>
         </form>
       </div>
@@ -148,24 +148,6 @@ useBodyScroll(toRef(props, 'open'))
     padding: 0.75rem 1.1rem;
     border-top: 1px solid $line;
     background: $paper;
-  }
-}
-
-.dialog-enter-active,
-.dialog-leave-active {
-  transition: opacity 0.2s ease;
-
-  .dialog__box {
-    transition: transform 0.25s $ease;
-  }
-}
-
-.dialog-enter-from,
-.dialog-leave-to {
-  opacity: 0;
-
-  .dialog__box {
-    transform: translateY(12px);
   }
 }
 </style>
