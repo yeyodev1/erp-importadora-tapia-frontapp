@@ -11,6 +11,8 @@ export type ColumnFormat = 'text' | 'money' | 'qty' | 'date' | 'int'
 export interface Column<T = any> {
   key: string
   label: string
+  /** Qué significa la columna: sale como (?) en el encabezado, no en Excel ni impresión. */
+  help?: string
   format?: ColumnFormat
   /** Por defecto: derecha para números, izquierda para el resto. */
   align?: 'left' | 'right' | 'center'
