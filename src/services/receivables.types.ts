@@ -148,6 +148,8 @@ export interface StatementReport {
   opening: number
   closing: number
   rows: {
+    /** Solo en la línea de una factura que aún tiene saldo. */
+    dueDate?: string | null
     date: string
     kind: string
     invoiceNumber: string
