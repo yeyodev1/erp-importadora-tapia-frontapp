@@ -7,8 +7,10 @@ import QtyInput from '@/components/ui/QtyInput.vue'
 import BaseSegmented from '@/components/ui/BaseSegmented.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { stockRow } from '@/components/table/indicators'
 import StockFilters from '@/components/inventory/StockFilters.vue'
 import { usePhysicalCount } from '@/composables/inventory/usePhysicalCount'
 import { useAccess } from '@/composables/useAccess'
@@ -36,7 +38,7 @@ const columns = computed<Column<CountRow>[]>(() => [
   { key: 'purchaseUnit', label: c.unit, help: t.purchaseUnitHelp },
   { key: 'purchaseQty', label: c.qty, format: 'qty', help: t.stockPurchaseHelp },
   { key: 'unit', label: c.unit, help: t.unitHelp },
-  { key: 'qty', label: c.qty, format: 'qty', help: t.stockUnitHelp },
+  { key: 'qty', label: c.qty, format: 'qty-stock', min: (r) => r.minQty, help: t.stockUnitHelp },
   // En la hoja el conteo sale en blanco para anotarlo a mano en bodega.
   { key: 'count', label: t.count, format: 'qty', help: t.countHelp, width: mode.value === 'capture' ? '9rem' : '7rem', value: (r) => (mode.value === 'capture' ? r.count : '') },
   ...(mode.value === 'capture' ? ([{ key: 'diff', label: t.diff, format: 'qty', value: diffOf, help: t.diffHelp }] as Column<CountRow>[]) : []),
@@ -58,6 +60,7 @@ const diffClass = (r: CountRow) => {
     <div v-if="report.data" class="count-bar panel panel--pad">
       <BaseSegmented v-model="mode" :options="modes" tabs />
       <template v-if="mode === 'capture' && canWrite">
+        <LockedDateBanner :date="adjust.date" />
         <div class="form-grid count-bar__form">
           <FormField v-bind="t.date" for="pc-date" class="narrow">
             <BaseDatePicker id="pc-date" v-model="adjust.date" />
@@ -79,6 +82,7 @@ const diffClass = (r: CountRow) => {
       :columns="columns"
       :rows="rows"
       row-key="productId"
+      :row-class="(r) => stockRow(r.qty, r.minQty)"
       :loading="report.loading"
       :error="report.error"
       :title="title"
