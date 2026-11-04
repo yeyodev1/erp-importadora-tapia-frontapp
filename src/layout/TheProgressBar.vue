@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { navigating } from '@/composables/useProgress'
+import { busy } from '@/composables/useProgress'
 
 const visible = ref(false)
 let timer: ReturnType<typeof setTimeout> | undefined
 
-// Solo aparece si la carga tarda: una barra que parpadea en cada clic distrae
-// más de lo que informa.
-watch(navigating, (on) => {
+// Cambios de pantalla y peticiones al API. Solo aparece si la carga tarda: una
+// barra que parpadea en cada clic distrae más de lo que informa.
+watch(busy, (on) => {
   clearTimeout(timer)
-  if (on) timer = setTimeout(() => (visible.value = true), 150)
+  if (on) timer = setTimeout(() => (visible.value = true), 200)
   else visible.value = false
 })
 </script>
@@ -33,21 +33,12 @@ watch(navigating, (on) => {
 
   &__bar {
     position: absolute;
-    top: 0;
-    bottom: 0;
+    inset: 0 auto 0 0;
     width: 40%;
     background: $accent;
     border-radius: $radius-pill;
-    animation: progress-slide 1.1s $ease infinite;
-  }
-}
-
-@keyframes progress-slide {
-  from {
-    left: -40%;
-  }
-  to {
-    left: 100%;
+    // transform y no `left`: corre en la GPU aunque el hilo principal esté pintando la vista.
+    animation: slide-across 1s ease-in-out infinite;
   }
 }
 </style>
