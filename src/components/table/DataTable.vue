@@ -97,10 +97,12 @@ async function run(kind: 'excel' | 'print') {
 }
 
 const keyOf = (row: T, i: number) => String(row[props.rowKey] ?? i)
+// Recargando con filas en pantalla: se quedan visibles (atenuadas) en vez de volver al skeleton.
+const stale = computed(() => props.loading && props.rows.length > 0)
 </script>
 
 <template>
-  <section class="dt panel">
+  <section class="dt panel" :class="{ 'dt--stale': stale }" :aria-busy="loading">
     <div class="dt__bar">
       <div class="dt__tools"><slot name="toolbar" /></div>
       <div v-if="exportable" class="dt__actions">
@@ -125,12 +127,14 @@ const keyOf = (row: T, i: number) => String(row[props.rowKey] ?? i)
             </th>
           </tr>
         </thead>
-        <tbody v-if="loading">
+        <tbody v-if="loading && !rows.length">
           <tr v-for="n in 8" :key="n" aria-hidden="true">
-            <td v-for="c in columns" :key="c.key"><span class="skeleton" :style="{ height: '0.7rem', width: `${50 + ((n * 7) % 40)}%` }"></span></td>
+            <td v-for="c in columns" :key="c.key" :class="`is-${alignOf(c)}`">
+              <span class="skeleton" :style="{ height: '0.7rem', width: `${50 + ((n * 7) % 40)}%` }"></span>
+            </td>
           </tr>
         </tbody>
-        <tbody v-else>
+        <tbody v-else class="dt__rows">
           <tr
             v-for="(row, i) in rows"
             :key="keyOf(row, i)"
@@ -144,7 +148,7 @@ const keyOf = (row: T, i: number) => String(row[props.rowKey] ?? i)
             </td>
           </tr>
         </tbody>
-        <tfoot v-if="hasTotals && !loading && rows.length">
+        <tfoot v-if="hasTotals && rows.length">
           <tr>
             <td v-for="(c, i) in columns" :key="c.key" :class="`is-${alignOf(c)}`">
               {{ c.key in footTotals ? formatValue(c, footTotals[c.key]) : i === 0 ? site.table.totals : '' }}
@@ -160,7 +164,39 @@ const keyOf = (row: T, i: number) => String(row[props.rowKey] ?? i)
 
 <style scoped lang="scss">
 .dt {
+  position: relative;
   overflow: hidden;
+
+  // Línea que recorre el borde superior mientras se refrescan los datos.
+  &--stale::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto auto 0;
+    z-index: 1;
+    width: 40%;
+    height: 2px;
+    background: $accent;
+    animation: slide-across 1s ease-in-out infinite;
+  }
+
+  &--stale &__rows,
+  &--stale tfoot {
+    opacity: 0.55;
+  }
+
+  &__rows,
+  tfoot {
+    transition: opacity 0.15s ease;
+  }
+
+  // Al pasar del skeleton a las filas, entran con un fundido corto.
+  &__rows {
+    animation: fade-in 0.16s ease-out;
+  }
+
+  .skeleton {
+    display: inline-block;
+  }
 
   &__bar {
     @include flex(row, center, space-between, 0.5rem);
