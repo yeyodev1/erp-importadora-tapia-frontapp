@@ -32,10 +32,10 @@ const list = useList(
 const columns: Column<ProductGroup>[] = [
   { key: 'name', label: t.fields.name.label },
   { key: 'subgroups', label: t.fields.subgroups.label, value: (g) => g.subgroups.join(', ') },
-  { key: 'accounts.inventory', label: 'Inventario' },
-  { key: 'accounts.sales', label: 'Ventas' },
-  { key: 'accounts.cost', label: 'Costo' },
-  { key: 'isActive', label: 'Estado', value: (g) => (g.isActive ? site.common.active : site.common.inactive), width: '7rem' },
+  { key: 'accounts.inventory', label: t.cols.inventory.label, help: t.cols.inventory.help },
+  { key: 'accounts.sales', label: t.cols.sales.label, help: t.cols.sales.help },
+  { key: 'accounts.cost', label: t.cols.cost.label, help: t.cols.cost.help },
+  { key: 'isActive', label: t.cols.status.label, help: t.cols.status.help, value: (g) => (g.isActive ? site.common.active : site.common.inactive), width: '7rem' },
 ]
 const accountKeys = ['inventory', 'sales', 'cost'] as const
 
@@ -58,7 +58,7 @@ function addSubgroup() {
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.subtitle">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="editor.openNew()"><AppIcon name="plus" /> {{ t.add }}</button>
     </PageHeader>
 
@@ -71,6 +71,7 @@ function addSubgroup() {
       :pages="list.pages"
       :total="list.total"
       :fetch-all="list.fetchAll"
+      :empty-message="t.empty"
       clickable
       @update:page="list.page = $event"
       @row-click="editor.openEdit($event._id, formOf($event))"
@@ -87,7 +88,7 @@ function addSubgroup() {
     <EditorDialog :editor="editor" :title-new="t.newTitle" :title-edit="t.editTitle" :readonly="!canWrite">
       <div class="form-grid">
         <FormField v-bind="t.fields.name" for="pg-name" required full>
-          <input id="pg-name" v-model="editor.form.name" required />
+          <input id="pg-name" v-model="editor.form.name" required :placeholder="t.ph.name" />
         </FormField>
         <FormField v-bind="t.fields.subgroups" for="pg-sub" full>
           <div class="chips">
@@ -97,7 +98,7 @@ function addSubgroup() {
             </span>
           </div>
           <div class="chips__add">
-            <input id="pg-sub" v-model="newSubgroup" @keydown.enter.prevent="addSubgroup" />
+            <input id="pg-sub" v-model="newSubgroup" :placeholder="t.ph.subgroup" @keydown.enter.prevent="addSubgroup" />
             <button type="button" class="btn btn--ghost" @click="addSubgroup"><AppIcon name="plus" /> {{ t.addSubgroup }}</button>
           </div>
         </FormField>
