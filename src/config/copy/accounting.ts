@@ -131,7 +131,7 @@ export const accounting = {
   },
 
   trial: {
-    intro: '"Reporte de saldos": acumulado del año o solo el mes. Imprime o guarda en PDF para los auditores.',
+    intro: 'Es el balance de comprobación: saldo de cada cuenta, acumulado del año o solo el mes. Imprime o guarda en PDF para los auditores.',
     printTitle: 'Reporte de Saldos – Al {date} – Expresado en dólares',
     period: { label: 'Período', help: 'Mes del reporte: saldos al último día del mes.' },
     mode: { label: 'Saldos', help: 'Acumulados: del 1 de enero al fin del mes. Mensuales: solo el mes.' },
