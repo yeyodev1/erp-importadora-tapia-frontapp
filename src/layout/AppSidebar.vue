@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useNavigation } from '@/composables/useNavigation'
 import type { Screen } from '@/router/defineModule'
+import { useNotificationsStore } from '@/stores/notifications'
 import { site, type ModuleKey } from '@/config/site'
+import { screenIcon } from './screenIcons'
 
 /**
  * Barra lateral con la misma estructura del "SISTEMA INTEGRADO": módulos a
@@ -14,7 +16,20 @@ defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 
 const route = useRoute()
+const router = useRouter()
 const { nav } = useNavigation()
+const notifications = useNotificationsStore()
+
+// Pendientes por módulo y por pantalla (los avisos enlazan a la pantalla): "Cuentas por Cobrar ● 3".
+const badges = computed(() => {
+  const out: Record<string, { count: number; level: string } | null> = {}
+  for (const mod of nav.value) {
+    out[mod.key] = notifications.summary((p) => p.startsWith(`/${mod.key}/`))
+    for (const s of mod.screens) out[s.name] = notifications.summary((p) => p === router.resolve({ name: s.name }).path)
+  }
+  return out
+})
+const countText = (n: number) => (n > 99 ? '99+' : String(n))
 const expanded = ref<ModuleKey | undefined>(route.meta.module)
 
 watch(
@@ -70,6 +85,7 @@ function toggle(key: ModuleKey) {
           >
             <AppIcon :name="mod.icon" class="sb__icon" />
             <span class="sb__label">{{ mod.label }}</span>
+            <span v-if="badges[mod.key]" class="sb__badge" :class="`sb__badge--${badges[mod.key]!.level}`" :title="`${badges[mod.key]!.count} pendientes`">{{ countText(badges[mod.key]!.count) }}</span>
             <AppIcon name="chevron-down" class="sb__chev" />
           </button>
           <!-- Solo anima al abrir: al cerrar, un menú que se demora empuja al que se abre. -->
@@ -86,7 +102,9 @@ function toggle(key: ModuleKey) {
                   @pointerenter="prefetch(item)"
                   @focus="prefetch(item)"
                 >
-                  {{ item.title }}
+                  <AppIcon :name="screenIcon(mod.key, item.path, item.section)" class="sb__link-icon" />
+                  <span class="sb__label">{{ item.title }}</span>
+                  <span v-if="badges[item.name]" class="sb__badge" :class="`sb__badge--${badges[item.name]!.level}`">{{ countText(badges[item.name]!.count) }}</span>
                 </RouterLink>
               </div>
             </div>
@@ -210,7 +228,27 @@ function toggle(key: ModuleKey) {
   }
 
   &__menu {
-    padding: 0.2rem 0 0.5rem 1.75rem;
+    padding: 0.2rem 0 0.5rem 1.1rem;
+  }
+
+  // Pendientes: color sólido del nivel con texto blanco (AA sobre la barra oscura).
+  &__badge {
+    min-width: 1.25rem;
+    padding: 0 0.35rem;
+    border-radius: $radius-pill;
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1.15rem;
+    text-align: center;
+    color: #fff;
+    background: $info;
+
+    &--danger {
+      background: $danger;
+    }
+    &--warning {
+      background: $warning;
+    }
   }
 
   .reveal-enter-active {
@@ -238,7 +276,10 @@ function toggle(key: ModuleKey) {
     padding: 0.3rem 0.5rem 0.15rem;
   }
 
+  &__link-icon { width: 1rem; font-size: 0.75rem; opacity: 0.7; }
+
   &__link {
+    @include flex(row, center, flex-start, 0.5rem);
     padding: 0.3rem 0.5rem;
     border-radius: 4px;
     font-size: $text-sm;
