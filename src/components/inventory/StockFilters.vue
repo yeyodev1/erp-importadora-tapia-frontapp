@@ -39,13 +39,13 @@ function apply(summary: string[]) {
 
 <template>
   <ReportFilters v-model="model" :fields="['warehouse']" :loading="loading" @apply="apply">
-    <FormField :label="c.group" for="sf-group">
+    <FormField :label="c.group" :help="c.groupHelp" for="sf-group">
       <BaseCombobox id="sf-group" :model-value="model.groupId" :options="groups" :empty-label="c.allGroups" @update:model-value="onGroup" />
     </FormField>
-    <FormField :label="c.subgroup" for="sf-sub">
+    <FormField :label="c.subgroup" :help="c.subgroupHelp" for="sf-sub">
       <BaseCombobox id="sf-sub" v-model="model.subgroup" :options="subgroups" :empty-label="c.allGroups" :disabled="!subgroups.length" />
     </FormField>
-    <FormField :label="c.supplier" for="sf-supplier">
+    <FormField :label="c.supplier" :help="c.supplierHelp" for="sf-supplier">
       <PartyPicker id="sf-supplier" v-model="model.partyId" role="supplier" clearable @pick="supplier = $event?.name ?? ''" />
     </FormField>
     <slot />
