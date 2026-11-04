@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import SearchInput from '@/components/ui/SearchInput.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
+import BaseSegmented from '@/components/ui/BaseSegmented.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { sriRow } from '@/components/table/indicators'
 import DebitNoteForm from '@/components/sales/DebitNoteForm.vue'
 import SriRowActions from '@/components/sales/SriRowActions.vue'
 import { useAccess } from '@/composables/useAccess'
@@ -20,10 +23,18 @@ const { canWrite } = useAccess()
 const toast = useToastStore()
 const creating = ref(false)
 const partyId = ref('')
+// `?sriStatus=devuelto|sin_firma` (campana): el filtro vive en la URL para poder quitarlo.
+const route = useRoute()
+const router = useRouter()
+const sriStatus = computed({
+  get: () => (route.query.sriStatus === 'devuelto' || route.query.sriStatus === 'sin_firma' ? route.query.sriStatus : ''),
+  set: (v: string) => router.replace({ query: { ...route.query, sriStatus: v || undefined } }),
+})
+const sriOptions = ['', 'devuelto', 'sin_firma'].map((value) => ({ value, label: t.sriFilter.options[value]!, help: t.sriFilter.help[value] }))
 
 const list = useList<DebitNote>(
   (p) => salesService.list<DebitNote>('debit-notes', p),
-  () => ({ partyId: partyId.value || undefined }),
+  () => ({ partyId: partyId.value || undefined, sriStatus: sriStatus.value || undefined }),
 )
 
 const c = t.cols
@@ -65,12 +76,13 @@ function onSaved(note: DebitNote) {
       :total="list.total"
       :fetch-all="list.fetchAll"
       :empty-message="t.pages.debitNotes.empty"
-      :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)"
+      :row-class="(r) => (r.status === 'anulado' ? 'is-void' : sriRow(r.sriStatus))"
       @update:page="list.page = $event"
       @retry="list.reload"
     >
       <template #toolbar>
         <SearchInput v-model="list.q" />
+        <BaseSegmented v-model="sriStatus" :options="sriOptions" :label="t.sriFilter.label" />
         <div class="dn__party"><PartyPicker id="dn-filter-party" v-model="partyId" role="customer" clearable /></div>
       </template>
       <template #cell-number="{ row }"><span class="mono">{{ row.number }}</span></template>
