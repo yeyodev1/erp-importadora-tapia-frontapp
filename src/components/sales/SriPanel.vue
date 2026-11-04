@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
+import HelpTip from '@/components/ui/HelpTip.vue'
 import { salesService, type DocKind, type SriFields } from '@/services/sales.service'
 import { useRide } from '@/composables/sales/useRide'
 import { useToastStore } from '@/stores/toast'
@@ -39,6 +40,7 @@ async function retry() {
     <header class="sri__head">
       <h3 class="sri__title">{{ t.sri.title }}</h3>
       <StatusBadge :status="doc.sriStatus || 'pendiente'" />
+      <HelpTip :text="t.colHelp.sri" :label="t.sri.title" />
       <span class="toolbar__spacer"></span>
       <button v-if="canWrite && doc.sriStatus !== 'autorizado' && doc.status !== 'anulado'" type="button" class="btn btn--ghost btn--sm" :disabled="retrying" @click="retry">
         <AppIcon name="refresh" :spin="retrying" /> {{ t.actions.retrySri }}
@@ -55,7 +57,7 @@ async function retry() {
     </ul>
     <p v-if="doc.sriStatus !== 'autorizado'" class="sri__note">{{ t.sri.pending }}</p>
     <dl class="sri__kv">
-      <div v-if="doc.accessKey"><dt>{{ t.sri.accessKey }}</dt><dd class="mono">{{ doc.accessKey }}</dd></div>
+      <div v-if="doc.accessKey"><dt>{{ t.sri.accessKey }} <HelpTip :text="t.sri.accessKeyHelp" :label="t.sri.accessKey" /></dt><dd class="mono">{{ doc.accessKey }}</dd></div>
       <div v-if="doc.authorizationNumber">
         <dt>{{ t.sri.authorization }}</dt>
         <dd class="mono">{{ doc.authorizationNumber }} · {{ doc.authorizationDate ? formatDateTime(doc.authorizationDate) : '' }}</dd>
