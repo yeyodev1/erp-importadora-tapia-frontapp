@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import FormDialog from '@/components/ui/FormDialog.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import FormField from '@/components/ui/FormField.vue'
 import MoneyInput from '@/components/ui/MoneyInput.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
@@ -81,6 +82,7 @@ async function submit() {
       <strong class="mono">{{ advance.number }}</strong> · {{ advance.partyId?.name }} · {{ t.open }}
       <strong class="num">{{ formatMoney(open) }}</strong>
     </p>
+    <LockedDateBanner :date="form.date" />
     <div class="form-grid">
       <FormField v-bind="cxp.payments.fields.date" for="aa-date" required class="narrow">
         <BaseDatePicker id="aa-date" v-model="form.date" :range-start="advance?.date.slice(0, 10)" />
