@@ -48,18 +48,18 @@ const columns: Column<PendingCheck>[] = [
   { key: 'beneficiary', label: t.cols.beneficiary },
   { key: 'description', label: t.cols.description },
   { key: 'amount', label: t.cols.amount, format: 'money', total: true },
-  { key: 'ageDays', label: t.cols.age, format: 'int', width: '6rem' },
+  { key: 'ageDays', label: t.cols.age, help: t.ageHelp, format: 'int', width: '6rem' },
 ]
 </script>
 
 <template>
   <section>
-    <PageHeader :subtitle="rows.length ? t.summary(rows.length, oldCount) : undefined" />
+    <PageHeader :subtitle="rows.length ? `${t.subtitle} ${t.summary(rows.length, oldCount)}.` : t.subtitle" />
     <form class="panel panel--pad toolbar pc__bar" @submit.prevent="run">
       <FormField v-bind="t.date" for="pc-date" class="pc__field">
         <BaseDatePicker id="pc-date" v-model="date" />
       </FormField>
-      <FormField :label="site.filters.bankAccount" for="pc-bank" class="pc__field">
+      <FormField v-bind="t.bank" for="pc-bank" class="pc__field">
         <BankAccountPicker id="pc-bank" v-model="bankAccountId" kind="banco" :empty-label="site.filters.all" />
       </FormField>
       <button type="submit" class="btn btn--primary" :disabled="loading"><AppIcon name="search" /> {{ site.filters.apply }}</button>
@@ -70,6 +70,7 @@ const columns: Column<PendingCheck>[] = [
       :loading="loading"
       :error="error"
       :filters-text="filters"
+      :empty-message="t.empty"
       landscape
       :row-class="(r) => (isOld(r) ? 'is-old' : undefined)"
       @retry="run"
