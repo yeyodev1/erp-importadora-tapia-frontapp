@@ -82,7 +82,7 @@ function confirm() {
         <BankAccountPicker id="step-bank" v-model="form.bankAccountId" kind="banco" />
       </FormField>
       <FormField v-if="reason" v-bind="t.reason" for="step-reason" required full>
-        <input id="step-reason" v-model="form.reason" />
+        <input id="step-reason" v-model="form.reason" :placeholder="t.reasonPlaceholder" />
       </FormField>
     </div>
   </FormDialog>
