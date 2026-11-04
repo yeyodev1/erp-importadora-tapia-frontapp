@@ -4,7 +4,8 @@ import FormField from '@/components/ui/FormField.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import BaseSegmented from '@/components/ui/BaseSegmented.vue'
 import MoneyInput from '@/components/ui/MoneyInput.vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import InvoicePicker from './InvoicePicker.vue'
 import SaleTotals from './SaleTotals.vue'
@@ -39,6 +40,7 @@ async function save() {
 
 <template>
   <form class="panel panel--pad ndf" @submit.prevent="save">
+    <LockedDateBanner :date="form.date" />
     <div class="form-grid">
       <FormField v-bind="f.party" for="nd-party" required>
         <PartyPicker id="nd-party" v-model="form.partyId" role="customer" @pick="form.invoiceId = ''" />
@@ -63,9 +65,7 @@ async function save() {
     <p v-if="error" class="ndf__error" role="alert">{{ error }}</p>
     <div class="ndf__actions">
       <button type="button" class="btn btn--ghost" :disabled="saving" @click="emit('cancel')">{{ t.actions.cancel }}</button>
-      <button type="submit" class="btn btn--primary" :disabled="saving || !form.invoiceId || !form.amount">
-        <AppIcon :name="saving ? 'spinner' : 'check'" :spin="saving" /> {{ saving ? t.actions.saving : t.actions.save }}
-      </button>
+      <BaseButton type="submit" variant="primary" icon="check" :loading="saving" :disabled="!form.invoiceId || !form.amount">{{ t.actions.save }}</BaseButton>
     </div>
   </form>
 </template>
