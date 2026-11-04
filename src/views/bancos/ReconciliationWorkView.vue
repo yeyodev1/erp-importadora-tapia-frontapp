@@ -33,11 +33,11 @@ const editable = computed(() => isOpen.value && canWrite.value)
 const bank = computed(() => catalog.bankAccounts.find((b) => b._id === rec.value?.bankAccountId))
 
 const columns: Column<BankMovement>[] = [
-  { key: 'cleared', label: t.cols.cleared, value: (m) => (m.cleared ? t.cleared : ''), width: '6rem' },
+  { key: 'cleared', label: t.cols.cleared, help: t.clearedHelp, value: (m) => (m.cleared ? t.cleared : ''), width: '6rem' },
   { key: 'type', label: t.cols.type, value: (m) => bancos.movType(m.type) },
-  { key: 'checkNumber', label: t.cols.check, width: '5rem' },
+  { key: 'checkNumber', label: t.cols.check, help: bancos.tx.colHelp.check, width: '5rem' },
   { key: 'doc', label: t.cols.doc, value: (m) => m.source?.docNumber ?? '' },
-  { key: 'amount', label: t.cols.amount, format: 'money', value: (m) => (m.direction === 'out' ? -m.amount : m.amount) },
+  { key: 'amount', label: t.cols.amount, help: t.amountHelp, format: 'money', value: (m) => (m.direction === 'out' ? -m.amount : m.amount) },
   { key: 'date', label: t.cols.date, format: 'date', width: '7rem' },
   { key: 'description', label: t.cols.description },
 ]
@@ -60,7 +60,7 @@ const dialogCopy = computed(() =>
 
 <template>
   <section>
-    <PageHeader :title="rec?.description" :subtitle="rec && !isOpen ? t.closedNote : undefined">
+    <PageHeader :title="rec?.description" :subtitle="rec && !isOpen ? t.closedNote : t.workSubtitle">
       <RouterLink :to="{ name: 'BankReconciliation' }" class="btn btn--ghost"><AppIcon name="arrow-left" /> {{ t.back }}</RouterLink>
       <template v-if="rec">
         <button type="button" class="btn btn--ghost" @click="r.print"><AppIcon name="print" /> {{ t.print }}</button>
@@ -88,7 +88,7 @@ const dialogCopy = computed(() =>
 
       <StatementPanel v-if="editable" :rec-id="id" @saved="r.replace" />
 
-      <DataTable :columns="columns" :rows="rec.movements" :title="`${t.movements} · ${rec.description}`" landscape>
+      <DataTable :columns="columns" :rows="rec.movements" :title="`${t.movements} · ${rec.description}`" :empty-message="t.emptyMovements" landscape>
         <template #toolbar>
           <strong>{{ t.movements }}</strong>
           <HelpTip :text="t.clearedHelp" />
