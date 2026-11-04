@@ -18,6 +18,8 @@ export interface LineColumn<L = any> {
   format?: ColumnFormat
   value?: (line: L) => unknown
   placeholder?: string
+  /** Ayuda del encabezado (HelpTip): qué va en esta columna, con un ejemplo. */
+  help?: string
 }
 
 let seq = 0
