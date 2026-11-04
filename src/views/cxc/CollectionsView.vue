@@ -26,8 +26,12 @@ const creating = ref(false)
 const method = ref('')
 const partyId = ref('')
 const methodTabs = [
-  { value: '', label: t.all },
-  ...Object.entries(cxc.methods).map(([value, label]) => ({ value, label })),
+  { value: '', label: t.all, help: cxc.methodHelp[''] },
+  ...Object.entries(cxc.methods).map(([value, label]) => ({
+    value,
+    label,
+    help: cxc.methodHelp[value],
+  })),
 ]
 
 const list = useList(
@@ -37,19 +41,19 @@ const list = useList(
 
 const columns: Column<Receipt>[] = [
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
-  { key: 'number', label: 'Cobro', width: '10rem' },
+  { key: 'number', ...t.cols.number, width: '10rem' },
   { key: 'partyName', label: 'Cliente' },
   {
     key: 'method',
-    label: 'Medio',
+    ...t.cols.method,
     value: (r) => cxc.methods[r.method] + (r.check?.number ? ` #${r.check.number}` : ''),
   },
   {
     key: 'invoices',
-    label: 'Facturas',
+    ...t.cols.invoices,
     value: (r) => r.applications.map((a) => a.invoiceNumber).join(', '),
   },
-  { key: 'amount', label: 'Valor', format: 'money', total: true },
+  { key: 'amount', ...t.cols.amount, format: 'money', total: true },
   { key: 'status', label: 'Estado', width: '7rem' },
   { key: 'actions', label: '', screenOnly: true, width: '3rem' },
 ]
@@ -77,7 +81,7 @@ function onSaved() {
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.subtitle">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="creating = true">
         <AppIcon name="plus" /> {{ t.add }}
       </button>
@@ -94,6 +98,8 @@ function onSaved() {
       :fetch-all="list.fetchAll"
       :totals="totals"
       :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)"
+      :empty-title="t.emptyTitle"
+      :empty-message="t.empty"
       @update:page="list.page = $event"
       @retry="list.reload"
     >
