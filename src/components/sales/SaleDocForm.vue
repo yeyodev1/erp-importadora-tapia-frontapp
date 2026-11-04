@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { lineHelp } from '@/config/copy/lineHelp'
 import { computed } from 'vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
@@ -24,13 +25,13 @@ const f = t.fields
 const priceLists = computed(() => [...new Set([...t.priceLists, h.priceList])].map((v) => ({ value: v, label: v, hint: t.priceListHints[v] })))
 
 const columns: LineColumn<FormLine>[] = [
-  { key: 'productId', label: t.cols.product, type: 'product', width: '34%' },
-  { key: 'stock', label: t.cols.stock, type: 'readonly', width: '6rem' },
-  { key: 'qty', label: t.cols.qty, type: 'qty', width: '7rem' },
-  { key: 'unitPrice', label: t.cols.price, type: 'money', width: '8rem' },
-  { key: 'discount', label: t.cols.discount, type: 'money', width: '7rem' },
-  { key: 'vatRate', label: t.cols.vatRate, type: 'readonly', width: '4rem' },
-  { key: 'subtotal', label: t.cols.lineTotal, type: 'readonly', format: 'money', total: true, width: '8rem', value: (l) => (l.productId ? lineSubtotal(l) : null) },
+  { key: 'productId', label: t.cols.product, type: 'product', width: '34%', help: lineHelp.product },
+  { key: 'stock', label: t.cols.stock, type: 'readonly', width: '6rem', help: lineHelp.stock },
+  { key: 'qty', label: t.cols.qty, type: 'qty', width: '7rem', help: lineHelp.qty },
+  { key: 'unitPrice', label: t.cols.price, type: 'money', width: '8rem', help: lineHelp.price },
+  { key: 'discount', label: t.cols.discount, type: 'money', width: '7rem', help: lineHelp.discount },
+  { key: 'vatRate', label: t.cols.vatRate, type: 'readonly', width: '4rem', help: lineHelp.vatRate },
+  { key: 'subtotal', label: t.cols.lineTotal, type: 'readonly', format: 'money', total: true, width: '8rem', value: (l) => (l.productId ? lineSubtotal(l) : null), help: lineHelp.lineTotal },
 ]
 </script>
 
