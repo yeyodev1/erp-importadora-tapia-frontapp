@@ -47,7 +47,7 @@ const columns: Column<Proforma>[] = [
   { key: 'customer.name', label: c.customer },
   { key: 'sellerName', label: c.seller, width: '9rem' },
   { key: 'total', label: t.totals.total, format: 'money', total: true },
-  { key: 'status', label: c.status, width: '7rem' },
+  { key: 'status', label: c.status, help: t.colHelp.quoteStatus, width: '7rem' },
   { key: 'actions', label: c.actions, screenOnly: true, width: '9rem' },
 ]
 
@@ -93,7 +93,7 @@ async function convert() {
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.pages.quotes.subtitle">
       <button v-if="canWrite && !creating" type="button" class="btn btn--primary" @click="creating = true">
         <AppIcon name="plus" /> {{ t.actions.newQuote }}
       </button>
@@ -110,6 +110,7 @@ async function convert() {
       :pages="list.pages"
       :total="list.total"
       :fetch-all="list.fetchAll"
+      :empty-message="t.pages.quotes.empty"
       @update:page="list.page = $event"
       @retry="list.reload"
     >
