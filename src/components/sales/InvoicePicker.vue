@@ -4,6 +4,7 @@ import { useDisplayLabel, type RemoteOption } from '@/composables/useRemoteSearc
 import { salesService, type SalesInvoice } from '@/services/sales.service'
 import { formatMoney } from '@/utils/money'
 import { formatDay } from '@/utils/format'
+import { facturacion as t } from '@/config/copy/facturacion'
 
 /**
  * Factura vigente y con saldo de un cliente (para notas de crédito y
@@ -28,5 +29,5 @@ function onPick(inv: SalesInvoice | null) {
 </script>
 
 <template>
-  <RemotePicker :id="id" v-model="model" :display="display" :search="search" placeholder="001-001-…" :disabled="disabled || !partyId" @pick="onPick" />
+  <RemotePicker :id="id" v-model="model" :display="display" :search="search" :placeholder="t.placeholders.invoice" :disabled="disabled || !partyId" @pick="onPick" />
 </template>
