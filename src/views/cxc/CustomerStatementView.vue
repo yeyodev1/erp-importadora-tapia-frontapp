@@ -6,6 +6,7 @@ import ReportFilters from '@/components/report/ReportFilters.vue'
 import { defaultFilters, filterParams } from '@/components/report/filters'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { overdueRow } from '@/components/table/indicators'
 import { useReport } from '@/composables/receivables/useReport'
 import { receivablesService, type StatementReport } from '@/services/receivables.service'
 import { cxc } from '@/config/copy/cxc'
@@ -53,6 +54,7 @@ const columns: Column<Row>[] = [
   { key: 'invoiceNumber', label: 'Factura', width: '10rem' },
   { key: 'docNumber', ...r.cols.docNumber, width: '10rem' },
   { key: 'description', label: 'Detalle' },
+  { key: 'dueDate', label: cxc.aging.days, help: r.cols.dueOpen, format: 'days-overdue', width: '7rem' },
   { key: 'debit', ...r.cols.debit, format: 'money', total: true },
   { key: 'credit', ...r.cols.credit, format: 'money', total: true },
   { key: 'balance', ...r.cols.running, format: 'money' },
@@ -83,7 +85,7 @@ const columns: Column<Row>[] = [
         :error="report.error.value"
         :filters-text="report.summary.value"
         :empty-message="r.statementEmpty"
-        :row-class="(m) => (m.kind ? undefined : 'is-edge')"
+        :row-class="(m) => (m.kind ? overdueRow(m.dueDate) : 'is-edge')"
         @retry="run(report.summary.value)"
       />
     </template>
