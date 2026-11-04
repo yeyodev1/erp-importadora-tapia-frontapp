@@ -20,6 +20,8 @@ import type { ApiError } from '@/types'
 import type { JournalEntry, PayableApplication, PurchaseInvoice, PurchaseInvoiceDetail } from '@/types/purchases'
 
 const t = cxp.invoices
+const fl = t.facts
+const al = t.amounts
 const route = useRoute()
 const toast = useToastStore()
 const { canWrite } = useAccess()
@@ -35,34 +37,34 @@ const facts = computed(() => {
   const i = inv.value
   if (!i) return []
   return [
-    ['Proveedor', `${i.supplierName} · ${i.supplierRuc}`],
-    ['Fecha', formatDay(i.date)],
-    ['Vence', formatDay(i.dueDate)],
-    ['Sustento', cxp.taxSupports.find((s) => s.value === i.taxSupport)?.label ?? i.taxSupport],
-    ['Forma de pago', cxp.paymentMethods.find((p) => p.value === i.paymentMethod)?.label ?? i.paymentMethod],
-    ['Bien o servicio', i.goodsOrServices === 'servicio' ? 'Servicio' : 'Bien'],
-    ['Autorización', i.authorization],
-    ['Descripción', i.description],
+    [fl.supplier, `${i.supplierName} · ${i.supplierRuc}`],
+    [fl.date, formatDay(i.date)],
+    [fl.due, formatDay(i.dueDate)],
+    [fl.support, cxp.taxSupports.find((s) => s.value === i.taxSupport)?.label ?? i.taxSupport],
+    [fl.payment, cxp.paymentMethods.find((p) => p.value === i.paymentMethod)?.label ?? i.paymentMethod],
+    [fl.goods, i.goodsOrServices === 'servicio' ? 'Servicio' : 'Bien'],
+    [fl.authorization, i.authorization],
+    [fl.description, i.description],
   ].filter(([, v]) => v)
 })
 const amounts = computed(() => {
   const i = inv.value
   if (!i) return []
   return [
-    ['Base 0', i.base0],
-    ['Base 15 %', i.baseVat],
-    ['IVA', i.vat],
-    ['Total', i.total],
-    ['Retención', i.withholdingTotal],
-    ['Neto a pagar', i.payable],
-    ['Aprobado', i.approved],
-    ['Saldo', i.balance],
+    [al.base0, i.base0],
+    [al.baseVat, i.baseVat],
+    [al.vat, i.vat],
+    [al.total, i.total],
+    [al.withholding, i.withholdingTotal],
+    [al.payable, i.payable],
+    [al.approved, i.approved],
+    [al.balance, i.balance],
   ] as [string, number][]
 })
 
 const appColumns: Column<PayableApplication>[] = [
   { key: 'date', label: 'Fecha', format: 'date' },
-  { key: 'kind', label: 'Tipo', value: (a) => cxp.kinds[a.kind] ?? a.kind },
+  { key: 'kind', label: 'Movimiento', value: (a) => cxp.kinds[a.kind] ?? a.kind, help: cxp.reports.columns.kind },
   { key: 'amount', label: 'Valor', format: 'money', total: true },
   { key: 'status', label: 'Estado' },
 ]
@@ -98,7 +100,7 @@ async function doVoid(reason: string) {
 
 <template>
   <section class="idt">
-    <PageHeader :title="inv ? `${docType} ${inv.docNumber}` : t.detail">
+    <PageHeader :title="inv ? `${docType} ${inv.docNumber}` : t.detail" :subtitle="cxp.pages.invoiceDetail">
       <RouterLink :to="{ name: 'SupplierInvoices' }" class="btn btn--ghost"><AppIcon name="arrow-left" /> Facturas</RouterLink>
       <button v-if="canWrite && inv?.status === 'vigente'" type="button" class="btn btn--danger" @click="voiding = true">
         <AppIcon name="x" /> {{ t.void }}
@@ -134,9 +136,8 @@ async function doVoid(reason: string) {
 
       <section class="panel panel--pad">
         <h3 class="idt__title">{{ t.applications }}</h3>
-        <DataTable :columns="appColumns" :rows="inv.applications" :exportable="false" :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)">
+        <DataTable :columns="appColumns" :rows="inv.applications" :exportable="false" :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)" :empty-title="t.noApplications" :empty-message="t.noApplicationsHelp">
           <template #cell-status="{ row }"><StatusBadge :status="row.status" /></template>
-          <template #empty>{{ t.noApplications }}</template>
         </DataTable>
       </section>
     </template>
