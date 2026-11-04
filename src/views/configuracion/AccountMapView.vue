@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PageHeader from '@/components/ui/PageHeader.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import FormField from '@/components/ui/FormField.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -36,9 +37,7 @@ const { form, loading, saving, error, load, save } = useSettingsForm(
 
       <div v-if="form" class="map__bar">
         <p v-if="error" class="map__error" role="alert"><AppIcon name="alert-circle" /> {{ error }}</p>
-        <button v-if="canWrite" type="submit" class="btn btn--primary" :disabled="saving">
-          <AppIcon v-if="saving" name="spinner" spin /> {{ site.common.save }}
-        </button>
+        <BaseButton v-if="canWrite" type="submit" variant="primary" icon="save" :loading="saving">{{ site.common.save }}</BaseButton>
       </div>
     </form>
   </section>
