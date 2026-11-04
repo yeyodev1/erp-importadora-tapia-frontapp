@@ -40,11 +40,11 @@ const columns: Column<Product>[] = [
   { key: 'name', label: t.fields.name.label },
   { key: 'group', label: t.fields.groupId.label, value: (p) => [groupName(p), p.subgroup].filter(Boolean).join(' / ') },
   { key: 'unit', label: t.fields.unit.label },
-  { key: 'purchase', label: t.fields.purchaseUnitName.label, value: (p) => (p.purchaseUnit ? `${p.purchaseUnit.name} × ${p.purchaseUnit.factor}` : '') },
+  { key: 'purchase', label: t.cols.purchase.label, help: t.cols.purchase.help, value: (p) => (p.purchaseUnit ? `${p.purchaseUnit.name} × ${p.purchaseUnit.factor}` : '') },
   { key: 'vatRate', label: t.fields.vatRate.label, value: (p) => `${p.vatRate} %`, align: 'right', width: '5rem' },
-  { key: 'minQty', label: t.fields.minQty.label, format: 'qty', width: '7rem' },
-  { key: 'price', label: 'Precio GENERAL', format: 'money', value: (p) => p.prices.find((x) => x.list === 'GENERAL')?.price, width: '8rem' },
-  { key: 'isActive', label: 'Estado', value: (p) => (p.isActive ? site.common.active : site.common.inactive), width: '6rem' },
+  { key: 'minQty', label: t.cols.minQty.label, help: t.cols.minQty.help, format: 'qty', width: '7rem' },
+  { key: 'price', label: t.cols.price.label, help: t.cols.price.help, format: 'money', value: (p) => p.prices.find((x) => x.list === 'GENERAL')?.price, width: '8rem' },
+  { key: 'isActive', label: t.cols.status.label, help: t.cols.status.help, value: (p) => (p.isActive ? site.common.active : site.common.inactive), width: '6rem' },
 ]
 
 const editor = useEditor<Form>({
@@ -60,7 +60,7 @@ const editor = useEditor<Form>({
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.subtitle">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="editor.openNew()"><AppIcon name="plus" /> {{ t.add }}</button>
     </PageHeader>
 
@@ -73,6 +73,7 @@ const editor = useEditor<Form>({
       :pages="list.pages"
       :total="list.total"
       :fetch-all="list.fetchAll"
+      :empty-message="t.empty"
       landscape
       clickable
       @update:page="list.page = $event"
