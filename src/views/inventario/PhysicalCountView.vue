@@ -23,21 +23,21 @@ const { canWrite } = useAccess()
 const { filters, mode, report, rows, counted, withDiff, diffOf, adjust, askAdjust, confirmAdjust } = usePhysicalCount()
 
 const modes = computed(() => [
-  { value: 'sheet' as const, label: t.sheet },
-  { value: 'capture' as const, label: t.capture, count: counted.value.length || undefined },
+  { value: 'sheet' as const, label: t.sheet, help: t.sheetHelp },
+  { value: 'capture' as const, label: t.capture, help: t.captureHelp, count: counted.value.length || undefined },
 ])
 
 const columns = computed<Column<CountRow>[]>(() => [
   { key: 'subgroup', label: c.subgroup },
-  { key: 'code', label: c.code, width: '6rem' },
+  { key: 'code', label: c.code, width: '6rem', help: c.codeHelp },
   { key: 'name', label: c.product },
   { key: 'purchaseUnit', label: c.purchaseUnit },
-  { key: 'purchaseQty', label: c.qty, format: 'qty' },
+  { key: 'purchaseQty', label: t.stockPurchase, format: 'qty', help: t.stockPurchaseHelp },
   { key: 'unit', label: c.unit },
-  { key: 'qty', label: c.qty, format: 'qty' },
+  { key: 'qty', label: t.stockUnit, format: 'qty', help: t.stockUnitHelp },
   // En la hoja el conteo sale en blanco para anotarlo a mano en bodega.
-  { key: 'count', label: t.count, format: 'qty', width: mode.value === 'capture' ? '9rem' : '7rem', value: (r) => (mode.value === 'capture' ? r.count : '') },
-  ...(mode.value === 'capture' ? ([{ key: 'diff', label: t.diff, format: 'qty', value: diffOf }] as Column<CountRow>[]) : []),
+  { key: 'count', label: t.count, format: 'qty', help: t.countHelp, width: mode.value === 'capture' ? '9rem' : '7rem', value: (r) => (mode.value === 'capture' ? r.count : '') },
+  ...(mode.value === 'capture' ? ([{ key: 'diff', label: t.diff, format: 'qty', value: diffOf, help: t.diffHelp }] as Column<CountRow>[]) : []),
 ])
 const title = computed(() => (report.data ? `Toma de inventario · ${report.data.warehouse.name}` : undefined))
 const signed = (v: number | null) => (v == null ? '' : `${v > 0 ? '+' : ''}${formatQty(v)}`)
@@ -49,7 +49,7 @@ const diffClass = (r: CountRow) => {
 
 <template>
   <section>
-    <PageHeader />
+    <PageHeader :subtitle="copy.pages.count" />
     <StockFilters v-model="filters" :loading="report.loading" @apply="report.run" />
 
     <div v-if="report.data" class="count-bar panel panel--pad">
@@ -60,7 +60,7 @@ const diffClass = (r: CountRow) => {
             <BaseDatePicker id="pc-date" v-model="adjust.date" />
           </FormField>
           <FormField v-bind="t.responsible" for="pc-resp">
-            <input id="pc-resp" v-model="adjust.responsible" />
+            <input id="pc-resp" v-model="adjust.responsible" :placeholder="t.responsiblePlaceholder" />
           </FormField>
           <div class="count-bar__action">
             <span class="count-bar__note">{{ counted.length }} {{ t.pending }} · {{ withDiff }} {{ t.diff.toLowerCase() }}</span>
@@ -80,6 +80,7 @@ const diffClass = (r: CountRow) => {
       :error="report.error"
       :title="title"
       :filters-text="report.summary"
+      :empty-message="t.empty"
       landscape
       @retry="report.run()"
     >
