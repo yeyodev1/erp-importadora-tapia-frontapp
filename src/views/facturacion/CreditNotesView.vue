@@ -32,9 +32,9 @@ const columns: Column<CreditNote>[] = [
   { key: 'number', label: c.number, width: '10rem' },
   { key: 'invoiceNumber', label: c.invoice, width: '10rem' },
   { key: 'reason', label: c.reason },
-  { key: 'returnsStock', label: c.kind, value: (r) => (r.returnsStock ? t.creditNotes.returns : t.creditNotes.valueOnly), width: '7rem' },
+  { key: 'returnsStock', label: c.kind, help: t.colHelp.kindNote, value: (r) => (r.returnsStock ? t.creditNotes.returns : t.creditNotes.valueOnly), width: '7rem' },
   { key: 'total', label: t.totals.total, format: 'money', total: true },
-  { key: 'sriStatus', label: c.sri, width: '8rem' },
+  { key: 'sriStatus', label: c.sri, help: t.colHelp.sri, width: '8rem' },
   { key: 'actions', label: c.actions, screenOnly: true, width: '5rem' },
 ]
 
@@ -47,7 +47,7 @@ function onSaved(note: CreditNote) {
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.pages.creditNotes.subtitle">
       <button v-if="canWrite && !creating" type="button" class="btn btn--primary" @click="creating = true">
         <AppIcon name="plus" /> {{ t.actions.newCreditNote }}
       </button>
@@ -64,6 +64,7 @@ function onSaved(note: CreditNote) {
       :pages="list.pages"
       :total="list.total"
       :fetch-all="list.fetchAll"
+      :empty-message="t.pages.creditNotes.empty"
       :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)"
       @update:page="list.page = $event"
       @retry="list.reload"
