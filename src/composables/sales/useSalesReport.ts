@@ -1,22 +1,24 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { defaultFilters, filterParams } from '@/components/report/filters'
 import type { Column } from '@/components/table/columns'
+import { blankCustomerFilters, customerParams, customerSummary } from '@/components/receivables/customerFilters'
 import { salesService, type ReportType, type SalesReport } from '@/services/sales.service'
 import { facturacion as t } from '@/config/copy/facturacion'
 import type { ApiError } from '@/types'
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Row = Record<string, any>
+import { dayRows, type Row } from './salesReportRows'
 
 /**
  * "Ventas Factura" del sistema actual: resumido (bodega → día → factura),
- * detallado (con líneas), por vendedor y por cliente. Las anuladas salen
- * tachadas solo si se piden y nunca suman: los totales vienen del API.
+ * detallado (con líneas), resumido por vendedor y por cliente. Columnas en
+ * el orden de hoy: Hora | Serie | Número | Cliente | Vendedor | Base cero |
+ * Base imp. | %IVA | IVA | Total. Las anuladas salen tachadas solo si se
+ * piden y nunca suman: los totales vienen del API.
  */
 export function useSalesReport() {
   const type = ref<ReportType>('summary')
   const filters = ref(defaultFilters())
-  const extra = reactive({ groupId: '', sellerName: '', parish: '', customerType: '', includeVoided: false })
+  const extra = reactive({ groupId: '', subgroup: '', includeVoided: false })
+  const customer = ref(blankCustomerFilters())
   const summary = ref<string[]>([])
   let lastLines: string[] = []
   const data = ref<SalesReport | null>(null)
@@ -27,37 +29,30 @@ export function useSalesReport() {
   const tt = t.totals
   const h = t.colHelp
   const money = (key: string, label: string, help?: string): Column => ({ key, label, help, format: 'money', total: true })
-  const amounts = [money('subtotal0', tt.subtotal0, h.subtotal0), money('subtotalVat', tt.subtotalVat, h.subtotalVat), money('discount', tt.discount, h.discount), money('vat', tt.vat, h.vat), money('total', tt.total)]
+  const vatRate: Column = { key: 'vatRate', label: c.vatPct, help: h.vatRate, align: 'right', width: '4rem', value: (r) => (r.kind === 'row' ? `${r.vatRate}` : '') }
+  const amounts = [money('subtotal0', c.base0, h.subtotal0), money('subtotalVat', c.baseVat, h.subtotalVat), vatRate, money('vat', tt.vat, h.vat), money('total', tt.total)]
 
   const columns = computed<Column[]>(() => {
     if (type.value === 'seller' || type.value === 'customer') {
-      return [{ key: 'name', label: type.value === 'seller' ? c.seller : c.customer }, { key: 'count', label: c.count, help: h.count, format: 'int', total: true }, ...amounts]
+      return [{ key: 'name', label: type.value === 'seller' ? c.seller : c.customer }, { key: 'count', label: c.count, help: h.count, format: 'int', total: true }, ...amounts.filter((a) => a !== vatRate)]
     }
     const head: Column[] = [
-      { key: 'warehouse', label: c.warehouse, width: '8rem' },
-      { key: 'date', label: c.date, format: 'date', width: '7rem' },
-      { key: 'number', label: c.number, width: '10rem' },
+      { key: 'hour', label: c.hour, help: h.hour, width: '4rem' },
+      { key: 'series', label: c.series, help: h.series, width: '5.5rem' },
+      { key: 'sequential', label: c.number, width: '6.5rem' },
       { key: 'customer', label: c.customer },
     ]
     if (type.value === 'detailed') {
-      return [...head, { key: 'code', label: c.code }, { key: 'name', label: c.product }, { key: 'qty', label: c.qty, format: 'qty' },
-        { key: 'unitPrice', label: c.price, format: 'money' }, money('discount', tt.discount), money('subtotal', c.lineTotal)]
+      return [...head, { key: 'code', label: c.code, width: '5.5rem' }, { key: 'name', label: c.product }, { key: 'qty', label: c.qty, format: 'qty' },
+        { key: 'unitPrice', label: c.pvp, help: h.pvp, format: 'money' }, vatRate, money('discount', tt.discount), money('subtotal', c.lineTotal)]
     }
-    return [...head, { key: 'hour', label: c.hour, help: h.hour, width: '4rem' }, { key: 'sellerName', label: c.seller }, ...amounts]
+    return [...head, { key: 'sellerName', label: c.seller }, ...amounts]
   })
 
   const rows = computed<Row[]>(() => {
     const d = data.value
     if (!d) return []
-    if (d.items) return d.items
-    return (d.groups ?? []).flatMap((g) =>
-      g.days.flatMap((day) =>
-        day.rows.flatMap((r) => {
-          const base = { ...r, warehouse: g.warehouse, date: day.date }
-          return type.value === 'detailed' ? (r.lines ?? []).map((l) => ({ ...base, ...l, _id: `${r._id}-${l.code}` })) : [base]
-        }),
-      ),
-    )
+    return d.items ?? dayRows(d, type.value === 'detailed', { day: c.dayLabel, total: c.totalLabel })
   })
 
   /** Del API (sin anuladas); en el detallado se suman solo las líneas vigentes. */
@@ -72,14 +67,16 @@ export function useSalesReport() {
     lastLines = lines
     loading.value = true
     error.value = ''
-    const extras = [extra.sellerName && `${c.seller}: ${extra.sellerName}`, extra.parish && `${t.fields.parish.label}: ${extra.parish}`,
-      extra.customerType && `${t.fields.customerType.label}: ${extra.customerType}`, extra.includeVoided && t.fields.includeVoided.label]
+    const f = t.fields
+    const extras = [extra.subgroup && `${f.subgroup.label}: ${extra.subgroup}`, ...customerSummary(customer.value), extra.includeVoided && f.includeVoided.label]
     summary.value = [t.report.types[type.value], ...lines, ...extras.filter((x): x is string => !!x)]
     try {
       data.value = await salesService.report({
         type: type.value,
         ...filterParams(filters.value),
-        ...Object.fromEntries(Object.entries(extra).filter(([, v]) => v && v !== true).map(([k, v]) => [k, String(v).trim()])),
+        ...customerParams(customer.value),
+        groupId: extra.groupId || undefined,
+        subgroup: extra.subgroup || undefined,
         includeVoided: extra.includeVoided ? 'true' : undefined,
       })
     } catch (e) {
@@ -95,5 +92,5 @@ export function useSalesReport() {
     run()
   })
 
-  return { type, filters, extra, summary, columns, rows, totals, loading, error, run, title: computed(() => t.report.titles[type.value]) }
+  return { type, filters, extra, customer, summary, columns, rows, totals, loading, error, run, title: computed(() => t.report.titles[type.value]) }
 }
