@@ -2,6 +2,7 @@
 import { lineHelp } from '@/config/copy/lineHelp'
 import { computed, reactive, ref, watch } from 'vue'
 import FormDialog from '@/components/ui/FormDialog.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseCombobox from '@/components/ui/BaseCombobox.vue'
 import BaseSegmented from '@/components/ui/BaseSegmented.vue'
@@ -122,6 +123,7 @@ async function submit() {
 
 <template>
   <FormDialog :open="open" :title="t.newTitle" wide :loading="saving" :error="error" @submit="submit" @close="emit('close')">
+    <LockedDateBanner :date="form.date" />
     <div class="form-grid">
       <FormField v-bind="f.supplier" for="nc-supplier" required>
         <PartyPicker id="nc-supplier" v-model="form.supplierId" role="supplier" />
