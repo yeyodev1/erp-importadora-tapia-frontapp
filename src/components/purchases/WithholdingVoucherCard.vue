@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
@@ -46,15 +47,16 @@ async function resend() {
       <h3 class="wv__title">Retención {{ invoice.withholding?.number }}</h3>
       <StatusBadge :status="invoice.withholding?.sriStatus" />
       <span class="wv__spacer"></span>
-      <button
+      <BaseButton
         v-if="canWrite && invoice.status === 'vigente' && invoice.withholding?.sriStatus !== 'autorizado'"
-        type="button"
-        class="btn btn--sm btn--primary"
-        :disabled="sending"
+        variant="primary"
+        size="sm"
+        icon="send"
+        :loading="sending"
         @click="resend"
       >
-        <AppIcon :name="sending ? 'spinner' : 'refresh'" :spin="sending" /> {{ t.resend }}
-      </button>
+        {{ t.resend }}
+      </BaseButton>
     </header>
     <p v-if="invoice.withholding?.accessKey" class="wv__key mono">{{ invoice.withholding.accessKey }}</p>
     <ul v-if="invoice.withholding?.messages?.length" class="wv__msgs">
