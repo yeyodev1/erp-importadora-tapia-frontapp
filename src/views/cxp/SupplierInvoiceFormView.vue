@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import HelpTip from '@/components/ui/HelpTip.vue'
 import EntryPreview from '@/components/documents/EntryPreview.vue'
 import InvoiceHeaderFields from '@/components/purchases/InvoiceHeaderFields.vue'
 import InvoiceLinesBlock from '@/components/purchases/InvoiceLinesBlock.vue'
@@ -11,6 +12,7 @@ import { useInvoiceForm } from '@/composables/purchases/useInvoiceForm'
 import { useAccess } from '@/composables/useAccess'
 import { useToastStore } from '@/stores/toast'
 import { cxp } from '@/config/copy/cxp'
+import { accountingScreens } from '@/config/copy/accountingScreens'
 import type { ApiError } from '@/types'
 
 const t = cxp.invoices
@@ -62,22 +64,30 @@ async function save() {
   <section class="if">
     <PageHeader :subtitle="cxp.pages.invoiceNew">
       <RouterLink :to="{ name: 'SupplierInvoices' }" class="btn btn--ghost"><AppIcon name="arrow-left" /> Facturas</RouterLink>
-      <label v-if="canWrite" class="btn btn--ghost if__file">
-        <AppIcon name="upload" /> {{ t.loadXml }}
-        <input ref="fileInput" type="file" accept=".xml,text/xml,application/xml" class="if__input" @change="onFile" />
-      </label>
     </PageHeader>
 
     <div class="if__body">
-      <InvoiceHeaderFields :ctx="ctx" />
+      <InvoiceHeaderFields :ctx="ctx">
+        <template #xml>
+          <span v-if="canWrite" class="if__xml">
+            <label class="btn btn--sm btn--primary if__file">
+              <AppIcon name="upload" /> {{ t.loadXml }}
+              <input ref="fileInput" type="file" accept=".xml,text/xml,application/xml" class="if__input" @change="onFile" />
+            </label>
+            <HelpTip :text="t.loadXmlHelp" :label="t.loadXml" />
+          </span>
+        </template>
+      </InvoiceHeaderFields>
       <InvoiceLinesBlock :ctx="ctx" />
       <WithholdingLines :ctx="ctx" />
-      <section class="panel panel--pad">
+      <section class="panel panel--pad if__entry">
+        <p class="form-section">{{ t.entryTitle }} <HelpTip :text="t.entryHelp" :label="t.entryTitle" /></p>
         <EntryPreview :lines="ctx.entry.value" />
       </section>
 
       <p v-if="error" class="if__error" role="alert"><AppIcon name="alert-circle" /> {{ error }}</p>
       <div v-if="canWrite" class="if__actions">
+        <span class="if__mayor">{{ accountingScreens.mayorizedNote }} <HelpTip :text="accountingScreens.mayorized.help" :label="accountingScreens.mayorized.label" /></span>
         <button type="button" class="btn btn--primary" :disabled="saving" @click="save">
           <AppIcon :name="saving ? 'spinner' : 'check'" :spin="saving" /> {{ t.save }}
         </button>
@@ -113,6 +123,21 @@ async function save() {
 }
 
 .if__actions {
-  @include flex(row, center, flex-end, 0.5rem);
+  @include flex(row, center, flex-end, 0.5rem 1rem);
+  flex-wrap: wrap;
+}
+
+.if__mayor,
+.if__xml {
+  @include flex(row, center, flex-start, 0.35rem);
+}
+
+.if__mayor {
+  font-size: 0.85rem;
+  color: $ink-soft;
+}
+
+.if__entry {
+  @include flex(column, stretch, flex-start, 0.5rem);
 }
 </style>
