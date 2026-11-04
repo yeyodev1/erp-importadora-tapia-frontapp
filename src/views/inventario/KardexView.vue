@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
+import AppIcon from '@/components/ui/AppIcon.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ReportFilters from '@/components/report/ReportFilters.vue'
@@ -61,13 +62,13 @@ const side = (key: 'in' | 'out' | 'bal', label: [string, string, string], total:
   { key: `${key}Cost`, label: label[1], format: 'qty', value: (r) => r[key]?.unitCost, help: h[`${key}Cost`] },
   { key: `${key}Total`, label: label[2], format: 'money', value: (r) => r[key]?.total, total, help: h[`${key}Total`] },
 ]
+// Como el impreso de hoy, quién movió el stock va debajo del comprobante (en Excel, en la misma celda).
 const columns: Column<Row>[] = [
-  { key: 'voucher', label: t.voucher, help: h.voucher },
+  { key: 'voucher', label: t.voucher, help: h.voucher, value: (r) => (r.party ? `${r.voucher} · ${r.party}` : r.voucher) },
   { key: 'date', label: t.date, format: 'date', width: '6.5rem' },
   ...side('in', [t.inQty, t.inCost, t.inTotal], true),
   ...side('out', [t.outQty, t.outCost, t.outTotal], true),
   ...side('bal', [t.balQty, t.balCost, t.balTotal], false),
-  { key: 'party', label: t.party, help: h.party },
 ]
 
 const title = computed(() => (report.data ? `${report.data.product.name} Cod:${report.data.product.code}` : undefined))
@@ -97,8 +98,18 @@ const closing = computed(() => report.data?.closing)
       :row-class="(r) => (r._id === 'opening' ? 'is-opening' : undefined)"
       landscape
       @retry="report.run()"
-    />
+    >
+      <template #cell-voucher="{ row }">
+        <span class="voucher">{{ row.voucher }}</span>
+        <small v-if="row.party" class="voucher__party">{{ row.party }}</small>
+      </template>
+    </DataTable>
     <EmptyState v-else :message="t.prompt" />
+
+    <p class="recalc">
+      <AppIcon name="info" /> {{ t.recalcNote }}
+      <RouterLink :to="{ name: 'InventoryRecalc' }">{{ t.recalcLink }}</RouterLink>
+    </p>
   </section>
 </template>
 
@@ -107,6 +118,24 @@ const closing = computed(() => report.data?.closing)
   margin-bottom: 0.75rem;
   font-size: $text-sm;
   color: $ink-soft;
+}
+
+.voucher {
+  display: block;
+  font-weight: 500;
+
+  &__party {
+    display: block;
+    color: $ink-muted;
+  }
+}
+
+.recalc {
+  @include flex(row, center, flex-start, 0.4rem);
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  font-size: $text-sm;
+  color: $ink-muted;
 }
 
 :deep(.is-opening td) {
