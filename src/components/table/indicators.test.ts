@@ -12,8 +12,10 @@ test('días de atraso desde número o fecha de vencimiento', () => {
 })
 
 test('chip de vencimiento: al día, ámbar hasta 90, rojo después', () => {
-  assert.deepEqual(overdueIndicator(-3), { level: 'success', label: 'Al día' })
-  assert.deepEqual(overdueIndicator(0), { level: 'success', label: 'Al día' })
+  assert.deepEqual(overdueIndicator(-30), { level: 'success', label: 'Al día' })
+  assert.deepEqual(overdueIndicator(-3), { level: 'info', label: 'Vence en 3 días' })
+  assert.deepEqual(overdueIndicator(-1), { level: 'info', label: 'Vence en 1 día' })
+  assert.deepEqual(overdueIndicator(0), { level: 'warning', label: 'Vence hoy' })
   assert.deepEqual(overdueIndicator(1), { level: 'warning', label: '1 día' })
   assert.deepEqual(overdueIndicator(90), { level: 'warning', label: '90 días' })
   assert.deepEqual(overdueIndicator(120), { level: 'danger', label: '+90 · 120 días' })
