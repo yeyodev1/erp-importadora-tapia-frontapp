@@ -25,12 +25,13 @@ export function useSalesReport() {
 
   const c = t.cols
   const tt = t.totals
-  const money = (key: string, label: string): Column => ({ key, label, format: 'money', total: true })
-  const amounts = [money('subtotal0', tt.subtotal0), money('subtotalVat', tt.subtotalVat), money('discount', tt.discount), money('vat', tt.vat), money('total', tt.total)]
+  const h = t.colHelp
+  const money = (key: string, label: string, help?: string): Column => ({ key, label, help, format: 'money', total: true })
+  const amounts = [money('subtotal0', tt.subtotal0, h.subtotal0), money('subtotalVat', tt.subtotalVat, h.subtotalVat), money('discount', tt.discount, h.discount), money('vat', tt.vat, h.vat), money('total', tt.total)]
 
   const columns = computed<Column[]>(() => {
     if (type.value === 'seller' || type.value === 'customer') {
-      return [{ key: 'name', label: type.value === 'seller' ? c.seller : c.customer }, { key: 'count', label: c.count, format: 'int', total: true }, ...amounts]
+      return [{ key: 'name', label: type.value === 'seller' ? c.seller : c.customer }, { key: 'count', label: c.count, help: h.count, format: 'int', total: true }, ...amounts]
     }
     const head: Column[] = [
       { key: 'warehouse', label: c.warehouse, width: '8rem' },
@@ -42,7 +43,7 @@ export function useSalesReport() {
       return [...head, { key: 'code', label: c.code }, { key: 'name', label: c.product }, { key: 'qty', label: c.qty, format: 'qty' },
         { key: 'unitPrice', label: c.price, format: 'money' }, money('discount', tt.discount), money('subtotal', c.lineTotal)]
     }
-    return [...head, { key: 'hour', label: c.hour, width: '4rem' }, { key: 'sellerName', label: c.seller }, ...amounts]
+    return [...head, { key: 'hour', label: c.hour, help: h.hour, width: '4rem' }, { key: 'sellerName', label: c.seller }, ...amounts]
   })
 
   const rows = computed<Row[]>(() => {
