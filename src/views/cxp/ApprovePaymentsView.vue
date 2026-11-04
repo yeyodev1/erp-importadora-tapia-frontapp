@@ -5,6 +5,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
@@ -113,9 +114,7 @@ async function doCancel() {
       <p v-if="error" class="ap__error" role="alert"><AppIcon name="alert-circle" /> {{ error }}</p>
       <div class="ap__actions">
         <span>{{ t.totalApproved }} <strong class="num">{{ formatMoney(total) }}</strong></span>
-        <button type="button" class="btn btn--primary" :disabled="saving" @click="save">
-          <AppIcon :name="saving ? 'spinner' : 'check'" :spin="saving" /> {{ t.save }}
-        </button>
+        <BaseButton variant="primary" icon="check" :loading="saving" @click="save">{{ t.save }}</BaseButton>
       </div>
     </section>
 
