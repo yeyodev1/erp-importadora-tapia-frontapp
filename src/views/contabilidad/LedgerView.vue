@@ -64,7 +64,7 @@ const columns = computed<Column<Row>[]>(() => [
   { key: 'party', label: h.party, help: h.partyHelp },
   { key: 'debit', label: t.common.debit, help: h.debitHelp, format: 'money', total: true, value: (r) => r.debit || null },
   { key: 'credit', label: t.common.credit, help: h.creditHelp, format: 'money', total: true, value: (r) => r.credit || null },
-  { key: 'balance', label: t.common.balance, help: `${h.previousHelp} ${h.balanceHelp}`, format: 'money', total: true },
+  { key: 'balance', label: t.common.balance, help: `${h.previousHelp} ${h.balanceHelp}`, format: 'amount-signed', total: true },
   { key: 'description', label: t.common.description },
 ])
 
