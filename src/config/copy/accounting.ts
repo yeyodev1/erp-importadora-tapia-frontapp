@@ -117,13 +117,17 @@ export const accounting = {
     print: 'Imprimir',
   },
 
-  journal: { intro: 'Todos los asientos del rango, en orden, con su origen.' },
+  journal: {
+    intro: 'Todos los asientos del rango, en orden, con su origen.',
+    empty: 'No hay asientos entre estas fechas. Cambia el rango y pulsa Consultar.',
+  },
 
   ledger: {
     intro: 'Movimientos de una cuenta con saldo anterior y saldo corrido. Toca una fila para ver el comprobante. Expórtalo a Excel para conciliar.',
     account: { label: 'Cuenta', help: 'Cuenta de movimiento o de mayor; si es de mayor salen todas sus hijas.' },
     pick: 'Elige una cuenta y consulta.',
     previousRow: 'Saldo anterior',
+    empty: 'La cuenta no tiene movimientos entre estas fechas. Cambia el rango y pulsa Consultar.',
   },
 
   trial: {
@@ -140,6 +144,19 @@ export const accounting = {
       { value: 'todas' as const, label: 'Todas' },
       { value: 'mayor' as const, label: 'Solo mayor' },
     ],
+    modeHelp: {
+      acumulado: 'Saldo anterior al 1 de enero y movimientos de enero al fin del mes elegido. El que piden los auditores.',
+      mensual: 'Saldo anterior al inicio del mes y solo los movimientos de ese mes. Sirve para revisar un mes puntual.',
+    } as Record<string, string>,
+    filterHelp: {
+      todas: 'Cuentas de mayor y sus cuentas de movimiento, con todo el detalle.',
+      mayor: 'Solo las cuentas de mayor (los totales por grupo), para un resumen corto.',
+    } as Record<string, string>,
+    empty: 'No hay saldos en este mes. Elige otro período y pulsa Consultar.',
+    periodField: { label: 'Período', help: 'Mes del reporte: saldos al último día del mes. Abre en el mes actual. Ej.: Octubre 2026.' },
+    modeField: { label: 'Tipo de saldo', help: 'Acumulados desde enero o solo el movimiento del mes.' },
+    filterField: { label: 'Cuentas a mostrar', help: 'Todas con su detalle, o solo las de mayor para un resumen.' },
+    previousHelp: 'Lo que la cuenta traía antes: en acumulados, el saldo al 31 de diciembre del año anterior; en mensuales, el saldo al cierre del mes anterior.',
   },
 
   income: {
@@ -152,6 +169,12 @@ export const accounting = {
     sales: 'Ventas',
     cost: 'Costo de ventas',
     margin: 'Margen bruto',
+    amountHelp: 'Valor del rango en positivo: los ingresos suman y los costos y gastos restan de la utilidad.',
+    salesHelp: 'Ventas netas del grupo en el rango (facturas menos notas de crédito).',
+    costHelp: 'Costo de lo vendido, al costo promedio del kardex.',
+    marginHelp: 'Ventas menos costo de ventas del grupo, antes de gastos.',
+    empty: 'No hay ingresos ni gastos entre estas fechas. Cambia el rango y pulsa Consultar.',
+    groupEmpty: 'No hay ventas por grupo de producto en este rango.',
   },
 
   balance: {
@@ -162,6 +185,9 @@ export const accounting = {
     currentResult: 'Resultado del ejercicio en curso',
     totalEquity: 'Total patrimonio',
     totalLe: 'Total pasivo + patrimonio',
+    cutoff: { label: 'Fecha de corte', help: 'Saldos acumulados hasta este día, incluido. Abre en hoy. Ej.: 31/12/2025 para el balance anual.' },
+    amountHelp: 'Saldo de la cuenta a la fecha de corte.',
+    empty: 'No hay saldos a esta fecha. Elige otra fecha de corte y pulsa Consultar.',
   },
 
   comparative: {
@@ -169,6 +195,11 @@ export const accounting = {
     periodA: { label: 'Período A', help: 'Primer mes (saldo al último día).' },
     periodB: { label: 'Período B', help: 'Segundo mes; diferencia = B − A.' },
     difference: 'Diferencia',
+    balanceHelp: 'Saldo acumulado al último día de ese mes.',
+    differenceHelp: 'Período B menos período A: cuánto subió (positivo) o bajó (negativo) la cuenta.',
+    empty: 'No hay saldos en estos meses. Elige otros períodos y pulsa Consultar.',
+    fieldA: { label: 'Período A (base)', help: 'Mes con que se compara. Abre en el mismo mes del año pasado. Ej.: Noviembre 2025.' },
+    fieldB: { label: 'Período B (actual)', help: 'Mes que se compara contra el A; diferencia = B − A. Abre en el mes actual.' },
   },
 
   yearClose: {
