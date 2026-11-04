@@ -4,8 +4,13 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import HelpTip from '@/components/ui/HelpTip.vue'
 import SkeletonBlock from '@/components/ui/SkeletonBlock.vue'
 import type { IconName } from '@/components/ui/icons'
+import { LEVEL_ICON, type Level } from '@/components/ui/levels'
 
-/** Tarjeta del tablero: cifra grande, detalle y enlace a la pantalla que la explica. */
+/**
+ * Tarjeta del tablero: cifra grande, detalle y enlace a la pantalla que la
+ * explica. `level` es el semáforo (franja, icono y color de la cifra);
+ * `delta` la tendencia con flecha verde (sube) o roja (baja).
+ */
 defineProps<{
   /** Opcionales solo con `loading`: la tarjeta vacía se dibuja como skeleton. */
   title?: string
@@ -19,8 +24,10 @@ defineProps<{
   /** Variación en % contra el período anterior; null = sin base para comparar. */
   delta?: number | null
   deltaLabel?: string
-  /** Resalta la cifra cuando hay algo que atender (vencidos, pendientes). */
-  alert?: boolean
+  /** Semáforo: danger = atender ya, warning = revisar, success = al día. Sin nivel: cifra informativa. */
+  level?: Level
+  /** Texto del semáforo ("Al día", "Revisar"): el color nunca va solo. */
+  levelLabel?: string
   loading?: boolean
 }>()
 </script>
@@ -33,11 +40,12 @@ defineProps<{
   </div>
   <!-- La ayuda va fuera del enlace: un botón dentro de un <a> no es válido. -->
   <div v-else class="kpi-box">
-    <component :is="to ? RouterLink : 'div'" :to="to" class="kpi" :class="{ 'kpi--link': to }">
-      <span class="kpi__head"><AppIcon v-if="icon" :name="icon" /> {{ title }}</span>
-      <strong class="kpi__value num" :class="{ 'is-alert': alert }">{{ value }}</strong>
+    <component :is="to ? RouterLink : 'div'" :to="to" class="kpi" :class="[{ 'kpi--link': to }, level && `kpi--${level}`]">
+      <span class="kpi__head"><AppIcon v-if="icon" :name="icon" class="kpi__icon" /> {{ title }}</span>
+      <strong class="kpi__value num">{{ value }}</strong>
+      <span v-if="level && levelLabel" class="kpi__level"><AppIcon :name="LEVEL_ICON[level]" /> {{ levelLabel }}</span>
       <span v-if="delta !== undefined && delta !== null" class="kpi__delta" :class="delta >= 0 ? 'is-up' : 'is-down'">
-        <AppIcon :name="delta >= 0 ? 'chevron-up' : 'chevron-down'" /> {{ Math.abs(delta).toFixed(1) }}% {{ deltaLabel }}
+        <AppIcon :name="delta >= 0 ? 'trend-up' : 'trend-down'" /> {{ delta >= 0 ? '+' : '−' }}{{ Math.abs(delta).toFixed(1) }}% {{ deltaLabel }}
       </span>
       <span v-if="hint" class="kpi__hint">{{ hint }}</span>
       <AppIcon v-if="to" name="chevron-right" class="kpi__go" />
@@ -85,14 +93,36 @@ defineProps<{
     @include flex(row, center, flex-start, 0.4rem);
   }
 
+  &__icon {
+    color: $accent;
+  }
+
   &__value {
     font-size: 1.4rem;
     line-height: 1.2;
     color: $ink;
+  }
 
-    &.is-alert {
-      color: $danger;
+  &__level {
+    @include flex(row, center, flex-start, 0.3rem);
+    font-size: $text-xs;
+    font-weight: 600;
+  }
+
+  // Semáforo: franja izquierda, icono del título y etiqueta en el color del nivel.
+  @each $name, $fg in (danger, $danger), (warning, $warning), (success, $success), (info, $info) {
+    &--#{$name} {
+      border-left: 4px solid $fg;
+
+      .kpi__icon,
+      .kpi__level {
+        color: $fg;
+      }
     }
+  }
+
+  &--danger &__value {
+    color: $danger;
   }
 
   &__delta {
