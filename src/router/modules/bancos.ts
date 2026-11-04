@@ -1,0 +1,77 @@
+import { defineModule } from '../defineModule'
+
+// Caja Bancos: contabilidad graba (igual que requireRoles del API); el auditor solo lee.
+export default defineModule('bancos', [
+  {
+    path: 'transacciones',
+    name: 'BankTransactions',
+    title: 'Transacciones bancarias',
+    section: 'procesos',
+    component: () => import('@/views/bancos/BankTransactionsView.vue'),
+    writers: ['contabilidad'],
+  },
+  {
+    path: 'transacciones/nueva',
+    name: 'BankTransactionNew',
+    title: 'Nueva transacción bancaria',
+    section: 'procesos',
+    component: () => import('@/views/bancos/BankTransactionFormView.vue'),
+    writers: ['contabilidad'],
+    hidden: true,
+  },
+  {
+    path: 'transacciones/:id',
+    name: 'BankTransactionDetail',
+    title: 'Transacción bancaria',
+    section: 'procesos',
+    component: () => import('@/views/bancos/BankTransactionDetailView.vue'),
+    writers: ['contabilidad'],
+    hidden: true,
+  },
+  {
+    path: 'conciliacion',
+    name: 'BankReconciliation',
+    title: 'Conciliación bancaria',
+    section: 'procesos',
+    component: () => import('@/views/bancos/ReconciliationView.vue'),
+    writers: ['contabilidad'],
+  },
+  {
+    path: 'conciliacion/:id',
+    name: 'BankReconciliationWork',
+    title: 'Conciliación bancaria',
+    section: 'procesos',
+    component: () => import('@/views/bancos/ReconciliationWorkView.vue'),
+    writers: ['contabilidad'],
+    hidden: true,
+  },
+  {
+    path: 'cheques-pendientes',
+    name: 'PendingChecks',
+    title: 'Cheques girados y no cobrados',
+    section: 'reportes',
+    component: () => import('@/views/bancos/PendingChecksView.vue'),
+  },
+  {
+    path: 'saldos',
+    name: 'BankBalances',
+    title: 'Saldos de caja y bancos',
+    section: 'reportes',
+    component: () => import('@/views/bancos/BankBalancesView.vue'),
+  },
+  {
+    path: 'libro-bancos',
+    name: 'BankBook',
+    title: 'Libro de bancos',
+    section: 'reportes',
+    component: () => import('@/views/bancos/BankBookView.vue'),
+  },
+  {
+    path: 'bancos-cajas',
+    name: 'BanksBankAccounts',
+    title: 'Bancos y cajas',
+    section: 'mantenimientos',
+    component: () => import('@/views/configuracion/BankAccountsView.vue'),
+    writers: ['contabilidad'],
+  },
+])
