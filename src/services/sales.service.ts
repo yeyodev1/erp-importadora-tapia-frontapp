@@ -74,6 +74,8 @@ export interface CreditNote extends SriFields, Totals {
   invoiceId: string
   invoiceNumber: string
   partyId: string
+  /** Lo agrega el listado del API (la NC guarda solo partyId). */
+  partyName?: string
   date: string
   reason: string
   returnsStock: boolean
@@ -127,6 +129,9 @@ export type ReportType = 'summary' | 'detailed' | 'seller' | 'customer'
 export interface ReportRow extends Totals {
   _id: string
   hour: string
+  /** "001-001" y "000012190": como los separa el reporte del sistema de hoy. */
+  series: string
+  sequential: string
   number: string
   customer: string
   identification: string
@@ -136,7 +141,7 @@ export interface ReportRow extends Totals {
 }
 
 export interface SalesReport {
-  groups?: { warehouse: string; days: { date: string; rows: ReportRow[] }[] }[]
+  groups?: { warehouse: string; days: { date: string; rows: ReportRow[]; totals: Totals & { count: number } }[]; totals: Totals & { count: number } }[]
   items?: (Totals & { key: string; name: string; count: number })[]
   totals: Totals & { count: number }
 }
