@@ -4,6 +4,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
+import SkeletonBlock from '@/components/ui/SkeletonBlock.vue'
 import FormField from '@/components/ui/FormField.vue'
 import ConfirmModal from '@/components/ui/ConfirmModal.vue'
 import DataTable from '@/components/table/DataTable.vue'
@@ -54,7 +55,7 @@ const movementCols: Column<Movement>[] = [
     </PageHeader>
 
     <EmptyState v-if="d.error.value" tone="error" :message="d.error.value" @retry="d.load" />
-    <p v-else-if="d.loading.value && !invoice" class="inv__loading"><AppIcon name="spinner" spin /></p>
+    <section v-else-if="d.loading.value && !invoice" class="panel panel--pad" aria-busy="true"><SkeletonBlock :lines="4" /></section>
 
     <template v-else-if="invoice">
       <div class="panel panel--pad inv__head">
@@ -108,11 +109,6 @@ const movementCols: Column<Movement>[] = [
 <style scoped lang="scss">
 .inv {
   @include flex(column, stretch, flex-start, 0.75rem);
-
-  &__loading {
-    text-align: center;
-    color: $ink-muted;
-  }
 
   &__head {
     @include flex-cards(180px, 1rem);
