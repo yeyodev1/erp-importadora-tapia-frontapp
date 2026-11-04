@@ -1,0 +1,71 @@
+import { defineModule } from '../defineModule'
+
+export default defineModule('facturacion', [
+  {
+    path: 'facturas',
+    name: 'Invoices',
+    title: 'Facturas',
+    section: 'procesos',
+    component: () => import('@/views/facturacion/InvoicesView.vue'),
+  },
+  {
+    path: 'facturas/nueva',
+    name: 'InvoiceNew',
+    title: 'Nueva factura',
+    section: 'procesos',
+    component: () => import('@/views/facturacion/InvoiceNewView.vue'),
+    hidden: true,
+  },
+  {
+    path: 'facturas/:id',
+    name: 'InvoiceDetail',
+    title: 'Factura',
+    section: 'procesos',
+    component: () => import('@/views/facturacion/InvoiceDetailView.vue'),
+    hidden: true,
+  },
+  {
+    path: 'notas-credito',
+    name: 'CreditNotes',
+    title: 'Notas de crédito',
+    section: 'procesos',
+    component: () => import('@/views/facturacion/CreditNotesView.vue'),
+  },
+  {
+    path: 'notas-debito',
+    name: 'DebitNotes',
+    title: 'Notas de débito',
+    section: 'procesos',
+    component: () => import('@/views/facturacion/DebitNotesView.vue'),
+  },
+  {
+    path: 'proformas',
+    name: 'Quotes',
+    title: 'Proformas',
+    section: 'procesos',
+    component: () => import('@/views/facturacion/QuotesView.vue'),
+  },
+  {
+    path: 'reporte-ventas',
+    name: 'SalesReport',
+    title: 'Ventas',
+    section: 'reportes',
+    component: () => import('@/views/facturacion/SalesReportView.vue'),
+  },
+  {
+    path: 'mas-vendidos',
+    name: 'TopProducts',
+    title: 'Más vendidos',
+    section: 'reportes',
+    component: () => import('@/views/facturacion/TopProductsView.vue'),
+  },
+  {
+    path: 'clientes',
+    name: 'BillingCustomers',
+    title: 'Clientes',
+    section: 'mantenimientos',
+    component: () => import('@/views/configuracion/PartiesView.vue'),
+    writers: ['contabilidad', 'facturacion', 'cartera'],
+    props: { kind: 'customer' },
+  },
+])
