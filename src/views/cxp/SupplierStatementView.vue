@@ -7,6 +7,7 @@ import ReportFilters from '@/components/report/ReportFilters.vue'
 import { defaultFilters } from '@/components/report/filters'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { overdueRow } from '@/components/table/indicators'
 import { useReport } from '@/composables/purchases/useReport'
 import { purchasesService } from '@/services/purchases.service'
 import { formatMoney } from '@/utils/money'
@@ -20,14 +21,17 @@ const filters = ref(defaultFilters({ from: `${new Date().getFullYear()}-01-01`, 
 const report = useReport(() => purchasesService.statement(filters.value.partyId, { from: filters.value.from || undefined, to: filters.value.to || undefined }))
 const data = computed(() => report.data as { supplier: { name: string; identification: string }; opening: number; closing: number } | null)
 
+// Solo las facturas que aún deben algo tienen atraso; las pagadas no se marcan.
+const openDue = (r: { kind?: string; open?: number; dueDate?: string }) => (r.kind === 'factura' && (r.open ?? 0) > 0 ? r.dueDate : null)
 const columns: Column[] = [
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
   { key: 'kind', label: 'Movimiento', value: (r) => cxp.kinds[r.kind] ?? r.kind, help: t.columns.kind },
   { key: 'docNumber', label: 'Factura', width: '11rem' },
   { key: 'dueDate', label: 'Vencimiento', format: 'date', width: '7rem' },
+  { key: 'overdue', label: 'Atraso', format: 'days-overdue', value: openDue, width: '8rem', help: t.columns.overdue },
   { key: 'charge', label: 'Facturado', format: 'money', total: true, help: t.columns.charge },
   { key: 'credit', label: 'Abonado', format: 'money', total: true, help: t.columns.credit },
-  { key: 'balance', label: 'Saldo', format: 'money', help: t.columns.runningBalance },
+  { key: 'balance', label: 'Saldo', format: 'amount-signed', help: t.columns.runningBalance },
 ]
 
 function run(summary: string[]) {
@@ -53,6 +57,7 @@ onMounted(() => filters.value.partyId && run([]))
         :loading="report.loading"
         :error="report.error"
         :empty-message="t.emptyStatement"
+        :row-class="(r) => overdueRow(openDue(r))"
         :filters-text="[...report.summary, `${t.opening}: ${formatMoney(data?.opening)}`]"
         @retry="run(report.summary)"
       >
