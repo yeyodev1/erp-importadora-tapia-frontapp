@@ -9,17 +9,17 @@ const f = (label: string, help: string, placeholder?: string): Field => ({ label
 export const accountingScreens = {
   /** Ayuda (?) de columnas que se repiten en varios reportes. */
   columns: {
-    entryType: 'Tipo de asiento',
-    entryTypeHelp: 'Qué documento generó el asiento: diario manual, venta, cobro, compra, pago, banco, inventario, cierre o reverso.',
-    party: 'Cliente / proveedor',
-    partyHelp: 'Cliente, proveedor o empleado al que se cargó la línea, si la cuenta lo pide.',
+    entryType: 'Tipo de comprobante',
+    entryTypeHelp: 'Igual que en el sistema anterior. Qué documento generó el asiento: diario manual, venta, cobro, compra, pago, banco, inventario, cierre o reverso.',
+    party: 'Beneficiario',
+    partyHelp: 'Cliente, proveedor o empleado al que se cargó la línea (a quién se giró el cheque o a quién se le debe), si la cuenta lo pide.',
     previousHelp: 'Saldo de la cuenta antes de la primera fecha del reporte: lo que venía acumulado.',
     debitHelp: 'Valores cargados a la cuenta. Aumentan activos y gastos; bajan pasivos, patrimonio e ingresos.',
     creditHelp: 'Valores abonados a la cuenta. Aumentan pasivos, patrimonio e ingresos; bajan activos y gastos.',
     balanceHelp: 'Saldo anterior + debe − haber. En el mayor es el saldo corrido después de cada movimiento.',
     costCenterHelp: 'Área o centro de costo al que se carga el gasto, si la cuenta lo controla.',
     amountHelp: 'Total del asiento: la suma del debe (igual a la del haber).',
-    statusHelp: 'Contabilizado: vale en los reportes. Anulado: se compensó con su reverso y no suma.',
+    statusHelp: 'Contabilizado (lo que antes era «Mayorizado», aquí sin paso aparte): vale en los reportes. Anulado: se compensó con su reverso y no suma.',
     sourceHelp: 'Módulo y documento que generaron el asiento. Ej.: Facturación · 001-001-000012190.',
   },
 
@@ -54,7 +54,7 @@ export const accountingScreens = {
   vouchers: {
     fields: {
       number: f('Número del asiento', 'Número completo o una parte. Ej.: DIA-000123.', 'Ej.: DIA-000123'),
-      type: f('Tipo de asiento', 'Filtra por el documento que generó el asiento. Ej.: Venta, Cobro, Diario.'),
+      type: f('Tipo de comprobante', 'Filtra por el documento que generó el asiento. Ej.: Venta, Cobro, Diario.'),
       module: f('Módulo de origen', 'Módulo que grabó el asiento. Ej.: Facturación.'),
       account: f('Cuenta contable', 'Asientos que tocan esta cuenta; si es de mayor, también sus hijas. Ej.: 1.1.01.01.02.001 Caja General por Facturación.'),
       q: f('Buscar en el texto', 'Busca en la descripción, el detalle de las líneas y el número del documento. Ej.: arriendo.', 'Ej.: arriendo bodega'),
@@ -64,7 +64,18 @@ export const accountingScreens = {
     empty: 'No hay asientos con estos filtros. Cambia las fechas o usa "Nuevo comprobante" para registrar uno.',
   },
 
+  /** "Mayorizado" del sistema anterior: aquí no existe el paso, todo nace contabilizado. */
+  mayorized: f(
+    'Mayorizado',
+    'En el sistema anterior había que mayorizar a mano (y a veces desmayorizar y encerar saldos para que cuadre). Aquí no hace falta: todo comprobante queda contabilizado al grabarlo y los saldos se calculan siempre desde los asientos, así que nunca se descuadran.',
+  ),
+  mayorizedNote: 'Queda contabilizado al grabar (lo que antes era «Mayorizado»)',
+  /** Firmas al pie del comprobante impreso, como en el "Asiento proveedores" de hoy. */
+  signatures: ['ELABORADO POR', 'REVISADO', 'RECIBIDO', 'CONTADOR', 'GERENTE'],
+
   detail: {
+    beneficiary: 'Beneficiario',
+    beneficiaryHelp: 'Cliente, proveedor o empleado de las líneas del asiento. En un cheque, a quién se giró.',
     subtitle: 'Líneas del asiento, quién lo grabó y cuándo, y el documento que lo originó.',
     reason: f('Motivo de anulación', 'Por qué se anula. Queda en el asiento de reverso y en la auditoría.', 'Ej.: Se registró en la cuenta equivocada'),
     empty: 'Este asiento no tiene líneas.',
