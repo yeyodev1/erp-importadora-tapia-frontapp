@@ -9,6 +9,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import HelpTip from '@/components/ui/HelpTip.vue'
 import TablePagination from './TablePagination.vue'
+import TableCell from './TableCell.vue'
 import { alignOf, computeTotals, formatValue, rawValue, type Column } from './columns'
 import type { ApiError } from '@/types'
 
@@ -40,7 +41,7 @@ const props = withDefaults(
     exportable?: boolean
     landscape?: boolean
     clickable?: boolean
-    /** Resalta filas (anuladas, por ejemplo): devuelve una clase. */
+    /** Resalta filas: 'is-void' (anulada), 'is-warning' / 'is-danger' (vencida, bajo mínimo…). */
     rowClass?: (row: T) => string | undefined
     /** Tabla vacía: qué hacer ("Usa 'Nuevo cobro' para registrar uno"). */
     emptyTitle?: string
@@ -150,7 +151,7 @@ const stale = computed(() => props.loading && props.rows.length > 0)
             @keydown.enter="clickable && emit('row-click', row)"
           >
             <td v-for="c in columns" :key="c.key" :class="`is-${alignOf(c)}`">
-              <slot :name="`cell-${c.key}`" :row="row" :value="rawValue(c, row)">{{ formatValue(c, rawValue(c, row)) }}</slot>
+              <slot :name="`cell-${c.key}`" :row="row" :value="rawValue(c, row)"><TableCell :col="c" :row="row" /></slot>
             </td>
           </tr>
         </tbody>
@@ -200,9 +201,7 @@ const stale = computed(() => props.loading && props.rows.length > 0)
     animation: fade-in 0.16s ease-out;
   }
 
-  .skeleton {
-    display: inline-block;
-  }
+  .skeleton { display: inline-block; }
 
   &__bar {
     @include flex(row, center, space-between, 0.5rem);
@@ -273,6 +272,12 @@ const stale = computed(() => props.loading && props.rows.length > 0)
   tbody tr.is-void td {
     color: $ink-muted;
     text-decoration: line-through;
+  }
+
+  // Filas por nivel: fondo tenue del estado y franja a la izquierda (se lee sin depender del color).
+  @each $lvl, $fg, $bg in (warning, $warning, $warning-bg), (danger, $danger, $danger-bg) {
+    tbody tr.is-#{$lvl} td { background: $bg; }
+    tbody tr.is-#{$lvl} td:first-child { box-shadow: inset 3px 0 $fg; }
   }
 
   tfoot td {
