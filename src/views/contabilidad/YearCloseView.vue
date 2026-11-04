@@ -18,10 +18,13 @@ import { useToastStore } from '@/stores/toast'
 import { formatDateTime, todayISO } from '@/utils/format'
 import { formatMoney } from '@/utils/money'
 import { accounting as t } from '@/config/copy/accounting'
+import { accountingScreens } from '@/config/copy/accountingScreens'
 import type { ApiError } from '@/types'
 
 /** Cierre anual: asiento CIERRE al 31-dic y bloqueo del año; reabrir lo reversa. */
 const c = t.yearClose
+const s = accountingScreens.yearClose
+const h = accountingScreens.columns
 const { canWrite } = useAccess()
 const toast = useToastStore()
 const catalog = useCatalogStore()
@@ -69,12 +72,12 @@ const reopen = (reason: string) =>
   })
 
 const columns: Column<YearCloseEntry>[] = [
-  { key: 'year', label: c.year.label, value: (r) => r.source.docNumber },
+  { key: 'year', label: c.year.label, help: s.yearHelp, value: (r) => r.source.docNumber },
   { key: 'number', label: t.common.number },
   { key: 'date', label: t.common.date, format: 'date' },
-  { key: 'totalDebit', label: t.common.amount, format: 'money' },
-  { key: 'by', label: c.by, value: (r) => `${r.createdBy?.name ?? ''} · ${r.createdAt ? formatDateTime(r.createdAt) : ''}` },
-  { key: 'status', label: t.common.status },
+  { key: 'totalDebit', label: t.common.amount, help: h.amountHelp, format: 'money' },
+  { key: 'by', label: c.by, help: s.byHelp, value: (r) => `${r.createdBy?.name ?? ''} · ${r.createdAt ? formatDateTime(r.createdAt) : ''}` },
+  { key: 'status', label: t.common.status, help: h.statusHelp },
   { key: 'actions', label: '', screenOnly: true },
 ]
 </script>
@@ -85,7 +88,7 @@ const columns: Column<YearCloseEntry>[] = [
 
     <div v-if="canWrite" class="panel panel--pad yc">
       <div class="form-grid">
-        <FormField v-bind="c.year" for="yc-year" class="narrow">
+        <FormField v-bind="s.year" for="yc-year" class="narrow">
           <BaseCombobox id="yc-year" v-model="year" :options="years" />
         </FormField>
         <FormField :label="c.transfer.label" :help="c.transfer.help">
@@ -98,7 +101,7 @@ const columns: Column<YearCloseEntry>[] = [
     </div>
 
     <h2 class="yc__title">{{ c.list }}</h2>
-    <DataTable :columns="columns" :rows="list.data.value ?? []" :loading="list.loading.value" :error="list.error.value" :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)" @retry="list.run">
+    <DataTable :columns="columns" :rows="list.data.value ?? []" :loading="list.loading.value" :error="list.error.value" :empty-message="s.empty" :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)" @retry="list.run">
       <template #cell-number="{ row }">
         <RouterLink class="yc__link mono" :to="{ name: 'VoucherDetail', params: { id: row._id } }">{{ row.number }}</RouterLink>
       </template>
@@ -108,7 +111,6 @@ const columns: Column<YearCloseEntry>[] = [
           <AppIcon name="unlock" /> {{ c.reopen }}
         </button>
       </template>
-      <template #empty><p class="yc__empty">{{ c.none }}</p></template>
     </DataTable>
 
     <ConfirmModal
@@ -130,7 +132,7 @@ const columns: Column<YearCloseEntry>[] = [
       :subject="reopening?.number"
       :message="c.reopenMessage"
       :second-message="c.reopenSecond"
-      :reason="c.reason"
+      :reason="s.reason"
       :loading="saving"
       :error="error"
       @confirm="reopen"
@@ -157,12 +159,6 @@ const columns: Column<YearCloseEntry>[] = [
   &__link {
     color: $accent;
     text-decoration: underline;
-  }
-
-  &__empty {
-    padding: 1rem;
-    color: $ink-muted;
-    font-size: $text-sm;
   }
 }
 </style>
