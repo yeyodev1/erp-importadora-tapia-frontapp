@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import HelpTip from '@/components/ui/HelpTip.vue'
 import FormField from '@/components/ui/FormField.vue'
 import BaseCombobox from '@/components/ui/BaseCombobox.vue'
@@ -53,9 +54,7 @@ async function createSupplier() {
         <h3 class="ih__title">{{ b.supplier }}</h3>
         <span class="ih__actions">
           <slot name="xml" />
-          <button v-if="fromXml" type="button" class="btn btn--sm btn--primary" :disabled="creating" @click="createSupplier">
-            <AppIcon :name="creating ? 'spinner' : 'plus'" :spin="creating" /> {{ t.createSupplier }}
-          </button>
+          <BaseButton v-if="fromXml" variant="primary" size="sm" icon="plus" :loading="creating" @click="createSupplier">{{ t.createSupplier }}</BaseButton>
           <RouterLink v-else :to="{ name: 'PayablesSuppliers' }" target="_blank" class="btn btn--sm btn--ghost">
             <AppIcon name="plus" /> {{ t.createSupplier }}
           </RouterLink>
