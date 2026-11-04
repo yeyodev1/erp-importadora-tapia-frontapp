@@ -37,7 +37,7 @@ const pending = useList(
   () => ({ status: 'pendiente' }),
 )
 const columns: Column<PaymentApproval>[] = [
-  { key: 'number', label: 'N.°', format: 'int', width: '5rem' },
+  { key: 'number', label: 'Número', format: 'int', width: '5rem' },
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
   { key: 'beneficiary', label: 'Beneficiario', value: (a) => a.beneficiaryId?.name },
   { key: 'invoices', label: 'Facturas', value: (a) => a.lines.map((l) => l.invoiceId?.docNumber).join(', ') },
@@ -93,21 +93,21 @@ async function doCancel() {
 
 <template>
   <section class="ap">
-    <PageHeader />
+    <PageHeader :subtitle="cxp.pages.approvals" />
     <p class="ap__note" role="note"><AppIcon name="info" /> {{ t.noAccounting }}</p>
 
     <PayableInvoicesGrid ref="grid" v-model="lines" allow-all :reload-key="reloadKey" />
 
     <section v-if="canWrite" class="panel panel--pad">
       <div class="form-grid">
-        <FormField label="Fecha" for="ap-date" class="narrow">
+        <FormField v-bind="t.fields.date" for="ap-date" class="narrow">
           <BaseDatePicker id="ap-date" v-model="form.date" />
         </FormField>
         <FormField v-bind="t.fields.beneficiary" for="ap-benef" :required="manySuppliers">
           <PartyPicker id="ap-benef" v-model="form.beneficiaryId" clearable />
         </FormField>
         <FormField v-bind="t.fields.note" for="ap-note">
-          <input id="ap-note" v-model="form.note" maxlength="200" />
+          <input id="ap-note" v-model="form.note" maxlength="200" :placeholder="t.notePlaceholder" />
         </FormField>
       </div>
       <p v-if="error" class="ap__error" role="alert"><AppIcon name="alert-circle" /> {{ error }}</p>
@@ -120,7 +120,7 @@ async function doCancel() {
     </section>
 
     <h3 class="ap__title">{{ t.pendingList }}</h3>
-    <DataTable :columns="columns" :rows="pending.items" :loading="pending.loading" :error="pending.error" :page="pending.page" :pages="pending.pages" :total="pending.total" @update:page="pending.page = $event" @retry="pending.reload">
+    <DataTable :columns="columns" :rows="pending.items" :loading="pending.loading" :error="pending.error" :page="pending.page" :pages="pending.pages" :total="pending.total" :empty-message="t.empty" @update:page="pending.page = $event" @retry="pending.reload">
       <template #cell-actions="{ row }">
         <button v-if="canWrite" type="button" class="btn btn--ghost btn--sm" @click="cancelling = row"><AppIcon name="x" /> Anular</button>
       </template>
