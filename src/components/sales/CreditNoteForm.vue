@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { lineHelp } from '@/config/copy/lineHelp'
 import FormField from '@/components/ui/FormField.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import BaseSwitch from '@/components/ui/BaseSwitch.vue'
@@ -23,13 +24,13 @@ const f = t.fields
 const c = t.cols
 
 const columns: LineColumn<NcLine>[] = [
-  { key: 'name', label: c.product, type: 'readonly', width: '30%', value: (l) => `${l.code} · ${l.name}` },
-  { key: 'sold', label: c.sold, type: 'readonly', format: 'qty', width: '6rem' },
-  { key: 'left', label: c.available, type: 'readonly', format: 'qty', width: '6rem' },
-  { key: 'qty', label: c.qty, width: '7rem' },
-  { key: 'unitPrice', label: c.price, width: '8rem' },
-  { key: 'discount', label: c.discount, width: '7rem' },
-  { key: 'subtotal', label: c.lineTotal, type: 'readonly', format: 'money', total: true, width: '8rem', value: (l) => (l.qty ? lineSubtotal(l) : null) },
+  { key: 'name', label: c.product, type: 'readonly', width: '30%', value: (l) => `${l.code} · ${l.name}`, help: lineHelp.product },
+  { key: 'sold', label: c.sold, type: 'readonly', format: 'qty', width: '6rem', help: lineHelp.sold },
+  { key: 'left', label: c.available, type: 'readonly', format: 'qty', width: '6rem', help: lineHelp.available },
+  { key: 'qty', label: c.qty, width: '7rem', help: lineHelp.returnQty },
+  { key: 'unitPrice', label: c.price, width: '8rem', help: lineHelp.price },
+  { key: 'discount', label: c.discount, width: '7rem', help: lineHelp.discount },
+  { key: 'subtotal', label: c.lineTotal, type: 'readonly', format: 'money', total: true, width: '8rem', value: (l) => (l.qty ? lineSubtotal(l) : null), help: lineHelp.lineTotal },
 ]
 
 function onParty() {
