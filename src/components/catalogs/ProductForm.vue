@@ -12,7 +12,7 @@ import { useCatalogStore } from '@/stores/catalog'
 import { site } from '@/config/site'
 import type { ProductForm } from './productForm'
 
-/** Producto: datos generales, doble unidad (control + compra con factor), control/IVA y listas de precios. */
+/** Ficha de producto: datos generales, doble unidad (control + compra con factor), clasificación, control/IVA y lista de precios. */
 defineProps<{ readonly?: boolean }>()
 const form = defineModel<ProductForm>({ required: true })
 
@@ -35,6 +35,11 @@ const vatRates = [
   { value: 0 as const, label: t.vat[0], help: t.vatHelp[0] },
   { value: 15 as const, label: t.vat[15], help: t.vatHelp[15] },
 ]
+// "Calc." de la ficha de hoy, a la vista: 1 SACOS = 100 LIBRAS.
+const calc = computed(() => {
+  const { name, factor } = form.value.purchaseUnit
+  return name && factor ? `1 ${name.toUpperCase()} = ${factor} ${form.value.unit.toUpperCase()}` : undefined
+})
 const priceColumns: LineColumn[] = [
   { key: 'list', label: f.priceList.label, type: 'text', placeholder: 'GENERAL' },
   { key: 'price', label: f.price.label, type: 'money' },
@@ -42,19 +47,30 @@ const priceColumns: LineColumn[] = [
 </script>
 
 <template>
+  <!-- Mismo orden que la ficha de Producto de hoy: producto y códigos, unidades con factor, grupo/subgrupo/proveedor/ubicación/mínimo, checks y lista de precios. -->
   <div class="form-grid">
+    <FormField v-bind="f.name" for="pr-name" required full>
+      <input id="pr-name" v-model="form.name" required :placeholder="t.ph.name" />
+    </FormField>
     <FormField v-bind="f.code" for="pr-code" required class="narrow">
       <input id="pr-code" v-model="form.code" class="mono" required :placeholder="t.ph.code" />
     </FormField>
     <FormField v-bind="f.barcode" for="pr-bar" class="narrow">
       <input id="pr-bar" v-model="form.barcode" class="mono" inputmode="numeric" :placeholder="t.ph.barcode" />
     </FormField>
-    <FormField v-bind="f.kind">
-      <BaseSegmented v-model="form.kind" :options="kinds" :label="f.kind.label" />
+
+    <p class="form-section full">{{ t.unitsSection }}</p>
+    <FormField v-bind="f.unit" for="pr-unit" required>
+      <input id="pr-unit" v-model="form.unit" class="upper" required :placeholder="t.ph.unit" />
     </FormField>
-    <FormField v-bind="f.name" for="pr-name" required full>
-      <input id="pr-name" v-model="form.name" required :placeholder="t.ph.name" />
+    <FormField v-bind="f.factor" for="pr-factor" required :hint="calc">
+      <QtyInput id="pr-factor" v-model="form.purchaseUnit.factor" :unit="form.unit" />
     </FormField>
+    <FormField v-bind="f.purchaseUnitName" for="pr-punit">
+      <input id="pr-punit" v-model="form.purchaseUnit.name" class="upper" :placeholder="t.ph.purchaseUnitName" />
+    </FormField>
+
+    <p class="form-section full">{{ t.classSection }}</p>
     <FormField v-bind="f.groupId" for="pr-group" required>
       <BaseCombobox id="pr-group" v-model="form.groupId" :options="groups" :loading="!catalog.loaded.productGroups" placeholder="Elegir grupo" />
     </FormField>
@@ -67,22 +83,14 @@ const priceColumns: LineColumn[] = [
     <FormField v-bind="f.location" for="pr-loc">
       <input id="pr-loc" v-model="form.location" :placeholder="t.ph.location" />
     </FormField>
-
-    <p class="form-section full">{{ t.unitsSection }}</p>
-    <FormField v-bind="f.unit" for="pr-unit" required>
-      <input id="pr-unit" v-model="form.unit" class="upper" required :placeholder="t.ph.unit" />
-    </FormField>
-    <FormField v-bind="f.purchaseUnitName" for="pr-punit">
-      <input id="pr-punit" v-model="form.purchaseUnit.name" class="upper" :placeholder="t.ph.purchaseUnitName" />
-    </FormField>
-    <FormField v-bind="f.factor" for="pr-factor" required>
-      <QtyInput id="pr-factor" v-model="form.purchaseUnit.factor" :unit="form.unit" />
-    </FormField>
     <FormField v-bind="f.minQty" for="pr-min">
       <QtyInput id="pr-min" v-model="form.minQty" :unit="form.unit" />
     </FormField>
 
     <p class="form-section full">{{ t.controlSection }}</p>
+    <FormField v-bind="f.kind">
+      <BaseSegmented v-model="form.kind" :options="kinds" :label="f.kind.label" />
+    </FormField>
     <FormField v-bind="f.vatRate">
       <BaseSegmented v-model="form.vatRate" :options="vatRates" :label="f.vatRate.label" />
     </FormField>
