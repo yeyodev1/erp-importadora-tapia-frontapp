@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppIcon from '@/components/ui/AppIcon.vue'
+import HelpTip from '@/components/ui/HelpTip.vue'
 import type { ReconSummary } from '@/services/banks.service'
 import { bancos } from '@/config/copy/bancos'
 import { formatMoney } from '@/utils/money'
@@ -14,10 +15,10 @@ const t = bancos.rec.summary
     <p class="form-section">{{ t.title }}</p>
     <div class="rs__totals">
       <div class="rs__kpi">
-        <span>{{ t.statement }}</span><strong class="num">{{ formatMoney(summary.statementBalance) }}</strong>
+        <span>{{ t.statement }} <HelpTip :text="t.help.statement" /></span><strong class="num">{{ formatMoney(summary.statementBalance) }}</strong>
       </div>
       <div class="rs__kpi">
-        <span>{{ t.book }}</span><strong class="num">{{ formatMoney(summary.bookBalance) }}</strong>
+        <span>{{ t.book }} <HelpTip :text="t.help.book" /></span><strong class="num">{{ formatMoney(summary.bookBalance) }}</strong>
       </div>
     </div>
 
@@ -26,11 +27,11 @@ const t = bancos.rec.summary
         <thead>
           <tr>
             <th>{{ t.type }}</th>
-            <th class="num">{{ t.previous }}</th>
-            <th class="num">{{ t.pending }}</th>
-            <th class="num">{{ t.bookCol }}</th>
-            <th class="num">{{ t.records }}: {{ t.pending }}</th>
-            <th class="num">{{ t.cleared }}</th>
+            <th class="num"><span class="rs__th">{{ t.previous }} <HelpTip :text="t.help.previous" /></span></th>
+            <th class="num"><span class="rs__th">{{ t.pending }} <HelpTip :text="t.help.pending" /></span></th>
+            <th class="num"><span class="rs__th">{{ t.bookCol }} <HelpTip :text="t.help.bookCol" /></span></th>
+            <th class="num"><span class="rs__th">{{ t.records }}: {{ t.pending }} <HelpTip :text="t.help.recordsPending" /></span></th>
+            <th class="num"><span class="rs__th">{{ t.records }}: {{ t.cleared }} <HelpTip :text="t.help.cleared" /></span></th>
           </tr>
         </thead>
         <tbody>
@@ -48,10 +49,10 @@ const t = bancos.rec.summary
 
     <div class="rs__totals">
       <div class="rs__kpi">
-        <span>{{ t.adjusted }}</span><strong class="num">{{ formatMoney(summary.adjustedBalance) }}</strong>
+        <span>{{ t.adjusted }} <HelpTip :text="t.help.adjusted" /></span><strong class="num">{{ formatMoney(summary.adjustedBalance) }}</strong>
       </div>
       <div class="rs__kpi" :class="{ 'is-off': !summary.balanced }">
-        <span>{{ t.difference }}</span><strong class="num">{{ formatMoney(summary.difference) }}</strong>
+        <span>{{ t.difference }} <HelpTip :text="t.help.difference" /></span><strong class="num">{{ formatMoney(summary.difference) }}</strong>
       </div>
     </div>
     <p class="rs__msg" :class="summary.balanced ? 'is-ok' : 'is-off'">
@@ -77,6 +78,7 @@ const t = bancos.rec.summary
     border-radius: 6px;
 
     span {
+      @include flex(row, center, flex-start, 0.3rem);
       font-size: 0.8rem;
       color: $ink-muted;
     }
@@ -84,6 +86,10 @@ const t = bancos.rec.summary
     &.is-off strong {
       color: $danger;
     }
+  }
+
+  &__th {
+    @include flex(row, center, flex-end, 0.25rem);
   }
 
   &__scroll {
