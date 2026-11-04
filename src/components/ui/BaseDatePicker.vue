@@ -4,6 +4,7 @@ import AppIcon from './AppIcon.vue'
 import { usePopover } from '@/composables/usePopover'
 import { useCalendarMonth, useDateRange, WEEKDAYS } from '@/composables/useCalendarMonth'
 import { formatDay, todayISO } from '@/utils/format'
+import { site } from '@/config/site'
 
 const props = defineProps<{
   id: string
@@ -37,7 +38,7 @@ const { disabled: isDayDisabled, cellClass, dayClass } = useDateRange({
 })
 
 const short = (iso: string) => formatDay(iso)
-const label = computed(() => (model.value ? short(model.value) : props.placeholder))
+const label = computed(() => (model.value ? short(model.value) : props.placeholder || site.common.pickDate))
 
 watch(open, async (value) => {
   if (!value) return
