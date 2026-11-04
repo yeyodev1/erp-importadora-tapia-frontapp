@@ -25,14 +25,14 @@ const columns: Column<Account>[] = [
   { key: 'code', label: t.fields.code.label, width: '11rem' },
   // En Excel e impresión la sangría va con espacios duros.
   { key: 'name', label: t.fields.name.label, value: (a) => '  '.repeat(a.level - 1) + a.name },
-  { key: 'kind', label: t.fields.kind.label, value: (a) => t[a.kind], width: '7rem' },
-  { key: 'flags', label: 'Marcas', value: (a) => [a.isExpense && 'Gasto', a.requiresCostCenter && 'C. costo'].filter(Boolean).join(', ') },
-  { key: 'isActive', label: 'Estado', value: (a) => (a.isActive ? site.common.active : site.common.inactive), width: '6rem' },
+  { key: 'kind', label: t.fields.kind.label, help: t.fields.kind.help, value: (a) => t[a.kind], width: '7rem' },
+  { key: 'flags', label: t.cols.flags.label, help: t.cols.flags.help, value: (a) => [a.isExpense && t.cols.expense, a.requiresCostCenter && t.cols.costCenter].filter(Boolean).join(', ') },
+  { key: 'isActive', label: t.cols.status.label, help: t.cols.status.help, value: (a) => (a.isActive ? site.common.active : site.common.inactive), width: '6rem' },
   { key: 'actions', label: '', screenOnly: true, width: '7rem' },
 ]
-const kinds: { value: AccountKind; label: string }[] = [
-  { value: 'mayor', label: t.mayor },
-  { value: 'movimiento', label: t.movimiento },
+const kinds: { value: AccountKind; label: string; help: string }[] = [
+  { value: 'mayor', label: t.mayor, help: t.kindHelp.mayor },
+  { value: 'movimiento', label: t.movimiento, help: t.kindHelp.movimiento },
 ]
 
 interface AccountForm {
@@ -71,7 +71,7 @@ const addChild = (parent: Account) => editor.openNew({ code: `${parent.code}.` }
 
 <template>
   <section>
-    <PageHeader>
+    <PageHeader :subtitle="t.subtitle">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="editor.openNew()"><AppIcon name="plus" /> {{ t.add }}</button>
     </PageHeader>
 
@@ -81,6 +81,7 @@ const addChild = (parent: Account) => editor.openNew({ code: `${parent.code}.` }
       :loading="tree.state.loading"
       :error="tree.state.error"
       :total="tree.rows.value.length"
+      :empty-message="t.empty"
       clickable
       @row-click="edit"
       @retry="tree.load"
@@ -119,13 +120,13 @@ const addChild = (parent: Account) => editor.openNew({ code: `${parent.code}.` }
     <EditorDialog :editor="editor" :title-new="t.newTitle" :title-edit="t.editTitle" :readonly="!canWrite">
       <div class="form-grid">
         <FormField v-bind="t.fields.code" for="ac-code" required :hint="editor.id ? t.codeLocked : undefined">
-          <input id="ac-code" v-model="editor.form.code" class="mono" :disabled="!!editor.id" placeholder="1.1.01.02.01.004" required />
+          <input id="ac-code" v-model="editor.form.code" class="mono" :disabled="!!editor.id" :placeholder="t.ph.code" required />
         </FormField>
         <FormField v-bind="t.fields.kind">
           <BaseSegmented v-model="editor.form.kind" :options="kinds" :label="t.fields.kind.label" />
         </FormField>
         <FormField v-bind="t.fields.name" for="ac-name" required full>
-          <input id="ac-name" v-model="editor.form.name" required />
+          <input id="ac-name" v-model="editor.form.name" required :placeholder="t.ph.name" />
         </FormField>
         <BaseSwitch v-model="editor.form.isExpense" v-bind="t.fields.isExpense" />
         <BaseSwitch v-model="editor.form.requiresCostCenter" v-bind="t.fields.requiresCostCenter" />
