@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, reactive, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import SearchInput from '@/components/ui/SearchInput.vue'
 import BaseSwitch from '@/components/ui/BaseSwitch.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
+import AlertBanner from '@/components/ui/AlertBanner.vue'
 import FormField from '@/components/ui/FormField.vue'
 import PartyPicker from '@/components/pickers/PartyPicker.vue'
 import DataTable from '@/components/table/DataTable.vue'
 import type { Column } from '@/components/table/columns'
+import { overdueRow, sriRow } from '@/components/table/indicators'
 import { useList } from '@/composables/useList'
 import { useAccess } from '@/composables/useAccess'
 import { purchasesService } from '@/services/purchases.service'
@@ -21,9 +23,15 @@ import type { PurchaseInvoice } from '@/types/purchases'
 
 const t = cxp.invoices
 const router = useRouter()
+const route = useRoute()
 const { canWrite } = useAccess()
+// Enlace de la campana (?sriStatus=devuelto|sin_firma): sin rango de fechas, el rechazo puede ser de cualquier mes.
+const sriStatus = computed(() => String(route.query.sriStatus ?? ''))
+const sriFilter = computed(() => t.sriFiltered[sriStatus.value])
 // Desde el 1 de enero: una factura pendiente de un mes anterior no debe quedar fuera de la vista inicial.
-const filters = reactive({ pending: false, showVoid: false, supplierId: '', from: `${todayISO().slice(0, 4)}-01-01`, to: todayISO() })
+const yearStart = () => (sriFilter.value ? '' : `${todayISO().slice(0, 4)}-01-01`)
+const filters = reactive({ pending: false, showVoid: false, supplierId: '', from: yearStart(), to: todayISO() })
+watch(sriFilter, () => (filters.from = yearStart()))
 
 const list = useList(
   (p) => purchasesService.listInvoices(p),
@@ -33,8 +41,11 @@ const list = useList(
     supplierId: filters.supplierId || undefined,
     from: filters.from || undefined,
     to: filters.to || undefined,
+    sriStatus: sriFilter.value ? sriStatus.value : undefined,
   }),
 )
+const openDue = (r: PurchaseInvoice) => (r.balance > 0 ? r.dueDate : null)
+const rowClass = (r: PurchaseInvoice) => (r.status === 'anulado' ? 'is-void' : (sriRow(r.withholding?.sriStatus) ?? overdueRow(openDue(r))))
 
 const columns: Column<PurchaseInvoice>[] = [
   { key: 'date', label: 'Fecha', format: 'date', width: '7rem' },
@@ -45,6 +56,7 @@ const columns: Column<PurchaseInvoice>[] = [
   { key: 'payable', label: 'Neto a pagar', format: 'money', total: true, help: t.columns.payable },
   { key: 'balance', label: 'Saldo', format: 'money', total: true, help: t.columns.balance },
   { key: 'dueDate', label: 'Vencimiento', format: 'date', width: '7rem' },
+  { key: 'overdue', label: 'Atraso', format: 'days-overdue', value: openDue, width: '8rem', help: t.overdue },
   { key: 'sri', label: 'Retención SRI', value: (r) => r.withholding?.sriStatus ?? '', help: t.columns.sri },
 ]
 </script>
@@ -57,6 +69,7 @@ const columns: Column<PurchaseInvoice>[] = [
         <RouterLink :to="{ name: 'NewSupplierInvoice' }" class="btn btn--primary"><AppIcon name="plus" /> {{ t.add }}</RouterLink>
       </template>
     </PageHeader>
+    <AlertBanner v-if="sriFilter" :level="sriStatus === 'devuelto' ? 'danger' : 'warning'" :title="sriFilter.title" :message="sriFilter.message" :action-label="t.clearSriFilter" :to="{ name: 'SupplierInvoices' }" />
 
     <DataTable
       :columns="columns"
@@ -70,7 +83,7 @@ const columns: Column<PurchaseInvoice>[] = [
       clickable
       landscape
       :empty-message="t.empty"
-      :row-class="(r) => (r.status === 'anulado' ? 'is-void' : undefined)"
+      :row-class="rowClass"
       @update:page="list.page = $event"
       @row-click="router.push({ name: 'SupplierInvoiceDetail', params: { id: $event._id } })"
       @retry="list.reload"
