@@ -5,6 +5,7 @@ import { printReport } from '@/composables/usePrint'
 import { useToastStore } from '@/stores/toast'
 import { bancos } from '@/config/copy/bancos'
 import { formatMoney } from '@/utils/money'
+import type { Column } from '@/components/table/columns'
 import type { ApiError } from '@/types'
 
 export function useReconciliation(id: string) {
@@ -91,14 +92,19 @@ export function useReconciliation(id: string) {
   const reopen = (reason: string) => act(() => banksService.reopenReconciliation(id, reason), bancos.rec.reopened)
   const replace = (fresh: Reconciliation) => (rec.value = fresh)
 
-  /** Reporte como el del sistema actual: Fecha | Descripción | Valor, por secciones. */
-  async function print() {
+  /**
+   * Los tres reportes del sistema anterior. 'resumen' (Conc.resum.): solo los
+   * saldos; 'detalle' (Conc.detall.): saldos con cada partida pendiente;
+   * 'anexos': todos los movimientos de la conciliación con su estado.
+   */
+  async function print(kind: 'resumen' | 'detalle' | 'anexos' = 'detalle') {
+    if (kind === 'anexos') return printAnnex()
     try {
       const r = await banksService.reconciliationReport(id)
       const c = bancos.rec.report
       const head = (description: string, amount?: number) => ({ date: '', description, amount })
       const detail = (d: typeof r.outstandingChecks) =>
-        d.items.map((i) => ({ date: i.date, description: i.description, amount: i.amount }))
+        kind === 'resumen' ? [] : d.items.map((i) => ({ date: i.date, description: i.description, amount: i.amount }))
       const rows = [
         head(c.statement, r.statementBalance),
         head(c.checks, r.outstandingChecks.total),
@@ -124,6 +130,28 @@ export function useReconciliation(id: string) {
     } catch (e) {
       toast.error((e as ApiError).message)
     }
+  }
+
+  function printAnnex() {
+    const x = rec.value
+    if (!x) return
+    const c = bancos.rec
+    const rows = x.movements.map((m) => ({ ...m, amount: m.direction === 'out' ? -m.amount : m.amount }))
+    printReport({
+      title: `${c.reports.anexosTitle} · ${x.description}`,
+      filters: [`${c.report.records}: ${rows.length}`],
+      columns: [
+        { key: 'cleared', label: c.cols.cleared, value: (m: BankMovement) => (m.cleared ? c.cleared : c.reports.pendingLabel) },
+        { key: 'type', label: c.cols.type, value: (m: BankMovement) => bancos.movType(m.type) },
+        { key: 'checkNumber', label: c.cols.check },
+        { key: 'doc', label: c.cols.doc, value: (m: BankMovement) => m.source?.docNumber ?? '' },
+        { key: 'amount', label: c.cols.amount, format: 'money' },
+        { key: 'date', label: c.cols.date, format: 'date' },
+        { key: 'description', label: c.cols.description },
+      ] as Column[],
+      rows,
+      landscape: true,
+    })
   }
 
   fetch()
