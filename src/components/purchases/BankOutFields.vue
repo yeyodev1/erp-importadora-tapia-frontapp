@@ -27,10 +27,7 @@ const nextCheck = computed(() => catalog.bankAccounts.find((b) => b._id === mode
       <BaseSegmented
         v-model="model.method"
         :label="f.method.label"
-        :options="[
-          { value: 'CHEQUE', label: 'Cheque' },
-          { value: 'TRANSFERENCIA', label: 'Transferencia' },
-        ]"
+        :options="cxp.methods"
       />
     </FormField>
     <FormField v-bind="f.date" :for="`${idPrefix}-date`" required class="narrow">
