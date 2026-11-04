@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import { salesService, type DocKind, type SriFields } from '@/services/sales.service'
 import { useRide } from '@/composables/sales/useRide'
 import { useToastStore } from '@/stores/toast'
@@ -12,38 +11,29 @@ const props = defineProps<{ kind: DocKind; row: SriFields & { _id: string; statu
 
 const toast = useToastStore()
 const { printRide, printing } = useRide()
-const retrying = ref(false)
-
 async function retry() {
-  retrying.value = true
   try {
     // La fila es el objeto reactivo del listado: se actualiza en su lugar.
     Object.assign(props.row, await salesService.retrySri(props.kind, props.row._id))
     toast.info(t.sri.retried)
   } catch (e) {
     toast.error((e as ApiError).message)
-  } finally {
-    retrying.value = false
   }
 }
 </script>
 
 <template>
   <span class="sra" @click.stop>
-    <button
+    <BaseButton
       v-if="canWrite && row.status !== 'anulado' && row.sriStatus !== 'autorizado'"
-      type="button"
-      class="btn btn--ghost btn--sm btn--icon"
+      size="sm"
+      class="btn--icon"
+      icon="send"
       :title="t.actions.retrySri"
       :aria-label="t.actions.retrySri"
-      :disabled="retrying"
-      @click="retry"
-    >
-      <AppIcon name="refresh" :spin="retrying" />
-    </button>
-    <button type="button" class="btn btn--ghost btn--sm btn--icon" :title="t.actions.rideA4" :aria-label="t.actions.rideA4" :disabled="!!printing" @click="printRide(kind, row._id, 'a4')">
-      <AppIcon name="print" />
-    </button>
+      :action="retry"
+    />
+    <BaseButton size="sm" class="btn--icon" icon="print" :title="t.actions.rideA4" :aria-label="t.actions.rideA4" :disabled="!!printing" :action="() => printRide(kind, row._id, 'a4')" />
   </span>
 </template>
 
