@@ -171,8 +171,20 @@ export const facturacion = {
     topProducts: { subtitle: 'Ranking de los productos más vendidos del período, por cantidad o por valor.', empty: 'No hay ventas con estos filtros. Revisa las fechas y pulsa Consultar.' },
     noLines: 'Esta factura no tiene líneas.',
   },
+  // `?sriStatus=` de la campana en facturas, notas de crédito y de débito.
+  sriFilter: {
+    label: 'Estado SRI',
+    options: { '': 'Todos', devuelto: 'Rechazados', sin_firma: 'Sin firma' } as Record<string, string>,
+    help: {
+      '': 'Todos los comprobantes, en cualquier estado del SRI.',
+      devuelto: 'Vigentes que el SRI devolvió o no autorizó, de cualquier fecha: lee el motivo y reintenta.',
+      sin_firma: 'Vigentes sin firmar, de cualquier fecha (falta el certificado .p12): reintenta cuando esté cargado.',
+    } as Record<string, string>,
+  },
   invoices: {
     pending: 'Solo con saldo',
+    overdue: 'Atraso',
+    overdueHelp: 'Días desde el vencimiento, solo en facturas vigentes con saldo. Fila ámbar: más de 30 días; roja: más de 90.',
     pendingHelp: 'Encendido: solo facturas que el cliente aún no paga por completo.',
     status: { all: 'Todas', vigente: 'Vigentes', anulado: 'Anuladas' },
     statusHelp: {
@@ -185,6 +197,11 @@ export const facturacion = {
     movements: 'Movimientos de cartera',
     entryHidden: 'El asiento lo ve Contabilidad.',
     stockShort: 'Supera el stock de la bodega',
+    stockShortTitle: 'Stock insuficiente',
+    stockShortMessage: (names: string) => `No alcanza el stock de la bodega para: ${names}. Una factura no se puede grabar sin stock.`,
+    overdueTitle: 'Cliente con cartera vencida',
+    overdueMessage: (count: number, amount: string, days: number) =>
+      `${count} ${count === 1 ? 'factura vencida' : 'facturas vencidas'} por ${amount}; la más atrasada, ${days} días. Revisa con Cartera antes de dar más crédito.`,
     noLines: 'Agrega al menos una línea con producto, cantidad y precio.',
     voidTitle: 'Anular factura',
     voidMessage: 'Se genera el asiento de reverso, vuelve el stock a la bodega y sale de cartera.',
