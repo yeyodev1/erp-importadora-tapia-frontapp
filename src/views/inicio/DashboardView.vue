@@ -31,25 +31,25 @@ const linkFor = (to: RouteLocationRaw) => (canView(user.role, router.resolve(to)
 const C = t.cols
 const warehouseCols: Column<MonthSales['byWarehouse'][number]>[] = [
   { key: 'name', label: C.warehouse },
-  { key: 'count', label: C.count, format: 'int', total: true },
-  { key: 'sales', label: C.sales, format: 'money', total: true },
+  { key: 'count', label: C.count, help: C.countHelp, format: 'int', total: true },
+  { key: 'sales', label: C.sales, help: C.salesHelp, format: 'money', total: true },
 ]
 const sellerCols: Column<MonthSales['bySeller'][number]>[] = [
   { key: 'sellerName', label: C.seller },
-  { key: 'count', label: C.count, format: 'int', total: true },
-  { key: 'sales', label: C.sales, format: 'money', total: true },
+  { key: 'count', label: C.count, help: C.countHelp, format: 'int', total: true },
+  { key: 'sales', label: C.sales, help: C.salesHelp, format: 'money', total: true },
 ]
 const productCols: Column<NonNullable<Dashboard['topProducts']>[number]>[] = [
   { key: 'code', label: C.code },
   { key: 'name', label: C.name },
-  { key: 'qty', label: C.qty, format: 'qty' },
-  { key: 'value', label: C.sales, format: 'money' },
+  { key: 'qty', label: C.qty, help: C.qtyHelp, format: 'qty' },
+  { key: 'value', label: C.sales, help: C.salesHelp, format: 'money' },
 ]
 const customerCols: Column<NonNullable<Dashboard['topCustomers']>[number]>[] = [
   { key: 'name', label: C.name },
-  { key: 'identification', label: 'RUC / CI' },
-  { key: 'count', label: C.count, format: 'int' },
-  { key: 'sales', label: C.sales, format: 'money' },
+  { key: 'identification', label: C.id },
+  { key: 'count', label: C.count, help: C.countHelp, format: 'int' },
+  { key: 'sales', label: C.sales, help: C.salesHelp, format: 'money' },
 ]
 
 const monthText = computed(() => (data.value ? [monthLabel(data.value.period)] : []))
@@ -59,7 +59,7 @@ const isEmpty = computed(() => data.value && !cards.value.length && !data.value.
 
 <template>
   <section class="db">
-    <PageHeader :subtitle="user.user ? `${site.login.welcome} ${user.user.name}` : undefined" />
+    <PageHeader :subtitle="user.user ? `${site.login.welcome} ${user.user.name}. ${t.subtitle}` : t.subtitle" />
     <PeriodBar id="db-month" v-model="month" :field="t.month" :loading="report.loading.value" @submit="report.run" />
 
     <EmptyState v-if="report.error.value" tone="error" :message="report.error.value" @retry="report.run" />
@@ -73,19 +73,19 @@ const isEmpty = computed(() => data.value && !cards.value.length && !data.value.
       <SalesChart v-if="data.sales" class="db__block" :series="data.sales.series" :title="t.chart.title" :empty="t.chart.empty" />
 
       <div v-if="data.sales" class="db__pair">
-        <DataTable :columns="warehouseCols" :rows="data.sales.current.byWarehouse" row-key="warehouseId" :title="t.byWarehouse" :filters-text="monthText">
+        <DataTable :columns="warehouseCols" :rows="data.sales.current.byWarehouse" row-key="warehouseId" :title="t.byWarehouse" :filters-text="monthText" :empty-message="t.emptySales">
           <template #toolbar><h2 class="db__h">{{ t.byWarehouse }}</h2></template>
         </DataTable>
-        <DataTable :columns="sellerCols" :rows="data.sales.current.bySeller" row-key="sellerName" :title="t.bySeller" :filters-text="monthText">
+        <DataTable :columns="sellerCols" :rows="data.sales.current.bySeller" row-key="sellerName" :title="t.bySeller" :filters-text="monthText" :empty-message="t.emptySales">
           <template #toolbar><h2 class="db__h">{{ t.bySeller }}</h2></template>
         </DataTable>
       </div>
 
       <div class="db__pair">
-        <DataTable v-if="data.topProducts" :columns="productCols" :rows="data.topProducts" row-key="productId" :title="`${t.topProducts} ${year}`">
+        <DataTable v-if="data.topProducts" :columns="productCols" :rows="data.topProducts" row-key="productId" :title="`${t.topProducts} ${year}`" :empty-message="t.emptyTop">
           <template #toolbar><h2 class="db__h">{{ t.topProducts }} {{ year }}</h2></template>
         </DataTable>
-        <DataTable v-if="data.topCustomers" :columns="customerCols" :rows="data.topCustomers" row-key="partyId" :title="`${t.topCustomers} ${year}`">
+        <DataTable v-if="data.topCustomers" :columns="customerCols" :rows="data.topCustomers" row-key="partyId" :title="`${t.topCustomers} ${year}`" :empty-message="t.emptyTop">
           <template #toolbar><h2 class="db__h">{{ t.topCustomers }} {{ year }}</h2></template>
         </DataTable>
       </div>
