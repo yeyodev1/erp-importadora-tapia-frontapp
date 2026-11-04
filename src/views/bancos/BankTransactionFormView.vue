@@ -4,7 +4,10 @@ import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import FormField from '@/components/ui/FormField.vue'
+import AlertBanner from '@/components/ui/AlertBanner.vue'
+import LockedDateBanner from '@/components/ui/LockedDateBanner.vue'
 import HelpTip from '@/components/ui/HelpTip.vue'
 import BaseCombobox from '@/components/ui/BaseCombobox.vue'
 import BaseDatePicker from '@/components/ui/BaseDatePicker.vue'
@@ -54,6 +57,7 @@ function onParty(p: Party | null) {
   if (p && !form.beneficiary.trim()) form.beneficiary = p.name
 }
 const onAccount = (line: BankTxLine, a: Account | null) => (line.accountName = a?.name)
+const issuesCheck = computed(() => bank.value?.kind === 'banco' && (form.type === 'CHEQUE' || (isTransfer.value && form.byCheck)))
 </script>
 
 <template>
@@ -71,6 +75,7 @@ const onAccount = (line: BankTxLine, a: Account | null) => (line.accountName = a
     </PageHeader>
 
     <form class="txf" novalidate @submit.prevent="save">
+      <LockedDateBanner :date="form.date" />
       <div class="panel panel--pad">
         <div class="form-grid">
           <FormField v-bind="t.fields.kind" class="narrow">
@@ -100,6 +105,7 @@ const onAccount = (line: BankTxLine, a: Account | null) => (line.accountName = a
           <FormField v-bind="t.fields.beneficiary" for="tx-ben" :required="form.type === 'CHEQUE'">
             <input id="tx-ben" v-model="form.beneficiary" :placeholder="t.fields.beneficiaryPlaceholder" :aria-invalid="error === t.errors.beneficiary" />
           </FormField>
+          <AlertBanner v-if="issuesCheck" level="info" icon="wallet" class="full" :title="t.checkTitle(bank?.nextCheck)" :message="t.checkMessage" />
           <FormField v-bind="t.fields.note" for="tx-note" full>
             <input id="tx-note" v-model="form.note" maxlength="200" :placeholder="t.fields.notePlaceholder" />
           </FormField>
@@ -125,9 +131,7 @@ const onAccount = (line: BankTxLine, a: Account | null) => (line.accountName = a
       <div class="txf__actions">
         <span class="txf__mayor">{{ accountingScreens.mayorizedNote }} <HelpTip :text="accountingScreens.mayorized.help" :label="accountingScreens.mayorized.label" /></span>
         <span class="txf__total num">{{ t.fields.amount.label }}: <strong>{{ formatMoney(amount) }}</strong></span>
-        <button type="submit" class="btn btn--primary" :disabled="saving">
-          <AppIcon :name="saving ? 'spinner' : 'check'" :spin="saving" /> {{ t.save }}
-        </button>
+        <BaseButton type="submit" variant="primary" icon="check" :loading="saving">{{ t.save }}</BaseButton>
       </div>
     </form>
   </section>
