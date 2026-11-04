@@ -1,0 +1,87 @@
+// Campos propios (selector, fecha, pickers) y sus paneles flotantes. Se importa una vez desde main.ts.
+
+// Disparador de los campos propios (selector, fecha): se ve igual que un input.
+.field-trigger {
+  @include flex(row, center, flex-start, 0.5rem);
+  width: 100%;
+  min-height: 2.25rem;
+  font-size: $text-base;
+  text-align: left;
+  color: $ink;
+  background: $surface;
+  border: 1px solid $line-strong;
+  border-radius: $radius-sm;
+  padding: 0.3rem 0.6rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: $ink-muted;
+  }
+
+  &:focus-visible,
+  &--open {
+    outline: none;
+    border-color: $accent;
+    box-shadow: 0 0 0 3px rgba($accent, 0.15);
+  }
+
+  &--invalid {
+    border-color: $danger;
+  }
+
+  &:disabled {
+    background: $paper;
+    color: $ink-soft;
+    pointer-events: none;
+  }
+
+  &__icon,
+  &__chevron {
+    color: $ink-muted;
+  }
+
+  &__chevron {
+    transition: transform 0.2s $ease;
+  }
+
+  &--open &__chevron {
+    transform: rotate(180deg);
+  }
+
+  &__value {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &--placeholder {
+      color: $ink-muted;
+    }
+  }
+}
+
+// Paneles flotantes teletransportados a <body> (listas, calendario, ayudas).
+.popover {
+  position: fixed;
+  z-index: 260;
+  background: $surface;
+  border: 1px solid $line;
+  border-radius: $radius-md;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+}
+
+.pop-enter-active,
+.pop-leave-active {
+  transition:
+    opacity 0.14s ease,
+    transform 0.18s $ease;
+}
+.pop-enter-from,
+.pop-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
