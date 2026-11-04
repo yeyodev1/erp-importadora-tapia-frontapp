@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import HelpTip from '@/components/ui/HelpTip.vue'
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 import BaseSwitch from '@/components/ui/BaseSwitch.vue'
@@ -91,9 +92,7 @@ async function saveNote() {
       <template #empty><p class="sr__empty">{{ t.noProposals }}</p></template>
     </DataTable>
     <div class="sr__actions">
-      <button type="button" class="btn btn--primary" :disabled="running || !accepted.size" @click="emit('confirm')">
-        <AppIcon :name="running ? 'spinner' : 'check'" :spin="running" /> {{ t.confirm }} ({{ accepted.size }})
-      </button>
+      <BaseButton variant="primary" icon="check" :loading="running" :disabled="!accepted.size" @click="emit('confirm')">{{ t.confirm }} ({{ accepted.size }})</BaseButton>
     </div>
 
     <div class="sr__head">
