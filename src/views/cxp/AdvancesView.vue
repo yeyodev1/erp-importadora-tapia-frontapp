@@ -33,19 +33,11 @@ function onSaved() {
 
 <template>
   <section class="adv">
-    <PageHeader>
+    <PageHeader :subtitle="cxp.pages.advances">
       <button v-if="canWrite" type="button" class="btn btn--primary" @click="creating = true"><AppIcon name="plus" /> {{ t.add }}</button>
     </PageHeader>
-    <BaseSegmented
-      v-model="tab"
-      tabs
-      :options="[
-        { value: 'anticipo', label: 'Anticipos' },
-        { value: 'cruce', label: 'Cruces' },
-        { value: 'devolucion', label: 'Devoluciones' },
-      ]"
-    />
-    <TransactionsTable :key="`${tab}-${version}`" :kind="tab" :can-write="canWrite" :with-open="tab === 'anticipo'">
+    <BaseSegmented v-model="tab" tabs :options="t.tabs" :label="$route.meta.title" />
+    <TransactionsTable :key="`${tab}-${version}`" :kind="tab" :can-write="canWrite" :with-open="tab === 'anticipo'" :empty-message="t.empty[tab]">
       <template #actions="{ row }">
         <template v-if="tab === 'anticipo' && row.amount > row.applied">
           <button type="button" class="btn btn--primary btn--sm" @click="apply(row, 'cross')">{{ t.cross }}</button>
