@@ -226,6 +226,14 @@ export const site = {
     // Catálogos
     activo: { label: 'Activo', tone: 'success', icon: 'dot' },
     inactivo: { label: 'Inactivo', tone: 'neutral', icon: 'dot' },
+    // Migración de datos
+    aplicado: { label: 'Aplicado', tone: 'success', icon: 'check-circle' },
+    quitado: { label: 'Quitado', tone: 'neutral', icon: 'void' },
+    nuevo: { label: 'Nuevo', tone: 'info', icon: 'plus' },
+    existente: { label: 'Ya existe', tone: 'neutral', icon: 'check' },
+    conflicto: { label: 'Conflicto', tone: 'danger', icon: 'alert-circle' },
+    se_quita: { label: 'Se quita', tone: 'warning', icon: 'trash' },
+    en_uso: { label: 'En uso', tone: 'info', icon: 'lock' },
   } as Record<string, { label: string; tone: BadgeTone; icon?: IconName }>,
 
   underConstruction: {
