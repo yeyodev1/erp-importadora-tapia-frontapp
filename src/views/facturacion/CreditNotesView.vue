@@ -42,6 +42,7 @@ const columns: Column<CreditNote>[] = [
   { key: 'date', label: c.date, format: 'date', width: '7rem' },
   { key: 'number', label: c.number, width: '10rem' },
   { key: 'partyName', label: c.customer },
+  { key: 'sellerName', label: c.seller, help: t.colHelp.seller, value: (r) => r.sellerName || '—' },
   { key: 'invoiceNumber', label: c.appliesTo, help: t.colHelp.appliesTo, width: '10rem' },
   { key: 'reason', label: c.reason },
   { key: 'returnsStock', label: c.kind, help: t.colHelp.kindNote, value: (r) => (r.returnsStock ? t.creditNotes.returns : t.creditNotes.valueOnly), width: '7rem' },
