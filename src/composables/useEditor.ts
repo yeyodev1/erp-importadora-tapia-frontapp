@@ -2,6 +2,7 @@ import { reactive } from 'vue'
 import { useToastStore } from '@/stores/toast'
 import { site } from '@/config/site'
 import type { ApiError } from '@/types'
+import { cloneData } from '@/utils/clone'
 
 /**
  * Estado del modal de crear/editar de un catálogo. Si se apaga `isActive`
@@ -40,7 +41,7 @@ export function useEditor<F extends { isActive?: boolean }>(opts: {
 
   function openEdit(id: string, value: F) {
     Object.assign(ed, { id, error: '', wasActive: value.isActive !== false, confirming: false, open: true })
-    ed.form = structuredClone(value) as typeof ed.form
+    ed.form = cloneData(value) as typeof ed.form
   }
 
   async function submit() {
