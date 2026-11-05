@@ -63,6 +63,7 @@ function onParty() {
       </FormField>
       <dl v-if="invoice" class="ncf__customer full" :aria-label="nc.customerInfo">
         <div><dt>{{ f.seller.label }}</dt><dd>{{ invoice.sellerName || '—' }}</dd></div>
+        <p v-if="invoice.sellerName" class="ncf__muted full">{{ nc.sellerCommission.replace('{seller}', invoice.sellerName) }}</p>
         <div><dt>{{ nc.address }}</dt><dd>{{ invoice.customer.address || '—' }}</dd></div>
         <div><dt>{{ nc.email }}</dt><dd>{{ invoice.customer.email || '—' }}</dd></div>
       </dl>
