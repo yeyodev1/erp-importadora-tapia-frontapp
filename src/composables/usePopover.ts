@@ -10,7 +10,10 @@ const MARGIN = 8
  * con overflow (el modal, una tabla) lo recorte. Abre hacia arriba si abajo
  * no cabe.
  */
-export function usePopover(options: { matchWidth?: boolean; width?: number } = {}) {
+/** Se avisa al abrir una lista o calendario: las ayudas (tooltips) abiertas se cierran para no quedar tapadas. */
+export const POPOVER_OPEN_EVENT = 'erp:popover-open'
+
+export function usePopover(options: { matchWidth?: boolean; width?: number; preferTop?: boolean; tooltip?: boolean } = {}) {
   const open = ref(false)
   const anchor = ref<HTMLElement | null>(null)
   const panel = ref<HTMLElement | null>(null)
@@ -26,12 +29,14 @@ export function usePopover(options: { matchWidth?: boolean; width?: number } = {
     const width = Math.min(wanted, window.innerWidth - MARGIN * 2)
     const height = panel.value.offsetHeight
 
-    let top = rect.bottom + GAP
-    let origin = 'top center'
-    if (top + height > window.innerHeight - MARGIN && rect.top - GAP - height > MARGIN) {
-      top = rect.top - GAP - height
-      origin = 'bottom center'
-    }
+    const below = rect.bottom + GAP
+    const above = rect.top - GAP - height
+    // Las ayudas van arriba: abajo está el campo que la persona está llenando.
+    const fitsAbove = above > MARGIN
+    const fitsBelow = below + height <= window.innerHeight - MARGIN
+    const useTop = options.preferTop ? fitsAbove || !fitsBelow : !fitsBelow && fitsAbove
+    const top = useTop ? above : below
+    const origin = useTop ? 'bottom center' : 'top center'
     const left = Math.min(Math.max(rect.left, MARGIN), window.innerWidth - width - MARGIN)
 
     style.value = { top: `${top}px`, left: `${left}px`, width: `${width}px`, transformOrigin: origin }
@@ -69,6 +74,7 @@ export function usePopover(options: { matchWidth?: boolean; width?: number } = {
   watch(open, async (value) => {
     listen(value)
     if (!value) return
+    if (!options.tooltip) window.dispatchEvent(new Event(POPOVER_OPEN_EVENT))
     style.value = HIDDEN
     await nextTick()
     place()
