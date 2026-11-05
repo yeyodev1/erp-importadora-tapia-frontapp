@@ -223,9 +223,16 @@ export const accounting = {
   },
 
   importChart: {
-    intro: 'Pega o sube el plan en CSV "código;nombre;tipo" (tipo: mayor o movimiento). Nunca borra cuentas: crea las que faltan y actualiza nombre y tipo.',
+    intro: 'Sube el "Plan de cuentas" de Macio en Excel (.xls o .xlsx) o pega un CSV "código;nombre;tipo" (tipo: mayor o movimiento). Crea las cuentas que faltan y actualiza nombre y tipo.',
     csv: { label: 'Plan de cuentas (CSV)', help: 'Una cuenta por línea: 1.1.01;CAJA;mayor. La primera línea puede ser el encabezado.' },
-    upload: 'Subir archivo',
+    upload: 'Subir Excel o CSV',
+    reading: 'Leyendo el Excel…',
+    fromExcel: 'Cuentas leídas del Excel',
+    notChart: 'Este Excel no parece un plan de cuentas: no se encontró ninguna fila con código de cuenta.',
+    replace: { label: 'Reemplazar el plan actual', help: 'Quita las cuentas que no vienen en el archivo, solo si nada las usa (asientos, mapa de cuentas, grupos, bancos, retenciones). Las usadas se quedan y verás por qué.' },
+    toRemove: 'Cuentas que se quitan',
+    kept: 'Cuentas que no vienen en el archivo pero se quedan',
+    reason: 'Por qué se queda',
     preview: 'Previsualizar',
     apply: 'Aplicar cambios',
     applied: 'Plan de cuentas actualizado',
@@ -237,7 +244,7 @@ export const accounting = {
     invalid: 'Con errores',
     kind: 'Tipo',
     before: 'Antes',
-    applyMessage: 'Se crean {create} cuentas y se actualizan {update}. Ninguna se borra.',
+    applyMessage: 'Se crean {create} cuentas, se actualizan {update} y se quitan {remove}.',
     applySecond: 'Confírmalo otra vez para aplicar el plan.',
   },
 }
