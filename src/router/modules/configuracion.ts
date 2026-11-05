@@ -34,6 +34,14 @@ export default defineModule('configuracion', [
     adminOnly: true,
   },
   {
+    path: 'migracion',
+    name: 'Migration',
+    title: 'Migración de datos',
+    section: 'general',
+    component: () => import('@/views/configuracion/MigrationView.vue'),
+    adminOnly: true,
+  },
+  {
     path: 'plan-de-cuentas',
     name: 'Accounts',
     title: 'Plan de cuentas',
