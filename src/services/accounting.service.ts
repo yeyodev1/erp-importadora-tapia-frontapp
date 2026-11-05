@@ -160,8 +160,12 @@ export interface ChartImportResult {
   toCreate: ChartRow[]
   toUpdate: ChartRow[]
   unchanged: number
+  /** Con "reemplazar": cuentas que no vienen en el archivo y nada usa (se quitan) y las que se quedan con su motivo. */
+  toRemove: ChartRow[]
+  kept: (ChartRow & { reason: string })[]
   created?: number
   updated?: number
+  removed?: number
 }
 
 class AccountingService extends APIBase {
@@ -195,8 +199,8 @@ class AccountingService extends APIBase {
     return (await this.post<{ reversal: JournalEntry; lockedThrough: string }>(`accounting/year-close/${year}/reopen`, { reason })).data
   }
 
-  async importChart(csv: string, mode: 'preview' | 'apply') {
-    return (await this.post<ChartImportResult>('accounting/chart/import', { csv, mode })).data
+  async importChart(csv: string, mode: 'preview' | 'apply', removeMissing = false) {
+    return (await this.post<ChartImportResult>('accounting/chart/import', { csv, mode, removeMissing }, undefined, { timeout: 120000 })).data
   }
 }
 
