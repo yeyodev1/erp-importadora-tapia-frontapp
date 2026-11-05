@@ -16,6 +16,7 @@ export type ModuleKey =
   | 'cxc'
   | 'impuestos'
   | 'inventario'
+  | 'nomina'
   | 'configuracion'
 
 export type BadgeTone = 'neutral' | 'success' | 'warning' | 'danger' | 'info'
@@ -43,6 +44,7 @@ export const site = {
     { key: 'cxc', label: 'Cuentas por Cobrar', icon: 'receivables' },
     { key: 'impuestos', label: 'Impuestos', icon: 'taxes' },
     { key: 'inventario', label: 'Inventario', icon: 'inventory' },
+    { key: 'nomina', label: 'Nómina', icon: 'payroll' },
     { key: 'configuracion', label: 'Configuración', icon: 'settings' },
   ] as { key: ModuleKey; label: string; icon: IconName }[],
 
@@ -217,6 +219,7 @@ export const site = {
     pagada: { label: 'Pagada', tone: 'success', icon: 'check-circle' },
     facturada: { label: 'Facturada', tone: 'success', icon: 'invoice' },
     // Conciliación / períodos
+    borrador: { label: 'Borrador', tone: 'warning', icon: 'pen' },
     abierta: { label: 'Abierta', tone: 'warning', icon: 'unlock' },
     cerrada: { label: 'Cerrada', tone: 'neutral', icon: 'lock' },
     // Cheques
