@@ -85,6 +85,24 @@ export const migration = {
     toImport: 'Proveedores a importar',
   },
 
+  supplierExcel: {
+    title: 'Listado de proveedores (Excel)',
+    help: 'El "Reporte de Proveedores por tipo" de Macio exportado a Excel (.xls o .xlsx). Cada RUC queda como proveedor; si ya es cliente, se marca también proveedor y se completan sus datos vacíos.',
+    upload: 'Subir Excel',
+    reading: 'Leyendo el Excel…',
+    notSuppliers: 'Este Excel no parece el listado de proveedores de Macio: no se encontró la columna "Identificación".',
+    apply: 'Importar',
+    applyTitle: 'Importar el listado de proveedores',
+    applyMessage: 'Se crean {toCreate} proveedores nuevos y se marcan {toMark} terceros que ya existían (clientes) como proveedor.',
+    applySecond: 'Queda en un lote del historial y se puede quitar. ¿Importar ahora?',
+    applied: 'Proveedores importados',
+    toImport: 'Proveedores a importar',
+    already: 'Ya eran proveedores',
+    problems: 'Identificaciones a revisar',
+    skipped: 'Filas que no se importan',
+    file: 'Archivo',
+  },
+
   demo: {
     title: 'Datos de ejemplo',
     help: 'Terceros con "EJEMPLO" en el nombre y los 6 productos de prueba del arranque. Solo se quita lo que ningún documento usa.',
@@ -115,7 +133,7 @@ export const migration = {
       total: f('Cartera', 'Saldo inicial de cartera cargado.'),
       status: f('Estado', 'Aplicado: está en el sistema. Quitado: se deshizo.'),
     },
-    sources: { macio: 'Macio', proveedores: 'App de Proveedores' } as Record<string, string>,
+    sources: { macio: 'Macio', proveedores: 'App de Proveedores', 'proveedores-excel': 'Listado de proveedores (Excel)' } as Record<string, string>,
   },
 
   noticesTitle: 'Antes de importar',
