@@ -23,6 +23,7 @@ export const accounting = {
     BANCO: 'Banco',
     INVENTARIO: 'Inventario',
     CIERRE: 'Cierre',
+    NOMINA: 'Nómina',
     REVERSO: 'Reverso',
   } as Record<string, string>,
 
@@ -33,6 +34,7 @@ export const accounting = {
     cxp: 'Cuentas por Pagar',
     bancos: 'Caja Bancos',
     inventario: 'Inventario',
+    nomina: 'Nómina',
   } as Record<string, string>,
 
   common: {
