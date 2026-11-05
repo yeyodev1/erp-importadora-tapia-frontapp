@@ -1,0 +1,88 @@
+import type { Department, LoanType } from '@/types/payroll'
+
+/** Copy de Nómina: ficha del trabajador, préstamos y rol de pagos. Montos en centavos. */
+export const nomina = {
+  departments: { administracion: 'Administración', ventas: 'Ventas' } as Record<Department, string>,
+  departmentHints: {
+    administracion: 'Gasto en 5.2.02 (nómina administrativa)',
+    ventas: 'Gasto en 5.2.01 (nómina de ventas)',
+  } as Record<Department, string>,
+  loanTypes: { interno: 'Interno', quirografario: 'Quirografario IESS', hipotecario: 'Hipotecario IESS' } as Record<LoanType, string>,
+  loanTypeHints: {
+    interno: 'La empresa le prestó el dinero: se descuenta la cuota hasta saldar.',
+    quirografario: 'Préstamo personal del IESS: la planilla del IESS dice la cuota del mes.',
+    hipotecario: 'Préstamo de vivienda del IESS (BIESS): la planilla del IESS dice la cuota.',
+  } as Record<LoanType, string>,
+
+  employees: {
+    subtitle: 'Ficha de cada trabajador: datos personales, cargo, sueldo y cómo se le pagan comisiones y fondos de reserva.',
+    add: 'Nuevo empleado',
+    newTitle: 'Nuevo empleado',
+    editTitle: 'Ficha del trabajador',
+    empty: 'Aún no hay empleados. Crea el primero con "Nuevo empleado".',
+    search: 'Nombre, cédula o cargo',
+    personal: 'Datos personales',
+    job: 'Trabajo y sueldo',
+    partyNote: 'Se usa el tercero de la misma cédula (o se crea uno marcado como empleado): cheques y anticipos quedan en él.',
+    fields: {
+      identification: { label: 'Cédula', help: '10 dígitos con dígito verificador válido. No se cambia después: ata la ficha a su tercero. Ej.: 0912345678.' },
+      firstName: { label: 'Nombres', help: 'Ej.: María José.' },
+      lastName: { label: 'Apellidos', help: 'Ej.: Tapia Tapia.' },
+      address: { label: 'Dirección', help: 'Domicilio del trabajador. Ej.: Cdla. Alborada 5ta etapa, Mz 12 V 3.' },
+      phone: { label: 'Teléfono', help: 'Celular o fijo. Ej.: 0991234567.' },
+      email: { label: 'Correo', help: 'Para enviarle su rol. Ej.: maria@correo.com.' },
+      hireDate: { label: 'Fecha de ingreso', help: 'Primer día de trabajo. Desde aquí cuenta el año para los fondos de reserva y los días del primer rol.' },
+      department: { label: 'Departamento', help: 'Decide la cuenta de gasto: Ventas va a 5.2.01 y Administración a 5.2.02.' },
+      position: { label: 'Cargo', help: 'Ej.: Vendedor, Bodeguero, Contadora.' },
+      salary: { label: 'Sueldo mensual', help: 'Sueldo de 30 días, sin comisiones ni extras. No puede ser menor al SBU si trabaja tiempo completo. Ej.: 470,00.' },
+      sellerName: { label: 'Vendedor (comisiones)', help: 'Nombre del vendedor tal como sale en las facturas. Si se llena, el rol trae la comisión del reporte de comisiones del mes. Ej.: RUBEN PALMA.' },
+      commissionRate: { label: 'Comisión %', help: 'Porcentaje sobre lo cobrado en el mes por ese vendedor. Ej.: 2 = 2 %.' },
+      reserveFundMonthly: { label: 'Fondo de reserva mensual', help: 'Encendido: el 8,33 % se paga en el rol cada mes. Apagado: se acumula en el IESS. Aplica desde el primer año de trabajo.' },
+      isActive: { label: 'Activo', help: 'Apagado: deja de salir en los roles nuevos (el mes de su salida sí sale).' },
+      exitDate: { label: 'Fecha de salida', help: 'Último día de trabajo. El rol de ese mes cuenta los días hasta esa fecha.' },
+    },
+    ph: {
+      identification: '0912345678',
+      firstName: 'Nombres',
+      lastName: 'Apellidos',
+      address: 'Dirección del domicilio',
+      phone: '0991234567',
+      email: 'correo@ejemplo.com',
+      position: 'Vendedor',
+      sellerName: 'RUBEN PALMA',
+      commissionRate: '0',
+    },
+    cols: {
+      name: { label: 'Apellidos y nombres' },
+      department: { label: 'Departamento', help: 'Ventas va al gasto 5.2.01; Administración a 5.2.02.' },
+      salary: { label: 'Sueldo', help: 'Sueldo mensual de 30 días.' },
+      hireDate: { label: 'Ingreso', help: 'Fecha de ingreso: desde el año cumplido cobra fondos de reserva.' },
+      status: { label: 'Estado', help: 'Inactivo: ya no sale en los roles nuevos.' },
+    },
+  },
+
+  loans: {
+    subtitle: 'Préstamos que se descuentan en el rol: internos (la empresa prestó) y del IESS (quirografario e hipotecario).',
+    add: 'Nuevo préstamo',
+    newTitle: 'Nuevo préstamo',
+    editTitle: 'Préstamo',
+    empty: 'Sin préstamos. Crea uno con "Nuevo préstamo".',
+    disbursementNote: 'El préstamo interno no mueve dinero aquí: el cheque o la transferencia al empleado se registra en Caja Bancos contra 1.1.02.08.02.001 Préstamos a los Empleados.',
+    fields: {
+      employeeId: { label: 'Empleado', help: 'A quién se le descuenta.' },
+      type: { label: 'Tipo', help: 'Interno: la empresa prestó. Quirografario e hipotecario: préstamos del IESS que la planilla manda descontar.' },
+      date: { label: 'Desde', help: 'Primer mes en que se descuenta: el rol de un mes que termina antes no lo toma.' },
+      description: { label: 'Detalle', help: 'Ej.: Préstamo para calamidad doméstica, 6 cuotas.' },
+      total: { label: 'Monto prestado', help: 'Lo que la empresa entregó. En los del IESS es opcional (informativo).' },
+      installment: { label: 'Cuota mensual', help: 'Lo que se descuenta cada mes. Nunca pasa del saldo pendiente.' },
+      balance: { label: 'Saldo pendiente', help: 'Interno: vacío = el monto prestado. IESS: opcional; vacío = se descuenta la cuota cada mes mientras esté activo. Al aprobar un rol baja; al anularlo vuelve.' },
+      isActive: { label: 'Activo', help: 'Apagado: ya no se descuenta.' },
+    },
+    cols: {
+      employee: { label: 'Empleado' },
+      type: { label: 'Tipo', help: 'Interno, quirografario IESS o hipotecario IESS.' },
+      installment: { label: 'Cuota', help: 'Descuento mensual en el rol.' },
+      balance: { label: 'Saldo', help: 'Lo que falta descontar. "—": préstamo del IESS sin saldo registrado.' },
+    },
+  },
+}
