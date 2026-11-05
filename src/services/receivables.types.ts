@@ -180,7 +180,27 @@ export interface WithholdingsReport {
 
 export interface CommissionsReport {
   rate: number
-  items: { sellerName: string; collected: number; rate: number; commission: number }[]
+  items: {
+    sellerName: string
+    collected: number
+    /** NC emitidas en el rango a clientes del vendedor: se restan de lo cobrado. */
+    creditNotes: CommissionCreditNote[]
+    credited: number
+    base: number
+    rate: number
+    commission: number
+  }[]
   collected: number
+  credited: number
+  base: number
   commission: number
+}
+
+export interface CommissionCreditNote {
+  number: string
+  date: string
+  invoiceNumber: string
+  customerName: string
+  amount: number
+  reason: string
 }
