@@ -119,6 +119,33 @@ export const ACCOUNT_MAP_KEYS = [
   'salesDiscounts',
   'yearResult',
   'retainedEarnings',
+  'payrollSalesSalaries',
+  'payrollSalesOvertime',
+  'payrollSalesCommissions',
+  'payrollSalesEmployerIess',
+  'payrollSalesSecapIece',
+  'payrollSalesReserveFund',
+  'payrollSalesThirteenth',
+  'payrollSalesFourteenth',
+  'payrollSalesVacation',
+  'payrollAdminSalaries',
+  'payrollAdminOvertime',
+  'payrollAdminCommissions',
+  'payrollAdminEmployerIess',
+  'payrollAdminSecapIece',
+  'payrollAdminReserveFund',
+  'payrollAdminThirteenth',
+  'payrollAdminFourteenth',
+  'payrollAdminVacation',
+  'payrollIessPersonal',
+  'payrollIessPayable',
+  'payrollNetPayable',
+  'payrollThirteenthProvision',
+  'payrollFourteenthProvision',
+  'payrollVacationProvision',
+  'payrollReserveFundProvision',
+  'employeeLoans',
+  'payrollOtherDeductions',
 ] as const
 export type AccountMapKey = (typeof ACCOUNT_MAP_KEYS)[number]
 
@@ -137,6 +164,8 @@ export interface Settings {
   accounts: Record<AccountMapKey, string>
   /** Último mes cerrado "AAAA-MM": nada se graba en o antes de él. */
   lockedThrough: string | null
+  /** SBU (centavos) y tasas de la nómina en %. */
+  payroll: import('./payroll').PayrollRates
 }
 
 export interface ErpUser {
