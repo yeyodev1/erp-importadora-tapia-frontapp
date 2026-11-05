@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import MacioCard from '@/components/migration/MacioCard.vue'
 import SuppliersCard from '@/components/migration/SuppliersCard.vue'
+import SupplierExcelCard from '@/components/migration/SupplierExcelCard.vue'
 import DemoCard from '@/components/migration/DemoCard.vue'
 import BatchHistory from '@/components/migration/BatchHistory.vue'
 import { migration } from '@/config/copy/migration'
@@ -17,6 +18,7 @@ const refresh = () => history.value?.reload()
     <PageHeader :subtitle="migration.intro" />
     <MacioCard @imported="refresh" />
     <div class="mig__cards">
+      <SupplierExcelCard @imported="refresh" />
       <SuppliersCard @imported="refresh" />
       <DemoCard />
     </div>
