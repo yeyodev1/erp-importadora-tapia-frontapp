@@ -76,6 +76,9 @@ export interface CreditNote extends SriFields, Totals {
   partyId: string
   /** Lo agrega el listado del API (la NC guarda solo partyId). */
   partyName?: string
+  customerName?: string
+  /** Vendedor del cliente al emitir: la NC se rebaja de sus comisiones. */
+  sellerName?: string
   date: string
   reason: string
   returnsStock: boolean
