@@ -1,4 +1,5 @@
 import type { AccountMapKey } from '@/types'
+import { accountMapPayroll } from './accountMapPayroll'
 
 /**
  * Mapa contable: a qué cuenta va cada concepto que generan los módulos.
@@ -18,6 +19,7 @@ export const accountMap = {
     { title: 'Cobros y bancos', keys: ['postdatedChecks', 'depositsInTransit'] },
     { title: 'Inventario y ventas', keys: ['inventoryAdjustment', 'salesDiscounts'] },
     { title: 'Cierre del año', keys: ['yearResult', 'retainedEarnings'] },
+    ...accountMapPayroll.groups,
   ] as { title: string; keys: AccountMapKey[] }[],
   keys: {
     customers: {
@@ -78,5 +80,6 @@ export const accountMap = {
       label: 'Utilidades acumuladas',
       help: 'A dónde pasa la utilidad o pérdida de años anteriores. Ej.: 3.1.01.01.01.001 Utilidades Acumuladas.',
     },
+    ...accountMapPayroll.keys,
   } as Record<AccountMapKey, { label: string; help: string }>,
 }
