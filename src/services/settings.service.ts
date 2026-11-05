@@ -1,5 +1,5 @@
 import APIBase from './httpBase'
-import type { AccountMapKey, ErpUser, Role, Settings } from '@/types'
+import type { AccountMapKey, ErpUser, PayrollRates, Role, Settings } from '@/types'
 
 export interface UserInput {
   email: string
@@ -17,8 +17,8 @@ class SettingsService extends APIBase {
     return data
   }
 
-  /** Empresa, ambiente SRI y/o mapa contable (el API valida que las cuentas sean de movimiento). */
-  async save(body: { company?: Settings['company']; sriEnvironment?: 1 | 2; accounts?: Partial<Record<AccountMapKey, string>> }) {
+  /** Empresa, ambiente SRI, mapa contable y/o SBU y tasas de nómina (el API valida que las cuentas sean de movimiento). */
+  async save(body: { company?: Settings['company']; sriEnvironment?: 1 | 2; accounts?: Partial<Record<AccountMapKey, string>>; payroll?: PayrollRates }) {
     const { data } = await this.put<Settings>('settings', body)
     return data
   }
