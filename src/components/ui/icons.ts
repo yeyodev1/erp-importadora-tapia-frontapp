@@ -53,6 +53,7 @@ export const icons = {
   receivables: 'fa-solid fa-hand-holding-dollar',
   taxes: 'fa-solid fa-percent',
   inventory: 'fa-solid fa-boxes-stacked',
+  payroll: 'fa-solid fa-user-tie',
   settings: 'fa-solid fa-gear',
 
   // Secciones de cada módulo
@@ -103,6 +104,9 @@ export const icons = {
   truck: 'fa-solid fa-truck',
   trophy: 'fa-solid fa-trophy',
   handshake: 'fa-solid fa-handshake',
+  'id-card': 'fa-solid fa-id-card',
+  coins: 'fa-solid fa-coins',
+  'sack-dollar': 'fa-solid fa-sack-dollar',
 } as const
 
 export type IconName = keyof typeof icons
