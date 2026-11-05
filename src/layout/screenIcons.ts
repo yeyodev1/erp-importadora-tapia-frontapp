@@ -23,6 +23,7 @@ const BY_SEGMENT: Record<string, IconName> = {
   'cierre-meses': 'calendar-check',
   'cierre-anual': 'lock',
   usuarios: 'users',
+  migracion: 'file-import',
   'plan-de-cuentas': 'sitemap',
   'importar-plan': 'file-import',
   'importar-xml': 'file-import',
