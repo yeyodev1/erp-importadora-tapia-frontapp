@@ -65,6 +65,9 @@ const BY_SEGMENT: Record<string, IconName> = {
   kardex: 'layers',
   negativos: 'trend-down',
   'bajo-minimo': 'alert',
+  empleados: 'id-card',
+  prestamos: 'coins',
+  'rol-pagos': 'sack-dollar',
 }
 
 /** El mismo tramo significa otra cosa en otro módulo: las facturas de CxP son de proveedores. */
