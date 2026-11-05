@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { usePopover } from '@/composables/usePopover'
+import { onBeforeUnmount, onMounted } from 'vue'
+import { POPOVER_OPEN_EVENT, usePopover } from '@/composables/usePopover'
 import { site } from '@/config/site'
 import AppIcon from './AppIcon.vue'
 
@@ -9,9 +10,17 @@ import AppIcon from './AppIcon.vue'
  */
 defineProps<{ text: string; label?: string }>()
 
-const tip = usePopover({ width: 260 })
+const tip = usePopover({ width: 260, preferTop: true, tooltip: true })
 const { open, style } = tip
 let timer: ReturnType<typeof setTimeout> | undefined
+
+// Si se abre una lista o un calendario, la ayuda se cierra: nunca queda tapada a medias.
+const close = () => {
+  clearTimeout(timer)
+  open.value = false
+}
+onMounted(() => window.addEventListener(POPOVER_OPEN_EVENT, close))
+onBeforeUnmount(() => window.removeEventListener(POPOVER_OPEN_EVENT, close))
 
 function show() {
   clearTimeout(timer)
@@ -47,7 +56,7 @@ function onPointerEnter(event: PointerEvent) {
   </button>
   <Teleport to="body">
     <Transition name="pop">
-      <div v-if="open" :ref="tip.panel" role="tooltip" class="popover help__bubble" :style="style" @pointerenter="show" @pointerleave="hide">
+      <div v-if="open" :ref="tip.panel" role="tooltip" class="popover help__bubble" :style="style">
         {{ text }}
       </div>
     </Transition>
@@ -79,6 +88,9 @@ function onPointerEnter(event: PointerEvent) {
 }
 
 .help__bubble {
+  // Encima de cualquier lista o calendario, y sin atrapar el mouse (no se queda pegada).
+  z-index: 400;
+  pointer-events: none;
   padding: 0.6rem 0.75rem;
   font-size: $text-sm;
   line-height: 1.45;
