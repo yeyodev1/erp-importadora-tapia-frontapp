@@ -1,4 +1,5 @@
 import { onMounted, ref, type Ref } from 'vue'
+import { cloneData } from '@/utils/clone'
 import { settingsService } from '@/services/settings.service'
 import { useCatalogStore } from '@/stores/catalog'
 import { useToastStore } from '@/stores/toast'
@@ -22,7 +23,7 @@ export function useSettingsForm<F>(pick: (s: Settings) => F, toBody: (f: F) => P
     error.value = ''
     try {
       await catalog.invalidate('settings')
-      form.value = structuredClone(pick(catalog.settings!))
+      form.value = cloneData(pick(catalog.settings!))
     } catch (e) {
       error.value = (e as ApiError).message
     } finally {
@@ -37,7 +38,7 @@ export function useSettingsForm<F>(pick: (s: Settings) => F, toBody: (f: F) => P
     error.value = ''
     try {
       catalog.settings = await settingsService.save(toBody(form.value))
-      form.value = structuredClone(pick(catalog.settings))
+      form.value = cloneData(pick(catalog.settings))
       toast.success(site.common.saved)
     } catch (e) {
       error.value = (e as ApiError).message
