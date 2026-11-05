@@ -35,3 +35,4 @@ export interface ComboOption {
 }
 
 export * from './catalog'
+export * from './migration'
