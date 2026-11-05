@@ -1,5 +1,6 @@
 import APIBase from './httpBase'
-import type { DemoPreview, ImportBatch, MacioApplyResult, MacioPreview, SuppliersPreview } from '@/types'
+import type { DemoPreview, ImportBatch, MacioApplyResult, MacioPreview, SupplierListPreview, SuppliersPreview } from '@/types'
+import type { SupplierCells } from '@/utils/macioExcel'
 
 /** Migración de datos (solo gerencia). Importar y quitar graban miles de registros: más plazo que el normal. */
 const LONG = { timeout: 120000 }
@@ -23,6 +24,14 @@ class MigrationService extends APIBase {
 
   suppliersApply() {
     return this.send<{ batch: ImportBatch }>('proveedores/apply')
+  }
+
+  supplierListPreview(rows: SupplierCells[]) {
+    return this.send<SupplierListPreview>('proveedores-excel/preview', { rows })
+  }
+
+  supplierListApply(rows: SupplierCells[]) {
+    return this.send<{ batch: ImportBatch }>('proveedores-excel/apply', { rows })
   }
 
   demoPreview() {
