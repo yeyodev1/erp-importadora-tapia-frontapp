@@ -48,7 +48,7 @@ export interface MacioPreview {
 export interface ImportBatch {
   _id: string
   number: string
-  source: 'macio' | 'proveedores'
+  source: 'macio' | 'proveedores' | 'proveedores-excel'
   status: 'aplicado' | 'quitado'
   counts: Record<string, number>
   totals: Record<string, number>
@@ -80,6 +80,14 @@ export interface SuppliersPreview {
   photos: { name: string; code: string; url: string }[]
   photosSkipped: { name: string; reason: string }[]
   counts: Record<'suppliers' | 'marked' | 'withoutRuc' | 'photos' | 'photosSkipped', number>
+  canApply: boolean
+}
+
+export interface SupplierListPreview {
+  suppliers: { line: number; name: string; identification: string; status: 'nuevo' | 'existente' }[]
+  problems: { line: number; name: string; identification: string; reason: string }[]
+  skipped: { line: number; name: string; identification: string; reason: string }[]
+  counts: Record<'toCreate' | 'toMark' | 'already' | 'problems' | 'skipped', number>
   canApply: boolean
 }
 
