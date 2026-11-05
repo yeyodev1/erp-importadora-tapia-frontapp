@@ -17,6 +17,7 @@ const ALL: ModuleKey[] = [
   'cxc',
   'impuestos',
   'inventario',
+  'nomina',
   'configuracion',
 ]
 const every = (access: Access) => Object.fromEntries(ALL.map((m) => [m, access])) as Record<ModuleKey, Access>
