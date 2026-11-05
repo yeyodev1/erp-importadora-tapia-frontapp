@@ -69,6 +69,7 @@ export const facturacion = {
   totals: { subtotal0: 'Base cero', subtotalVat: 'Base imponible', count: 'No. registros', discount: 'Descuento', vat: 'IVA', total: 'Total', balance: 'Saldo' },
   /** (?) de los encabezados que no son obvios. */
   colHelp: {
+    seller: 'Vendedor del cliente cuando se emitió la NC: se le rebaja de sus comisiones del mes.',
     subtotal0: 'Base cero (tarifa 0 %): lo vendido que no paga IVA, ya restado el descuento.',
     subtotalVat: 'Base imponible (tarifa 15 %): lo vendido que paga IVA, ya restado el descuento.',
     series: 'Establecimiento y punto de emisión: 001-001 es Guayaquil y 002-001 Quito.',
@@ -228,6 +229,7 @@ export const facturacion = {
     number: f('Número', 'Número de la factura. Escribe parte del número; solo salen las vigentes con saldo. Ej.: 12190.'),
     balance: f('Saldo', 'Lo que el cliente aún debe de esa factura antes de esta nota.'),
     customerInfo: 'Datos del cliente en la factura',
+    sellerCommission: 'Esta nota de crédito se rebaja de las comisiones de {seller} en el mes en que se emite.',
     address: 'Dirección',
     email: 'Email',
   },
